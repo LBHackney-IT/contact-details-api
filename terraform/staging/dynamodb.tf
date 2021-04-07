@@ -11,6 +11,11 @@ resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
         type              = "S"
     }
 
+    attribute {
+        name              = "targetId"
+        type              = "S"
+    }
+
     tags = {
         Name              = "contact-details-api-${var.environment_name}"
         Environment       = var.environment_name

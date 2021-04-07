@@ -1,5 +1,5 @@
 resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
-    name                  = "contact-details"
+    name                  = "Contact Details"
     billing_mode          = "PROVISIONED"
     read_capacity         = 10
     write_capacity        = 10
@@ -12,8 +12,14 @@ resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
         type              = "S"
     }
 
+    
+    attribute {
+        name              = "targetId"
+        type              = "S"
+    }
+
     tags = {
-        Name              = "contactDetails-api-${var.environment_name}"
+        Name              = "contact-details-api-${var.environment_name}"
         Environment       = var.environment_name
         terraform-managed = true
         project_name      = var.project_name
