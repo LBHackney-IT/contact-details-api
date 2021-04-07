@@ -4,19 +4,19 @@ setup:
 
 .PHONY: build
 build:
-	docker-compose build base-api
+	docker-compose build contact-details-api
 
 .PHONY: serve
 serve:
-	docker-compose build base-api && docker-compose up base-api
+	docker-compose build contact-details-api && docker-compose up contact-details-api
 
 .PHONY: shell
 shell:
-	docker-compose run base-api bash
+	docker-compose run contact-details-api bash
 
 .PHONY: test
 test:
-	docker-compose up test-database & docker-compose build base-api-test && docker-compose up base-api-test
+	docker-compose up test-database & docker-compose build contact-details-api-test && docker-compose up contact-details-api-test
 
 .PHONY: lint
 lint:
