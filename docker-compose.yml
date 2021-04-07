@@ -7,20 +7,15 @@ services:
       context: ContactDetailsApi/
       dockerfile: ./Dockerfile
     ports:
-      - 3000:3000
+     - 3000:3000
+    environment:
      - DynamoDb_LocalMode=true
      - DynamoDb_LocalServiceUrl=http://dynamodb-database:8000
      - AWS_REGION=eu-west-2
      - AWS_ACCESS_KEY_ID=local
      - AWS_SECRET_ACCESS_KEY=local
     links:
-      - dev-database
-  dev-database:
-    env_file:
-      - database.env
-    image: postgres:12
-    volumes:
-      - ./database:/docker-entrypoint-initdb.d
+      - dynamodb-database
 
   contact-details-api-test:
     image: contact-details-api-test
