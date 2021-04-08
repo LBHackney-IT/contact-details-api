@@ -16,10 +16,10 @@ namespace ContactDetailsApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<ContactDetailsResponseObject> Execute(ContactQueryParameter cqr)
+        public async Task<ContactDetailsResponseObject> Execute(ContactQueryParameter cqp)
         {
 
-            var contactResponse = await _gateway.GetEntityById(cqr.TargetId).ConfigureAwait(false);
+            var contactResponse = await _gateway.GetEntityById(cqp.TargetId).ConfigureAwait(false);
             return contactResponse.ToResponse();
         }
     }

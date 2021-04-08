@@ -31,11 +31,11 @@ namespace ContactDetailsApi.V1.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter cqr)
+        public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter cqp)
         {
 
-            var contact = await _getByIdUseCase.Execute(cqr).ConfigureAwait(false);
-            if (null == contact) return NotFound(cqr);
+            var contact = await _getByIdUseCase.Execute(cqp).ConfigureAwait(false);
+            if (null == contact) return NotFound(cqp);
 
             return Ok(contact);
         }
