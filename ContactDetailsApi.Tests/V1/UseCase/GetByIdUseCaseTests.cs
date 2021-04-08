@@ -7,13 +7,13 @@ namespace ContactDetailsApi.Tests.V1.UseCase
 {
     public class GetByIdUseCaseTests
     {
-        private Mock<IExampleGateway> _mockGateway;
+        private Mock<IContactDetailsGateway> _mockGateway;
         private GetByIdUseCase _classUnderTest;
 
         [SetUp]
         public void SetUp()
         {
-            _mockGateway = new Mock<IExampleGateway>();
+            _mockGateway = new Mock<IContactDetailsGateway>();
             _classUnderTest = new GetByIdUseCase(_mockGateway.Object);
         }
 

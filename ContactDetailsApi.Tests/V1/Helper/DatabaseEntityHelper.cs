@@ -1,25 +1,17 @@
 using AutoFixture;
 using ContactDetailsApi.V1.Domain;
+using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 
 namespace ContactDetailsApi.Tests.V1.Helper
 {
     public static class DatabaseEntityHelper
     {
-        public static DatabaseEntity CreateDatabaseEntity()
+        public static ContactDetailsEntity CreateDatabaseEntity()
         {
-            var entity = new Fixture().Create<Entity>();
+            var entity = new Fixture().Create<ContactDetails>();
 
-            return CreateDatabaseEntityFrom(entity);
-        }
-
-        public static DatabaseEntity CreateDatabaseEntityFrom(Entity entity)
-        {
-            return new DatabaseEntity
-            {
-                Id = entity.Id,
-                CreatedAt = entity.CreatedAt,
-            };
+            return entity.ToDatabase();
         }
     }
 }

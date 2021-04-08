@@ -11,6 +11,6 @@ namespace ContactDetailsApi.V1.Infrastructure
         {
         }
 
-        public DbSet<DatabaseEntity> DatabaseEntities { get; set; }
+        public DbSet<ContactDetailsEntity> DatabaseEntities { get; set; }
     }
 }

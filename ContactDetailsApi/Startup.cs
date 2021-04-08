@@ -149,12 +149,11 @@ namespace ContactDetailsApi
         private static void RegisterGateways(IServiceCollection services)
         {
 
-            services.AddScoped<IExampleGateway, DynamoDbGateway>();
+            services.AddScoped<IContactDetailsGateway, DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
             services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
         }
 

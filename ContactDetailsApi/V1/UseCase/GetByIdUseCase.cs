@@ -1,23 +1,26 @@
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using System;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.UseCase
 {
-    //TODO: Rename class name and interface name to reflect the entity they are representing eg. GetClaimantByIdUseCase
     public class GetByIdUseCase : IGetByIdUseCase
     {
-        private IExampleGateway _gateway;
-        public GetByIdUseCase(IExampleGateway gateway)
+        private readonly IContactDetailsGateway _gateway;
+        public GetByIdUseCase(IContactDetailsGateway gateway)
         {
             _gateway = gateway;
         }
 
-        //TODO: rename id to the name of the identifier that will be used for this API, the type may also need to change
-        public ResponseObject Execute(int id)
+        public async Task<ContactDetailsResponseObject> Execute(ContactQueryParameter cqr)
         {
-            return _gateway.GetEntityById(id).ToResponse();
+
+            var contactResponse = await _gateway.GetEntityById(cqr.TargetId).ConfigureAwait(false);
+            return contactResponse.ToResponse();
         }
     }
 }

@@ -7,14 +7,24 @@ namespace ContactDetailsApi.V1.Factories
 {
     public static class ResponseFactory
     {
-        //TODO: Map the fields in the domain object(s) to fields in the response object(s).
-        // More information on this can be found here https://github.com/LBHackney-IT/lbh-contact-details-api/wiki/Factory-object-mappings
-        public static ResponseObject ToResponse(this Entity domain)
+        public static ContactDetailsResponseObject ToResponse(this ContactDetails domain)
         {
-            return new ResponseObject();
+            if (null == domain) return null;
+
+            return new ContactDetailsResponseObject
+            {
+                Id = domain.Id,
+                TargetId = domain.TargetId,
+                TargetType = domain.TargetType,
+                ContactInformation = domain.ContactInformation,
+                CreatedBy = domain.CreatedBy,
+                IsActive = domain.IsActive,
+                RecordValidUntil = domain.RecordValidUntil,
+                SourceServiceArea = domain.SourceServiceArea
+            };
         }
 
-        public static List<ResponseObject> ToResponse(this IEnumerable<Entity> domainList)
+        public static List<ContactDetailsResponseObject> ToResponse(this IEnumerable<ContactDetails> domainList)
         {
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }

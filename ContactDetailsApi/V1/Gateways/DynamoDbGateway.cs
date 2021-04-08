@@ -2,11 +2,13 @@ using Amazon.DynamoDBv2.DataModel;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Gateways
 {
-    public class DynamoDbGateway : IExampleGateway
+    public class DynamoDbGateway : IContactDetailsGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
 
@@ -15,14 +17,9 @@ namespace ContactDetailsApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
-        public List<Entity> GetAll()
+        public async Task<ContactDetails> GetEntityById(Guid id)
         {
-            return new List<Entity>();
-        }
-
-        public Entity GetEntityById(int id)
-        {
-            var result = _dynamoDbContext.LoadAsync<DatabaseEntity>(id).GetAwaiter().GetResult();
+            var result = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(id).ConfigureAwait(false);
             return result?.ToDomain();
         }
     }
