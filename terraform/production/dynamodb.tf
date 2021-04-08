@@ -37,12 +37,15 @@ resource "aws_iam_policy" "contactdetailsapi_dynamodb_table_policy" {
         {
             "Effect": "Allow",
             "Action": [
-                        "dynamodb:BatchGetItem",
-                        "dynamodb:GetItem",
+                        "dynamodb:BatchGet*",
+                        "dynamodb:BatchWrite*",
+                        "dynamodb:DeleteItem",
+                        "dynamodb:DescribeStream",
+                        "dynamodb:DescribeTable",
+                        "dynamodb:Get*",
+                        "dynamodb:PutItem",
                         "dynamodb:Query",
                         "dynamodb:Scan",
-                        "dynamodb:BatchWriteItem",
-                        "dynamodb:PutItem",
                         "dynamodb:UpdateItem"
                      ],
             "Resource": "${aws_dynamodb_table.contactdetailsapi_dynamodb_table.arn}"
