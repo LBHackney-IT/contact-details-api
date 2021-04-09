@@ -18,26 +18,25 @@ namespace ContactDetailsApi.Tests.V1.Controllers
     public class ContactDetailsControllerTests
     {
         private ContactDetailsController _classUnderTest;
-        private Mock<IGetByIdUseCase> _mockGetByIdUseCase;
+        private Mock<IGetContactByTargetIdUseCase> _mockGetByIdUseCase;
         private readonly Fixture _fixture = new Fixture();
 
 
         [SetUp]
         public void SetUp()
         {
-            _mockGetByIdUseCase = new Mock<IGetByIdUseCase>();
+            _mockGetByIdUseCase = new Mock<IGetContactByTargetIdUseCase>();
             _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object);
         }
 
         [Test]
         public async Task GetContactByIdNotFoundReturnsNotFound()
         {
-            var id = Guid.NewGuid();
             var cqp = new ContactQueryParameter
             {
-                TargetId = id
+                TargetId = Guid.NewGuid()
             };
-            _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((ContactDetailsResponseObject) null);
+            _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((List<ContactDetailsResponseObject>) null);
 
             var response = await _classUnderTest.GetContactByTargetId(cqp).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -47,12 +46,12 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         [Test]
         public async Task GetContactbyIdReturnsOkResponse()
         {
-            var id = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
             var cqp = new ContactQueryParameter
             {
-                TargetId = id
+                TargetId = Guid.NewGuid()
             };
-            var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
+            var contactResponse = _fixture.Create<List<ContactDetailsResponseObject>>();
             _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((contactResponse));
 
             var response = await _classUnderTest.GetContactByTargetId(cqp).ConfigureAwait(false);
@@ -62,10 +61,10 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         [Test]
         public void GetContactByIdThrowsException()
         {
-            var id = Guid.NewGuid();
+            var targetId = Guid.NewGuid();
             var cqp = new ContactQueryParameter
             {
-                TargetId = id
+                TargetId = targetId
             };
             var exception = new ApplicationException("Test Exception");
             _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ThrowsAsync(exception);

@@ -8,7 +8,7 @@ namespace ContactDetailsApi.V1.Gateways
 {
     public interface IContactDetailsGateway
     {
-        Task<ContactDetails> GetEntityById(Guid targetId);
+        Task<List<ContactDetails>> GetContactByTargetId(Guid targetId);
 
     }
 }

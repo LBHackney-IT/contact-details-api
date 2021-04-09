@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.XRay.Recorder.Core.Sampling;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
@@ -17,10 +18,16 @@ namespace ContactDetailsApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
-        public async Task<ContactDetails> GetEntityById(Guid id)
+        public async Task<List<ContactDetails>> GetContactByTargetId(Guid targetId)
         {
-            var result = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(id).ConfigureAwait(false);
-            return result?.ToDomain();
+            List<ContactDetailsEntity> contactDetailsEntities = new List<ContactDetailsEntity>();
+            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(targetId);
+            while (!queryResult.IsDone)
+            {
+                contactDetailsEntities.AddRange(await queryResult.GetNextSetAsync().ConfigureAwait(false));
+
+            }
+            return contactDetailsEntities?.ToDomain();
         }
     }
 }

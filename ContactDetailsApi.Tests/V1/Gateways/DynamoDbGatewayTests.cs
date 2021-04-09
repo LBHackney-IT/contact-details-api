@@ -30,7 +30,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         [Test]
         public void GetContactByIdReturnsNullIfEntityDoesntExist()
         {
-            var response = _classUnderTest.GetEntityById(Guid.NewGuid());
+            var response = _classUnderTest.GetContactByTargetId(Guid.NewGuid());
 
             response.Should().BeNull();
         }

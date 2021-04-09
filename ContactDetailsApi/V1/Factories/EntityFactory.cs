@@ -1,6 +1,8 @@
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Factories
 {
@@ -20,6 +22,11 @@ namespace ContactDetailsApi.V1.Factories
                 IsActive = databaseEntity.IsActive,
                 RecordValidUntil = databaseEntity.RecordValidUntil
             };
+        }
+
+        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
+        {
+            return databaseEntity.Select(p => p.ToDomain()).ToList();
         }
 
         public static ContactDetailsEntity ToDatabase(this ContactDetails entity)

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
 
@@ -26,6 +27,7 @@ namespace ContactDetailsApi.V1.Factories
 
         public static List<ContactDetailsResponseObject> ToResponse(this IEnumerable<ContactDetails> domainList)
         {
+            if (null == domainList) return new List<ContactDetailsResponseObject>();
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
     }
