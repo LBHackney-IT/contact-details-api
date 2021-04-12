@@ -21,11 +21,14 @@ namespace ContactDetailsApi.V1.Gateways
         public async Task<List<ContactDetails>> GetContactByTargetId(Guid targetId)
         {
             List<ContactDetailsEntity> contactDetailsEntities = new List<ContactDetailsEntity>();
-            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(targetId);
+            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(targetId, null);
+            if (queryResult == null)
+            {
+                return new List<ContactDetails>();
+            }
             while (!queryResult.IsDone)
             {
                 contactDetailsEntities.AddRange(await queryResult.GetNextSetAsync().ConfigureAwait(false));
-
             }
             return contactDetailsEntities?.ToDomain();
         }

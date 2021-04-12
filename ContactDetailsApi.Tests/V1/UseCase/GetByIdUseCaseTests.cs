@@ -28,9 +28,8 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             _mockGateway = new Mock<IContactDetailsGateway>();
             _classUnderTest = new GetContactByTargetIdUseCase(_mockGateway.Object);
         }
-        [Ignore("To Debug")]
         [Test]
-        public async Task GetByIdUseCaseShouldBeNull()
+        public async Task GetByIdUseCaseShouldBeEmpty()
         {
             var cqp = new ContactQueryParameter
             {
@@ -39,7 +38,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             _mockGateway.Setup(x => x.GetContactByTargetId(cqp.TargetId)).ReturnsAsync((List<ContactDetails>) null);
 
             var response = await _classUnderTest.Execute(cqp).ConfigureAwait(false);
-            response.Should().BeNull();
+            response.Should().BeEmpty();
 
         }
 

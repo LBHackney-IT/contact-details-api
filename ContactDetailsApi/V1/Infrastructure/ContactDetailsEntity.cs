@@ -28,6 +28,7 @@ namespace ContactDetailsApi.V1.Infrastructure
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<SourceServiceArea>))]
         public List<SourceServiceArea> SourceServiceArea { get; set; }
 
+        [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime RecordValidUntil { get; set; }
 
         public bool IsActive { get; set; }

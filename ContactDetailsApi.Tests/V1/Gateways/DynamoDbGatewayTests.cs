@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using ContactDetailsApi.Tests.V1.Helper;
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
@@ -9,13 +10,15 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
     [TestFixture]
     public class DynamoDbGatewayTests
     {
-        //private readonly Fixture _fixture = new Fixture();
+        private readonly Fixture _fixture = new Fixture();
         private Mock<IDynamoDBContext> _dynamoDb;
         private DynamoDbGateway _classUnderTest;
 
@@ -26,29 +29,24 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             _classUnderTest = new DynamoDbGateway(_dynamoDb.Object);
         }
 
-        [Ignore("TO DO")]
         [Test]
-        public void GetContactByIdReturnsNullIfEntityDoesntExist()
+        public async Task GetContactByTargetidReturnsNullIfEntityDoesntExist()
         {
-            var response = _classUnderTest.GetContactByTargetId(Guid.NewGuid());
 
-            response.Should().BeNull();
+            var response = await _classUnderTest.GetContactByTargetId(Guid.NewGuid()).ConfigureAwait(false);
+
+            response.Should().BeEmpty();
         }
 
-        //[Test]
-        //public void GetContactByIdReturnsTheEntityIfItExists()
-        //{
-        //    var entity = _fixture.Create<ContactDetails>();
-        //    var dbEntity = entity.ToDatabase();
-        //    var dbIdUsed = entity.TargetId;
+        [Test]
+        public async Task VerifiesQueryByAsyncIsCalled()
+        {
+            var entity = _fixture.Create<ContactDetails>();
+            var dbEntity = entity.ToDatabase();
+            var dbIdUsed = entity.TargetId;
 
-        //    _dynamoDb.Setup(x => x.LoadAsync<ContactDetailsEntity>(dbIdUsed, default))
-        //             .ReturnsAsync(dbEntity);
-
-        //    var response =  _classUnderTest.GetEntityById(entity.TargetId).ConfigureAwait(false);
-
-        //    _dynamoDb.Verify(x => x.LoadAsync<ContactDetailsEntity>(dbIdUsed, default), Times.Once);
-        //    entity.TargetId.Should().Be(response.targetId);
-        //}
+            var response = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
+            _dynamoDb.Verify(x => x.QueryAsync<ContactDetailsEntity>(dbIdUsed, default), Times.Once);
+        }
     }
 }

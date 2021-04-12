@@ -43,5 +43,10 @@ namespace ContactDetailsApi.V1.Factories
                 RecordValidUntil = entity.RecordValidUntil
             };
         }
+
+        public static List<ContactDetailsEntity> ToDatabase(this IEnumerable<ContactDetails> entity)
+        {
+            return entity.Select(p => p.ToDatabase()).ToList();
+        }
     }
 }

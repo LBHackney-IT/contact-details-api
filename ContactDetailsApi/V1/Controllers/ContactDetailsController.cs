@@ -36,7 +36,7 @@ namespace ContactDetailsApi.V1.Controllers
         {
 
             var contact = await _getContactByTargetIdUseCase.Execute(cqp).ConfigureAwait(false);
-            if (null == contact) return NotFound(cqp);
+            if (null == contact || contact.Count == 0) return NotFound(cqp);
 
             return Ok(contact);
         }
