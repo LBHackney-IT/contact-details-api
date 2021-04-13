@@ -39,7 +39,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
         private async Task SetupTestData(ContactDetails entity)
         {
             await DynamoDbContext.SaveAsync(entity.ToDatabase()).ConfigureAwait(false);
-            CleanupActions.Add(async () => await DynamoDbContext.DeleteAsync<ContactDetailsEntity>(entity.TargetId).ConfigureAwait(false));
+            CleanupActions.Add(async () => await DynamoDbContext.DeleteAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false));
         }
 
         [Test]
