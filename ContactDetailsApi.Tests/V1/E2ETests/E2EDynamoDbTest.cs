@@ -46,7 +46,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
         public async Task GetEntityByIdNotFoundReturns404()
         {
             var targetId = Guid.NewGuid().ToString();
-            var uri = new Uri($"api/v1/contactDetails?target_id={targetId}", UriKind.Relative);
+            var uri = new Uri($"api/v1/contactDetails?targetId={targetId}", UriKind.Relative);
             var response = await Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.NotFound);
@@ -58,7 +58,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
             var entity = ConstructTestEntity();
             await SetupTestData(entity).ConfigureAwait(false);
             var targetId = entity.TargetId;
-            var uri = new Uri($"api/v1/contactDetails?target_id={targetId}", UriKind.Relative);
+            var uri = new Uri($"api/v1/contactDetails?targetId={targetId}", UriKind.Relative);
             var response = await Client.GetAsync(uri).ConfigureAwait(false);
 
             response.StatusCode.Should().Be(HttpStatusCode.OK);

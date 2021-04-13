@@ -9,11 +9,11 @@ namespace ContactDetailsApi.V1.Boundary.Request
 {
     public class ContactQueryParameter
     {
-        [FromQuery(Name = "target_id")]
+        [FromQuery(Name = "targetId")]
         [Required]
         public Guid TargetId { get; set; }
 
-        [FromQuery(Name = "include_historic")]
+        [FromQuery(Name = "includeHistoric")]
         public string IncludeHistoric { get; set; }
     }
 }

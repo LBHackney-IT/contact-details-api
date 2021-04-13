@@ -45,9 +45,18 @@ namespace ContactDetailsApi.Tests
             {
                 try
                 {
-                    var request = new CreateTableRequest(table.Name,
-                        new List<KeySchemaElement> { new KeySchemaElement(table.KeyName, KeyType.HASH) },
-                        new List<AttributeDefinition> { new AttributeDefinition(table.KeyName, table.KeyType) },
+                    var keySchema = new List<KeySchemaElement> { new KeySchemaElement(table.KeyName, KeyType.HASH) };
+                    var attributes = new List<AttributeDefinition> { new AttributeDefinition(table.KeyName, table.KeyType) };
+                    if (!string.IsNullOrEmpty(table.RangeKeyName))
+                    {
+                        keySchema.Add(new KeySchemaElement(table.RangeKeyName, KeyType.RANGE));
+                        attributes.Add(new AttributeDefinition(table.RangeKeyName, table.RangeKeyType));
+                    }
+
+                    var request = new CreateTableRequest(
+                        table.Name,
+                        keySchema,
+                        attributes,
                         new ProvisionedThroughput(3, 3));
                     _ = dynamoDb.CreateTableAsync(request).GetAwaiter().GetResult();
                 }
