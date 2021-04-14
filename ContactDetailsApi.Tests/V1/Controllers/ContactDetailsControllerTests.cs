@@ -47,14 +47,14 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         public async Task GetContactbyIdReturnsOkResponse()
         {
             var targetId = Guid.NewGuid();
-            var cqp = new ContactQueryParameter
+            var queryParam = new ContactQueryParameter
             {
                 TargetId = Guid.NewGuid()
             };
             var contactResponse = _fixture.Create<List<ContactDetailsResponseObject>>();
-            _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((contactResponse));
+            _mockGetByIdUseCase.Setup(x => x.Execute(queryParam)).ReturnsAsync((contactResponse));
 
-            var response = await _classUnderTest.GetContactByTargetId(cqp).ConfigureAwait(false);
+            var response = await _classUnderTest.GetContactByTargetId(queryParam).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
             (response as OkObjectResult).Value.Should().Be(contactResponse);
         }
@@ -62,14 +62,14 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         public void GetContactByIdThrowsException()
         {
             var targetId = Guid.NewGuid();
-            var cqp = new ContactQueryParameter
+            var queryParam = new ContactQueryParameter
             {
                 TargetId = targetId
             };
             var exception = new ApplicationException("Test Exception");
-            _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ThrowsAsync(exception);
+            _mockGetByIdUseCase.Setup(x => x.Execute(queryParam)).ThrowsAsync(exception);
 
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactByTargetId(cqp).ConfigureAwait(false);
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactByTargetId(queryParam).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

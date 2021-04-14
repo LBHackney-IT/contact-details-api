@@ -43,7 +43,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task GetEntityByIdNotFoundReturns404()
+        public async Task GetContactByTargetIdNotFoundReturns404()
         {
             var targetId = Guid.NewGuid().ToString();
             var uri = new Uri($"api/v1/contactDetails?targetId={targetId}", UriKind.Relative);
@@ -53,7 +53,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
         }
 
         [Test]
-        public async Task GetNoteBydIdFoundReturnsResponse()
+        public async Task GetContactByTargetIdFoundReturnsResponse()
         {
             var entity = ConstructTestEntity();
             await SetupTestData(entity).ConfigureAwait(false);

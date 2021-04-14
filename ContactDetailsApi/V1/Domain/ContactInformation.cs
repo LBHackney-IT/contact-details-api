@@ -14,7 +14,6 @@ namespace ContactDetailsApi.V1.Domain
         public SubType SubType { get; set; }
         public string Value { get; set; }
         public string Description { get; set; }
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<AddressExtended>))]
         public AddressExtended AddressExtended { get; set; }
 
     }

@@ -19,9 +19,9 @@ namespace ContactDetailsApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter cqp)
+        public async Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter queryParam)
         {
-            var contact = await _gateway.GetContactByTargetId(cqp.TargetId).ConfigureAwait(false);
+            var contact = await _gateway.GetContactByTargetId(queryParam.TargetId).ConfigureAwait(false);
             return contact.ToResponse();
         }
     }

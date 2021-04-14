@@ -20,21 +20,15 @@ namespace ContactDetailsApi.V1.Infrastructure
 
         public TargetType TargetType { get; set; }
 
+        public ContactInformation ContactInformation { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<ContactInformation>))]
-
-        public List<ContactInformation> ContactInformation { get; set; }
-
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<SourceServiceArea>))]
-        public List<SourceServiceArea> SourceServiceArea { get; set; }
+        public SourceServiceArea SourceServiceArea { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime RecordValidUntil { get; set; }
 
         public bool IsActive { get; set; }
 
-        [DynamoDBProperty(Converter = typeof(DynamoDbObjectListConverter<CreatedBy>))]
-
-        public List<CreatedBy> CreatedBy { get; set; }
+        public CreatedBy CreatedBy { get; set; }
     }
 }

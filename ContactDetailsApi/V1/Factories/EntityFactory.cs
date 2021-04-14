@@ -36,9 +36,9 @@ namespace ContactDetailsApi.V1.Factories
                 Id = entity.Id,
                 TargetId = entity.TargetId,
                 TargetType = entity.TargetType,
-                ContactInformation = entity.ContactInformation.ToList(),
-                SourceServiceArea = entity.SourceServiceArea.ToList(),
-                CreatedBy = entity.CreatedBy.ToList(),
+                ContactInformation = entity.ContactInformation,
+                SourceServiceArea = entity.SourceServiceArea,
+                CreatedBy = entity.CreatedBy,
                 IsActive = entity.IsActive,
                 RecordValidUntil = entity.RecordValidUntil
             };

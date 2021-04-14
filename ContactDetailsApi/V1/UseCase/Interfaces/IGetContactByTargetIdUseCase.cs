@@ -8,6 +8,6 @@ namespace ContactDetailsApi.V1.UseCase.Interfaces
 {
     public interface IGetContactByTargetIdUseCase
     {
-        Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter cqp);
+        Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter queryParam);
     }
 }

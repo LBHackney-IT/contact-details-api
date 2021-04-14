@@ -1,11 +1,9 @@
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
-using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Controllers
@@ -17,9 +15,9 @@ namespace ContactDetailsApi.V1.Controllers
     public class ContactDetailsController : BaseController
     {
         private readonly IGetContactByTargetIdUseCase _getContactByTargetIdUseCase;
-        public ContactDetailsController(IGetContactByTargetIdUseCase getByIdUseCase)
+        public ContactDetailsController(IGetContactByTargetIdUseCase getByTargetIdUseCase)
         {
-            _getContactByTargetIdUseCase = getByIdUseCase;
+            _getContactByTargetIdUseCase = getByTargetIdUseCase;
         }
 
         /// <summary>
@@ -32,13 +30,13 @@ namespace ContactDetailsApi.V1.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter cqp)
+        public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter queryParam)
         {
 
-            var contact = await _getContactByTargetIdUseCase.Execute(cqp).ConfigureAwait(false);
-            if (null == contact || contact.Count == 0) return NotFound(cqp);
+            var contacts = await _getContactByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
+            if (contacts == null || !contacts.Any()) return NotFound(queryParam);
 
-            return Ok(contact);
+            return Ok(contacts);
         }
     }
 }
