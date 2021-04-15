@@ -16,8 +16,14 @@ namespace ContactDetailsApi.Tests
 
         private readonly List<TableDef> _tables = new List<TableDef>
         {
-            // TODO: Populate the list of table(s) and their key property details here, for example:
-            //new TableDef { Name = "example_table", KeyName = "id", KeyType = ScalarAttributeType.N }
+            new TableDef {
+                Name = "ContactDetails",
+                KeyName = "targetId",
+                KeyType = ScalarAttributeType.S,
+                RangeKeyName = "id",
+                RangeKeyType = ScalarAttributeType.S
+
+            }
         };
 
         private static void EnsureEnvVarConfigured(string name, string defaultValue)
@@ -61,5 +67,7 @@ namespace ContactDetailsApi.Tests
         public string Name { get; set; }
         public string KeyName { get; set; }
         public ScalarAttributeType KeyType { get; set; }
+        public string RangeKeyName { get; set; }
+        public ScalarAttributeType RangeKeyType { get; set; }
     }
 }

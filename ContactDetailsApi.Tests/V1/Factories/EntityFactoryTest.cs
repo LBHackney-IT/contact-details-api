@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using NUnit.Framework;
+using System.Data;
 
 namespace ContactDetailsApi.Tests.V1.Factories
 {
@@ -12,28 +13,38 @@ namespace ContactDetailsApi.Tests.V1.Factories
     {
         private readonly Fixture _fixture = new Fixture();
 
-        //TODO: add assertions for all the fields being mapped in `EntityFactory.ToDomain()`. Also be sure to add test cases for
-        // any edge cases that might exist.
+
         [Test]
         public void CanMapADatabaseEntityToADomainObject()
         {
-            var databaseEntity = _fixture.Create<DatabaseEntity>();
+            var databaseEntity = _fixture.Create<ContactDetailsEntity>();
             var entity = databaseEntity.ToDomain();
 
             databaseEntity.Id.Should().Be(entity.Id);
-            databaseEntity.CreatedAt.Should().BeSameDateAs(entity.CreatedAt);
+            databaseEntity.TargetId.Should().Be(entity.TargetId);
+            databaseEntity.TargetType.Should().Be(entity.TargetType);
+            databaseEntity.SourceServiceArea.Should().BeEquivalentTo(entity.SourceServiceArea);
+            databaseEntity.RecordValidUntil.Should().Be(entity.RecordValidUntil);
+            databaseEntity.IsActive.Should().Be(entity.IsActive);
+            databaseEntity.CreatedBy.Should().BeEquivalentTo(entity.CreatedBy);
+            databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
         }
 
-        //TODO: add assertions for all the fields being mapped in `EntityFactory.ToDatabase()`. Also be sure to add test cases for
-        // any edge cases that might exist.
+
         [Test]
         public void CanMapADomainEntityToADatabaseObject()
         {
-            var entity = _fixture.Create<Entity>();
-            var databaseEntity = entity.ToDatabase();
+            var contactDetails = _fixture.Create<ContactDetails>();
+            var databaseEntity = contactDetails.ToDatabase();
 
-            entity.Id.Should().Be(databaseEntity.Id);
-            entity.CreatedAt.Should().BeSameDateAs(databaseEntity.CreatedAt);
+            contactDetails.Id.Should().Be(databaseEntity.Id);
+            contactDetails.TargetId.Should().Be(databaseEntity.TargetId);
+            contactDetails.TargetType.Should().Be(databaseEntity.TargetType);
+            contactDetails.SourceServiceArea.Should().BeEquivalentTo(databaseEntity.SourceServiceArea);
+            contactDetails.RecordValidUntil.Should().Be(databaseEntity.RecordValidUntil);
+            contactDetails.IsActive.Should().Be(databaseEntity.IsActive);
+            contactDetails.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
+            contactDetails.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
         }
     }
 }

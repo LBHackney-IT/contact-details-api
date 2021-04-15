@@ -1,12 +1,15 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.XRay.Recorder.Core.Sampling;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Gateways
 {
-    public class DynamoDbGateway : IExampleGateway
+    public class DynamoDbGateway : IContactDetailsGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
 
@@ -15,15 +18,19 @@ namespace ContactDetailsApi.V1.Gateways
             _dynamoDbContext = dynamoDbContext;
         }
 
-        public List<Entity> GetAll()
+        public async Task<List<ContactDetails>> GetContactByTargetId(Guid targetId)
         {
-            return new List<Entity>();
-        }
-
-        public Entity GetEntityById(int id)
-        {
-            var result = _dynamoDbContext.LoadAsync<DatabaseEntity>(id).GetAwaiter().GetResult();
-            return result?.ToDomain();
+            List<ContactDetailsEntity> contactDetailsEntities = new List<ContactDetailsEntity>();
+            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(targetId, null);
+            if (queryResult == null)
+            {
+                return new List<ContactDetails>();
+            }
+            while (!queryResult.IsDone)
+            {
+                contactDetailsEntities.AddRange(await queryResult.GetNextSetAsync().ConfigureAwait(false));
+            }
+            return contactDetailsEntities?.ToDomain();
         }
     }
 }

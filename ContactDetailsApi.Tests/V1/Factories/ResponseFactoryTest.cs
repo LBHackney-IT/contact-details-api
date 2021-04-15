@@ -1,19 +1,34 @@
+using AutoFixture;
+using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
+using FluentAssertions;
+using Moq;
 using NUnit.Framework;
+using System;
+using System.Collections;
 
 namespace ContactDetailsApi.Tests.V1.Factories
 {
+    [TestFixture]
     public class ResponseFactoryTest
     {
-        //TODO: add assertions for all the fields being mapped in `ResponseFactory.ToResponse()`. Also be sure to add test cases for
-        // any edge cases that might exist.
+        private readonly Fixture _fixture = new Fixture();
+
         [Test]
         public void CanMapADatabaseEntityToADomainObject()
         {
-            var domain = new Entity();
+            var domain = _fixture.Create<ContactDetails>();
             var response = domain.ToResponse();
-            //TODO: check here that all of the fields have been mapped correctly. i.e. response.fieldOne.Should().Be("one")
+
+            domain.Id.Should().Be(response.Id);
+            domain.TargetId.Should().Be(response.TargetId);
+            domain.TargetType.Should().Be(response.TargetType);
+            domain.SourceServiceArea.Should().BeEquivalentTo(response.SourceServiceArea);
+            domain.ContactInformation.Should().BeEquivalentTo(response.ContactInformation);
+            domain.CreatedBy.Should().BeEquivalentTo(response.CreatedBy);
+            domain.IsActive.Should().Be(response.IsActive);
+            domain.RecordValidUntil.Should().Be(response.RecordValidUntil);
         }
     }
 }

@@ -1,18 +1,20 @@
 using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using ContactDetailsApi.Tests.V1.Helper;
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
+using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
-    //TODO: Remove this file if DynamoDb gateway not being used
-    //TODO: Rename Tests to match gateway name
-    //For instruction on how to run tests please see the wiki: https://github.com/LBHackney-IT/lbh-contact-details-api/wiki/Running-the-test-suite.
     [TestFixture]
     public class DynamoDbGatewayTests
     {
@@ -28,28 +30,23 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         }
 
         [Test]
-        public void GetEntityByIdReturnsNullIfEntityDoesntExist()
+        public async Task GetContactByTargetidReturnsNullIfEntityDoesntExist()
         {
-            var response = _classUnderTest.GetEntityById(123);
 
-            response.Should().BeNull();
+            var response = await _classUnderTest.GetContactByTargetId(Guid.NewGuid()).ConfigureAwait(false);
+
+            response.Should().BeEmpty();
         }
 
         [Test]
-        public void GetEntityByIdReturnsTheEntityIfItExists()
+        public async Task VerifiesQueryByAsyncIsCalled()
         {
-            var entity = _fixture.Create<Entity>();
-            var dbEntity = DatabaseEntityHelper.CreateDatabaseEntityFrom(entity);
+            var entity = _fixture.Create<ContactDetails>();
+            var dbEntity = entity.ToDatabase();
+            var dbIdUsed = entity.TargetId;
 
-            _dynamoDb.Setup(x => x.LoadAsync<DatabaseEntity>(entity.Id, default))
-                     .ReturnsAsync(dbEntity);
-
-            var response = _classUnderTest.GetEntityById(entity.Id);
-
-            _dynamoDb.Verify(x => x.LoadAsync<DatabaseEntity>(entity.Id, default), Times.Once);
-
-            entity.Id.Should().Be(response.Id);
-            entity.CreatedAt.Should().BeSameDateAs(response.CreatedAt);
+            var response = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
+            _dynamoDb.Verify(x => x.QueryAsync<ContactDetailsEntity>(dbIdUsed, default), Times.Once);
         }
     }
 }

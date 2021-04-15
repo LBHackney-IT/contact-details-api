@@ -118,14 +118,6 @@ namespace ContactDetailsApi
             RegisterUseCases(services);
         }
 
-        private static void ConfigureDbContext(IServiceCollection services)
-        {
-            var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-
-            services.AddDbContext<DatabaseContext>(
-                opt => opt.UseNpgsql(connectionString).AddXRayInterceptor(true));
-        }
-
         private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
         {
             // We rebuild the logging stack so as to ensure the console logger is not used in production.
@@ -149,13 +141,12 @@ namespace ContactDetailsApi
         private static void RegisterGateways(IServiceCollection services)
         {
 
-            services.AddScoped<IExampleGateway, DynamoDbGateway>();
+            services.AddScoped<IContactDetailsGateway, DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetAllUseCase, GetAllUseCase>();
-            services.AddScoped<IGetByIdUseCase, GetByIdUseCase>();
+            services.AddScoped<IGetContactByTargetIdUseCase, GetContactByTargetIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
