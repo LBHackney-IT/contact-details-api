@@ -8,6 +8,7 @@ using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -21,6 +22,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         private readonly Fixture _fixture = new Fixture();
         private Mock<IDynamoDBContext> _dynamoDb;
         private DynamoDbGateway _classUnderTest;
+
 
         [SetUp]
         public void Setup()
@@ -41,12 +43,15 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         [Test]
         public async Task VerifiesQueryByAsyncIsCalled()
         {
-            var entity = _fixture.Create<ContactDetails>();
-            var dbEntity = entity.ToDatabase();
-            var dbIdUsed = entity.TargetId;
+            var entity = _fixture.Create<ContactDetails>().ToDatabase();
+
+            _dynamoDb.Setup(x => x.SaveAsync(entity.TargetId, default));
 
             var response = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
-            _dynamoDb.Verify(x => x.QueryAsync<ContactDetailsEntity>(dbIdUsed, default), Times.Once);
+
+            _dynamoDb.Verify(x => x.QueryAsync<ContactDetailsEntity>(entity.TargetId, null), Times.Once);
+
+            response.Should().BeEquivalentTo(entity);
         }
     }
 }
