@@ -205,6 +205,7 @@ workflows:
             branches:
               only: release
       - deploy-to-staging:
+          context: api-assume-role-housing-staging-context
           requires:
             - terraform-init-and-apply-to-staging
           filters:
