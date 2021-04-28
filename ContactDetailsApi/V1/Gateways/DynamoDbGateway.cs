@@ -1,5 +1,4 @@
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.XRay.Recorder.Core.Sampling;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;

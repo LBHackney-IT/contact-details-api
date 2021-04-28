@@ -13,7 +13,7 @@ namespace ContactDetailsApi.V1.Infrastructure
         {
             if (null == value) return new DynamoDBNull();
 
-            return new Primitive { Value = ((DateTime) value).ToUniversalTime().ToString(DATEFORMAT) };
+            return new Primitive { Value = ((DateTime) value).ToString(DATEFORMAT) };
         }
 
         public object FromEntry(DynamoDBEntry entry)
