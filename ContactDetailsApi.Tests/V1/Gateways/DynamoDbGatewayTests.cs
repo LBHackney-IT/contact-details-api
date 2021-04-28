@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
     [TestFixture]
-    public class DynamoDbGatewayTests : DynamoDbTests<Startup>
+    public class DynamoDbGatewayTests : DynamoDbTests
     {
         private readonly Fixture _fixture = new Fixture();
         private DynamoDbGateway _classUnderTest;
@@ -30,7 +30,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         [Test]
         public async Task GetContactByTargetidReturnsEmptyIfEntityDoesntExist()
         {
-            
+
             var response = await _classUnderTest.GetContactByTargetId(Guid.NewGuid()).ConfigureAwait(false);
 
             response.Should().BeEmpty();
@@ -44,7 +44,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             InsertDatatoDynamoDB(entity);
 
             var result = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(entity); 
+            result.Should().BeEquivalentTo(entity);
         }
 
         private void InsertDatatoDynamoDB(ContactDetailsEntity entity)
@@ -66,7 +66,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             //};
             //DynamoDBClient.PutItemAsync(request).GetAwaiter().GetResult();
 
-          
+
             DynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).GetAwaiter().GetResult();
 
         }

@@ -2,6 +2,8 @@ using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
+using Amazon.XRay.Recorder.Core;
+using Amazon.XRay.Recorder.Core.Strategies;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -10,7 +12,7 @@ using System.Net.Http;
 namespace ContactDetailsApi.Tests
 {
     [TestFixture]
-    public class DynamoDbTests<TStartup> where TStartup : class
+    public class DynamoDbTests
     {
         protected IDynamoDBContext DynamoDbContext { get; private set; }
         protected AmazonDynamoDBClient DynamoDBClient { get; private set; }
@@ -18,7 +20,8 @@ namespace ContactDetailsApi.Tests
         [SetUp]
         protected void RunBeforeTests()
         {
-            var clientConfig = new AmazonDynamoDBConfig{ ServiceURL = "http://localhost:8000" };
+            AWSXRayRecorder.Instance.ContextMissingStrategy = ContextMissingStrategy.LOG_ERROR;
+            var clientConfig = new AmazonDynamoDBConfig { ServiceURL = "http://dynamodb-database:8000" };
             DynamoDBClient = new AmazonDynamoDBClient(clientConfig);
             try
             {
