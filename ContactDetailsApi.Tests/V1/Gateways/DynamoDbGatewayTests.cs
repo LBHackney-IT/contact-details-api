@@ -39,8 +39,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         [Test]
         public async Task VerifiesGatewayMethodsAddtoDB()
         {
-            var entity = _fixture.Build<ContactDetailsEntity>()
-                                 .Create();
+            var entity = _fixture.Build<ContactDetailsEntity>().Create();
             InsertDatatoDynamoDB(entity);
 
             var result = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
@@ -49,26 +48,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
 
         private void InsertDatatoDynamoDB(ContactDetailsEntity entity)
         {
-            //Dictionary<string, AttributeValue> attributes = new Dictionary<string, AttributeValue>();
-            //attributes["targetId"] = new AttributeValue { S = entity.TargetId.ToString() };
-            //attributes["id"] = new AttributeValue { S = entity.Id.ToString() };
-            //attributes["TargetType"] = new AttributeValue { S = entity.TargetType.ToString() };
-            //attributes["ContactInformation"] = new AttributeValue { S = JsonConvert.SerializeObject(entity.ContactInformation) };
-            //attributes["SourceServiceArea"] = new AttributeValue { S = JsonConvert.SerializeObject(entity.SourceServiceArea) };
-            //attributes["RecordValidUntil"] = new AttributeValue { S = JsonConvert.SerializeObject(entity.RecordValidUntil) };
-            //attributes["CreatedBy"] = new AttributeValue { S = JsonConvert.SerializeObject(entity.CreatedBy) };
-            //attributes["IsActive"] = new AttributeValue { BOOL = entity.IsActive };
-
-            //PutItemRequest request = new PutItemRequest
-            //{
-            //    TableName = "ContactDetails",
-            //    Item = attributes
-            //};
-            //DynamoDBClient.PutItemAsync(request).GetAwaiter().GetResult();
-
-
             DynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).GetAwaiter().GetResult();
-
         }
     }
 }
