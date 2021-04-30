@@ -4,15 +4,15 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using System;
-
+using System.Collections.Generic;
 
 namespace ContactDetailsApi.Tests
 {
-    public class LogCallAspectFixture : IDisposable
+    public class LogCallAspectFixture
     {
         public Mock<ILogger<LogCallAspect>> MockLogger { get; private set; }
 
-        [SetUp]
+        [OneTimeSetUp]
         public void RunBeforeTests()
         {
             MockLogger = SetupLogCallAspect();
@@ -30,23 +30,5 @@ namespace ContactDetailsApi.Tests
             mockAppServices.Setup(x => x.GetService(typeof(LogCallAspect))).Returns(mockAspect.Object);
             return mockLogger;
         }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        private bool _disposed;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing && !_disposed)
-            {
-                //foreach (var action in )
-                //    action();
-
-                _disposed = true;
-            }
-        }
-
     }
 }

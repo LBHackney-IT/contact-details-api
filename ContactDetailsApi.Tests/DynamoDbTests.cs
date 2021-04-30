@@ -16,6 +16,7 @@ namespace ContactDetailsApi.Tests
     {
         public IDynamoDBContext DynamoDbContext { get; private set; }
         public AmazonDynamoDBClient DynamoDBClient { get; private set; }
+        public List<Action> CleanupActions { get; set; } = new List<Action>();
 
         [SetUp]
         protected void RunBeforeTests()
@@ -42,7 +43,9 @@ namespace ContactDetailsApi.Tests
         [TearDown]
         protected void RunAfterTests()
         {
+            foreach (var action in CleanupActions) action();
             DynamoDBClient.Dispose();
+            
         }
     }
 }

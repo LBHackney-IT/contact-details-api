@@ -17,16 +17,20 @@ using System.Threading.Tasks;
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
     [TestFixture]
-    public class DynamoDbGatewayTests : LogCallAspectFixture
+    public class DynamoDbGatewayTests : DynamoDbTests
     {
         private readonly Fixture _fixture = new Fixture();
         private DynamoDbGateway _classUnderTest;
         private Mock<ILogger<DynamoDbGateway>> _logger;
-        protected DynamoDbTests dynamoDbTests { get; set; }
+        private LogCallAspectFixture _logCallAspectFixture;
+
+        [SetUp]
         public void Setup()
         {
+            _logCallAspectFixture = new LogCallAspectFixture();
+            _logCallAspectFixture.RunBeforeTests();
             _logger = new Mock<ILogger<DynamoDbGateway>>();
-            _classUnderTest = new DynamoDbGateway(dynamoDbTests.DynamoDbContext, _logger.Object);
+            _classUnderTest = new DynamoDbGateway(DynamoDbContext, _logger.Object);
         }
 
         [Test]
@@ -35,8 +39,8 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             var targetId = Guid.NewGuid();
             var response = await _classUnderTest.GetContactByTargetId(targetId).ConfigureAwait(false);
 
-            response.Should().BeEmpty();
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId parameter {targetId}", Times.Once());
+            response.Should().BeEmpty();
         }
 
         [Test]
@@ -52,7 +56,8 @@ namespace ContactDetailsApi.Tests.V1.Gateways
 
         private void InsertDatatoDynamoDB(ContactDetailsEntity entity)
         {
-            dynamoDbTests.DynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).GetAwaiter().GetResult();
+            DynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).GetAwaiter().GetResult();
+            CleanupActions.Add(async () => await DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
         }
     }
 }
