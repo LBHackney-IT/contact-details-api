@@ -16,6 +16,8 @@ namespace ContactDetailsApi.Tests
     {
         protected IDynamoDBContext DynamoDbContext { get; private set; }
         protected AmazonDynamoDBClient DynamoDBClient { get; private set; }
+        private const string TARGETID = "targetid";
+        private const string ID = "id";
 
         [SetUp]
         protected void RunBeforeTests()
@@ -26,8 +28,8 @@ namespace ContactDetailsApi.Tests
             try
             {
                 var request = new CreateTableRequest("ContactDetails",
-                new List<KeySchemaElement> { new KeySchemaElement("targetId", KeyType.HASH), new KeySchemaElement("id", KeyType.RANGE) },
-                new List<AttributeDefinition> { new AttributeDefinition("targetId", ScalarAttributeType.S), new AttributeDefinition("id", ScalarAttributeType.S) },
+                new List<KeySchemaElement> { new KeySchemaElement(TARGETID, KeyType.HASH), new KeySchemaElement(ID, KeyType.RANGE) },
+                new List<AttributeDefinition> { new AttributeDefinition(TARGETID, ScalarAttributeType.S), new AttributeDefinition(ID, ScalarAttributeType.S) },
                 new ProvisionedThroughput(3, 3));
 
                 DynamoDBClient.CreateTableAsync(request).GetAwaiter().GetResult();
