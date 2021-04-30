@@ -14,8 +14,8 @@ namespace ContactDetailsApi.Tests
     [TestFixture]
     public class DynamoDbTests
     {
-        protected IDynamoDBContext DynamoDbContext { get; private set; }
-        protected AmazonDynamoDBClient DynamoDBClient { get; private set; }
+        public IDynamoDBContext DynamoDbContext { get; private set; }
+        public AmazonDynamoDBClient DynamoDBClient { get; private set; }
 
         [SetUp]
         protected void RunBeforeTests()

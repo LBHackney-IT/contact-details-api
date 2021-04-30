@@ -1,8 +1,10 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
+using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -30,6 +32,7 @@ namespace ContactDetailsApi.V1.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
+        [LogCall(LogLevel.Information)]
         public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter queryParam)
         {
 

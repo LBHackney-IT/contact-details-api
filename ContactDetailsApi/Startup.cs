@@ -22,9 +22,12 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Diagnostics.CodeAnalysis;
+using ContactDetailsApi.V1.Logging;
 
 namespace ContactDetailsApi
 {
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         public Startup(IConfiguration configuration)
@@ -112,6 +115,7 @@ namespace ContactDetailsApi
 
             ConfigureLogging(services, Configuration);
 
+            services.AddLogCallAspect();
             services.ConfigureDynamoDB();
 
             RegisterGateways(services);
@@ -130,6 +134,18 @@ namespace ContactDetailsApi
                 config.AddConfiguration(configuration.GetSection("Logging"));
                 config.AddDebug();
                 config.AddEventSourceLogger();
+
+                // Create and populate LambdaLoggerOptions object
+                var loggerOptions = new LambdaLoggerOptions
+                {
+                    IncludeCategory = false,
+                    IncludeLogLevel = true,
+                    IncludeNewline = true,
+                    IncludeEventId = true,
+                    IncludeException = true,
+                    IncludeScopes = true
+                };
+                config.AddLambdaLogger(loggerOptions);
 
                 if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
                 {
@@ -150,10 +166,11 @@ namespace ContactDetailsApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             app.UseCorrelation();
-
+            app.UseLoggingScope();
+            app.UseCustomExceptionHandler(logger);
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -187,6 +204,8 @@ namespace ContactDetailsApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
+            app.UseLogCall();
+
         }
     }
 }

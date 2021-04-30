@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace ContactDetailsApi.Tests.V1.UseCase
 {
     [TestFixture]
-    public class GetByTargetIdUseCaseTests
+    public class GetByTargetIdUseCaseTests : LogCallAspectFixture
     {
         private Mock<IContactDetailsGateway> _mockGateway;
         private GetContactByTargetIdUseCase _classUnderTest;
