@@ -45,7 +45,7 @@ namespace ContactDetailsApi.Tests
         {
             foreach (var action in CleanupActions) action();
             DynamoDBClient.Dispose();
-            
+
         }
     }
 }
