@@ -1,13 +1,11 @@
-using Amazon.DynamoDBv2.DataModel;
+using Amazon.DynamoDBv2.Model;
 using AutoFixture;
-using ContactDetailsApi.Tests.V1.Helper;
-using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
-using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -16,21 +14,21 @@ using System.Threading.Tasks;
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
     [TestFixture]
-    public class DynamoDbGatewayTests
+    public class DynamoDbGatewayTests : DynamoDbTests
     {
         private readonly Fixture _fixture = new Fixture();
-        private Mock<IDynamoDBContext> _dynamoDb;
         private DynamoDbGateway _classUnderTest;
+
 
         [SetUp]
         public void Setup()
         {
-            _dynamoDb = new Mock<IDynamoDBContext>();
-            _classUnderTest = new DynamoDbGateway(_dynamoDb.Object);
+
+            _classUnderTest = new DynamoDbGateway(DynamoDbContext);
         }
 
         [Test]
-        public async Task GetContactByTargetidReturnsNullIfEntityDoesntExist()
+        public async Task GetContactByTargetidReturnsEmptyIfEntityDoesntExist()
         {
 
             var response = await _classUnderTest.GetContactByTargetId(Guid.NewGuid()).ConfigureAwait(false);
@@ -39,14 +37,18 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         }
 
         [Test]
-        public async Task VerifiesQueryByAsyncIsCalled()
+        public async Task VerifiesGatewayMethodsAddtoDB()
         {
-            var entity = _fixture.Create<ContactDetails>();
-            var dbEntity = entity.ToDatabase();
-            var dbIdUsed = entity.TargetId;
+            var entity = _fixture.Build<ContactDetailsEntity>().Create();
+            InsertDatatoDynamoDB(entity);
 
-            var response = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
-            _dynamoDb.Verify(x => x.QueryAsync<ContactDetailsEntity>(dbIdUsed, default), Times.Once);
+            var result = await _classUnderTest.GetContactByTargetId(entity.TargetId).ConfigureAwait(false);
+            result.Should().BeEquivalentTo(entity);
+        }
+
+        private void InsertDatatoDynamoDB(ContactDetailsEntity entity)
+        {
+            DynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).GetAwaiter().GetResult();
         }
     }
 }

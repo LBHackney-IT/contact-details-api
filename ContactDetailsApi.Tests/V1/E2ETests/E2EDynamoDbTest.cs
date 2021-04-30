@@ -10,6 +10,7 @@ using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.Tests.V1.E2ETests
@@ -17,6 +18,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests
 
     public class E2EDynamoDbTest : DynamoDbIntegrationTests<Startup>
     {
+
         private readonly Fixture _fixture = new Fixture();
 
         /// <summary>
