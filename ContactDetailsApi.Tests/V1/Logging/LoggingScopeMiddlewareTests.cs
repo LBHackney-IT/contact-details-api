@@ -1,27 +1,24 @@
-using ContactDetailsApi.V1.Controllers;
+using ContactDetailsApi.V1;
 using ContactDetailsApi.V1.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Logging
 {
-    [TestFixture]
     public class LoggingScopeMiddlewareTests
     {
         private readonly string _correlationId = Guid.NewGuid().ToString();
         private readonly string _userId = Guid.NewGuid().ToString();
-        private HttpContext _httpContext;
-        private Mock<ILogger<LoggingScopeMiddleware>> _mockLogger;
 
-        [SetUp]
-        public void SetUp()
+        private readonly HttpContext _httpContext;
+        private readonly Mock<ILogger<LoggingScopeMiddleware>> _mockLogger;
+
+        public LoggingScopeMiddlewareTests()
         {
             _httpContext = new DefaultHttpContext();
             _httpContext.Request.Headers.Add(Constants.CorrelationId, new StringValues(_correlationId));
@@ -30,7 +27,7 @@ namespace ContactDetailsApi.Tests.V1.Logging
             _mockLogger = new Mock<ILogger<LoggingScopeMiddleware>>();
         }
 
-        [Test]
+        [Fact]
         public async Task InvokeAsyncTestBeginsLoggingScope()
         {
             var sut = new LoggingScopeMiddleware(null);

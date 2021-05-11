@@ -2,24 +2,22 @@ using ContactDetailsApi.V1.Controllers;
 using ContactDetailsApi.V1.Logging;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Logging
 {
-    [TestFixture]
-    public class LogCallAspectTest
+    [Collection("LogCall collection")]
+    public class LogCallAspectTests
     {
-        private Mock<ILogger<LogCallAspect>> _logger;
-        private LogCallAspect _sut;
+        private readonly Mock<ILogger<LogCallAspect>> _logger;
+        private readonly LogCallAspect _sut;
 
         private readonly Type _type = typeof(ContactDetailsController);
         private readonly string _methodName = "SomeMethodName";
 
-        [SetUp]
-        public void SetUp()
+        public LogCallAspectTests()
         {
             _logger = new Mock<ILogger<LogCallAspect>>();
             _sut = new LogCallAspect(_logger.Object);
@@ -34,7 +32,21 @@ namespace ContactDetailsApi.Tests.V1.Logging
             return (new List<Attribute> { attribute }).ToArray();
         }
 
-        [Test]
+        [Theory]
+        [InlineData(null)]
+        [InlineData(LogLevel.Trace)]
+        [InlineData(LogLevel.Debug)]
+        [InlineData(LogLevel.Error)]
+        public void LogCallAspectLogEnterTestLogsAsExpected(LogLevel? level)
+        {
+            var triggers = BuildTriggers(level);
+            _sut.LogEnter(_type, _methodName, triggers);
+
+            _logger.VerifyExact(level ?? LogLevel.Trace,
+                $"STARTING {_type.Name}.{_methodName} method", Times.Once());
+        }
+
+        [Fact]
         public void LogCallAspectLogEnterTestNoAttributeLogsTrace()
         {
             _sut.LogEnter(_type, _methodName, new List<Attribute>().ToArray());
@@ -43,7 +55,21 @@ namespace ContactDetailsApi.Tests.V1.Logging
                 $"STARTING {_type.Name}.{_methodName} method", Times.Once());
         }
 
-        [Test]
+        [Theory]
+        [InlineData(null)]
+        [InlineData(LogLevel.Trace)]
+        [InlineData(LogLevel.Debug)]
+        [InlineData(LogLevel.Error)]
+        public void LogCallAspectLogExitTestLogsAsExpected(LogLevel? level)
+        {
+            var triggers = BuildTriggers(level);
+            _sut.LogExit(_type, _methodName, triggers);
+
+            _logger.VerifyExact(level ?? LogLevel.Trace,
+                $"ENDING {_type.Name}.{_methodName} method", Times.Once());
+        }
+
+        [Fact]
         public void LogCallAspectLogExitTestNoAttributeLogsTrace()
         {
             _sut.LogExit(_type, _methodName, new List<Attribute>().ToArray());

@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System;
 using System.Linq;
-namespace ContactDetailsApi
+
+namespace ContactDetailsApi.V1
 {
     public static class HttpHeadersExtensions
     {

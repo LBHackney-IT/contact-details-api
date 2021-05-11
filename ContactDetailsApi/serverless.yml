@@ -25,6 +25,9 @@ functions:
   ContactDetailsApi:
     name: ${self:service}-${self:provider.stage}
     handler: ContactDetailsApi::ContactDetailsApi.LambdaEntryPoint::FunctionHandlerAsync
+    role: lambdaExecutionRole
+    environment:
+      ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
     events:
       - http:
           path: /{proxy+}

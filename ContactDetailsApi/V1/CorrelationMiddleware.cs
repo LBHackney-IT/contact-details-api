@@ -1,9 +1,9 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Threading.Tasks;
 
-namespace ContactDetailsApi.V1.Controllers
+namespace ContactDetailsApi.V1
 {
     public class CorrelationMiddleware
     {
@@ -28,7 +28,7 @@ namespace ContactDetailsApi.V1.Controllers
 
     public static class CorrelationMiddlewareExtensions
     {
-        public static IApplicationBuilder UseCorrelation(
+        public static IApplicationBuilder UseCorrelationId(
             this IApplicationBuilder builder)
         {
             return builder.UseMiddleware<CorrelationMiddleware>();

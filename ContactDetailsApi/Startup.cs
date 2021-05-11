@@ -1,12 +1,8 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using ContactDetailsApi.V1.Controllers;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using ContactDetailsApi.V1;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
+using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
@@ -15,15 +11,18 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using ContactDetailsApi.V1.Logging;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace ContactDetailsApi
 {
@@ -49,6 +48,7 @@ namespace ContactDetailsApi
             services
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
@@ -158,13 +158,12 @@ namespace ContactDetailsApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-
             services.AddScoped<IContactDetailsGateway, DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetContactByTargetIdUseCase, GetContactByTargetIdUseCase>();
+            services.AddScoped<IGetContactDetailsByTargetIdUseCase, GetContactDetailsByTargetIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -175,7 +174,7 @@ namespace ContactDetailsApi
                 .AllowAnyHeader()
                 .AllowAnyMethod());
 
-            app.UseCorrelation();
+            app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
             if (env.IsDevelopment())
@@ -211,8 +210,8 @@ namespace ContactDetailsApi
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
-            app.UseLogCall();
 
+            app.UseLogCall();
         }
     }
 }

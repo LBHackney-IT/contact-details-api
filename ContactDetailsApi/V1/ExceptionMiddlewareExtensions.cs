@@ -2,12 +2,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using ContactDetailsApi.V1.Controllers;
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
-namespace ContactDetailsApi
+namespace ContactDetailsApi.V1
 {
     // TODO: This should go in a common NuGet package...
 

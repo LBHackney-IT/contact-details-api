@@ -9,17 +9,18 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.UseCase
 {
-    public class GetContactByTargetIdUseCase : IGetContactByTargetIdUseCase
+    public class GetContactDetailsByTargetIdUseCase : IGetContactDetailsByTargetIdUseCase
     {
         private readonly IContactDetailsGateway _gateway;
-        public GetContactByTargetIdUseCase(IContactDetailsGateway gateway)
+        public GetContactDetailsByTargetIdUseCase(IContactDetailsGateway gateway)
         {
             _gateway = gateway;
         }
+
         [LogCall]
-        public async Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter queryParam)
+        public async Task<List<ContactDetailsResponseObject>> Execute(ContactQueryParameter query)
         {
-            var contact = await _gateway.GetContactByTargetId(queryParam.TargetId).ConfigureAwait(false);
+            var contact = await _gateway.GetContactDetailsByTargetId(query).ConfigureAwait(false);
             return contact.ToResponse();
         }
     }

@@ -2,7 +2,6 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Factories
 {
@@ -42,11 +41,6 @@ namespace ContactDetailsApi.V1.Factories
                 IsActive = entity.IsActive,
                 RecordValidUntil = entity.RecordValidUntil
             };
-        }
-
-        public static List<ContactDetailsEntity> ToDatabase(this IEnumerable<ContactDetails> entity)
-        {
-            return entity.Select(p => p.ToDatabase()).ToList();
         }
     }
 }

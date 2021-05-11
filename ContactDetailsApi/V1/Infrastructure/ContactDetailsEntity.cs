@@ -1,12 +1,9 @@
 using Amazon.DynamoDBv2.DataModel;
 using ContactDetailsApi.V1.Domain;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContactDetailsApi.V1.Infrastructure
 {
-
     [DynamoDBTable("ContactDetails", LowerCamelCaseProperties = true)]
     public class ContactDetailsEntity
     {
@@ -17,11 +14,12 @@ namespace ContactDetailsApi.V1.Infrastructure
         public Guid Id { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbEnumConverter<TargetType>))]
-
         public TargetType TargetType { get; set; }
 
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<ContactInformation>))]
         public ContactInformation ContactInformation { get; set; }
 
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<SourceServiceArea>))]
         public SourceServiceArea SourceServiceArea { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
@@ -29,6 +27,7 @@ namespace ContactDetailsApi.V1.Infrastructure
 
         public bool IsActive { get; set; }
 
+        [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CreatedBy>))]
         public CreatedBy CreatedBy { get; set; }
     }
 }

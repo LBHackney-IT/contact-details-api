@@ -1,4 +1,4 @@
-namespace ContactDetailsApi.V1.Controllers
+namespace ContactDetailsApi.V1
 {
     public static class Constants
     {

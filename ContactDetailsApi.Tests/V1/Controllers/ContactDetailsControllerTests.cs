@@ -6,31 +6,28 @@ using ContactDetailsApi.V1.UseCase.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Controllers
 {
-    [TestFixture]
-    public class ContactDetailsControllerTests : LogCallAspectFixture
+    [Collection("LogCall collection")]
+    public class ContactDetailsControllerTests
     {
-        private ContactDetailsController _classUnderTest;
-        private Mock<IGetContactByTargetIdUseCase> _mockGetByIdUseCase;
+        private readonly ContactDetailsController _classUnderTest;
+        private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
         private readonly Fixture _fixture = new Fixture();
 
-
-        [SetUp]
-        public void SetUp()
+        public ContactDetailsControllerTests()
         {
-            _mockGetByIdUseCase = new Mock<IGetContactByTargetIdUseCase>();
+            _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
             _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object);
         }
 
-        [Test]
-        public async Task GetContactByIdNotFoundReturnsNotFound()
+        [Fact]
+        public async Task GetContactDetailsByTargetIdNotFoundReturnsNotFound()
         {
             var cqp = new ContactQueryParameter
             {
@@ -38,15 +35,14 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             };
             _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((List<ContactDetailsResponseObject>) null);
 
-            var response = await _classUnderTest.GetContactByTargetId(cqp).ConfigureAwait(false);
+            var response = await _classUnderTest.GetContactDetailsByTargetId(cqp).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
-            (response as NotFoundObjectResult).Value.Should().Be(cqp);
+            (response as NotFoundObjectResult).Value.Should().Be(cqp.TargetId);
         }
 
-        [Test]
-        public async Task GetContactbyIdReturnsOkResponse()
+        [Fact]
+        public async Task GetContactDetailsByTargetIdReturnsOkResponse()
         {
-            var targetId = Guid.NewGuid();
             var queryParam = new ContactQueryParameter
             {
                 TargetId = Guid.NewGuid()
@@ -54,12 +50,13 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             var contactResponse = _fixture.Create<List<ContactDetailsResponseObject>>();
             _mockGetByIdUseCase.Setup(x => x.Execute(queryParam)).ReturnsAsync((contactResponse));
 
-            var response = await _classUnderTest.GetContactByTargetId(queryParam).ConfigureAwait(false);
+            var response = await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
-            (response as OkObjectResult).Value.Should().Be(contactResponse);
+            (response as OkObjectResult).Value.Should().BeEquivalentTo(new GetContactDetailsResponse(contactResponse));
         }
-        [Test]
-        public void GetContactByIdThrowsException()
+
+        [Fact]
+        public void GetContactDetailsByTargetIdThrowsException()
         {
             var targetId = Guid.NewGuid();
             var queryParam = new ContactQueryParameter
@@ -69,7 +66,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             var exception = new ApplicationException("Test Exception");
             _mockGetByIdUseCase.Setup(x => x.Execute(queryParam)).ThrowsAsync(exception);
 
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactByTargetId(queryParam).ConfigureAwait(false);
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

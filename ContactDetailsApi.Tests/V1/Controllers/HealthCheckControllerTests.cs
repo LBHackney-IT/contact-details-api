@@ -1,26 +1,21 @@
-using System.Collections.Generic;
 using ContactDetailsApi.V1.Controllers;
-using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
-using NUnit.Framework;
+using System.Collections.Generic;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Controllers
 {
-
-    [TestFixture]
     public class HealthCheckControllerTests
     {
-        private HealthCheckController _classUnderTest;
+        private readonly HealthCheckController _classUnderTest;
 
-
-        [SetUp]
-        public void SetUp()
+        public HealthCheckControllerTests()
         {
             _classUnderTest = new HealthCheckController();
         }
 
-        [Test]
+        [Fact]
         public void ReturnsResponseWithStatus()
         {
             var expected = new Dictionary<string, object> { { "success", true } };
@@ -29,12 +24,6 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             response.Should().NotBeNull();
             response.StatusCode.Should().Be(200);
             response.Value.Should().BeEquivalentTo(expected);
-        }
-
-        [Test]
-        public void ThrowErrorThrows()
-        {
-            Assert.Throws<TestOpsErrorException>(_classUnderTest.ThrowError);
         }
     }
 }

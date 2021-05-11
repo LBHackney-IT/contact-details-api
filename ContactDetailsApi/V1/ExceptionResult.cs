@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace ContactDetailsApi
+namespace ContactDetailsApi.V1
 {
     // TODO: This should go in a common NuGet package...
     public class ExceptionResult
