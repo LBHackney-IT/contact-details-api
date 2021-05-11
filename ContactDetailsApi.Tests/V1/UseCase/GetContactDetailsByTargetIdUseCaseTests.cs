@@ -7,57 +7,54 @@ using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
 {
-    [TestFixture]
-    public class GetByTargetIdUseCaseTests : LogCallAspectFixture
+    [Collection("LogCall collection")]
+    public class GetContactDetailsByTargetIdUseCaseTests : LogCallAspectFixture
     {
-        private Mock<IContactDetailsGateway> _mockGateway;
-        private GetContactByTargetIdUseCase _classUnderTest;
+        private readonly Mock<IContactDetailsGateway> _mockGateway;
+        private readonly GetContactDetailsByTargetIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
-
-        [SetUp]
-        public void SetUp()
+        public GetContactDetailsByTargetIdUseCaseTests()
         {
             _mockGateway = new Mock<IContactDetailsGateway>();
-            _classUnderTest = new GetContactByTargetIdUseCase(_mockGateway.Object);
+            _classUnderTest = new GetContactDetailsByTargetIdUseCase(_mockGateway.Object);
         }
-        [Test]
+
+        [Fact]
         public async Task GetByIdUseCaseShouldBeEmpty()
         {
             var queryParam = new ContactQueryParameter
             {
                 TargetId = Guid.NewGuid()
             };
-            _mockGateway.Setup(x => x.GetContactByTargetId(queryParam.TargetId)).ReturnsAsync((List<ContactDetails>) null);
+            _mockGateway.Setup(x => x.GetContactDetailsByTargetId(queryParam)).ReturnsAsync((List<ContactDetails>) null);
 
             var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
             response.Should().BeEmpty();
-
         }
 
-        [Test]
+        [Fact]
         public async Task GetContactByIdReturnsOkResponse()
         {
-            var targetId = Guid.NewGuid();
             var queryParam = new ContactQueryParameter
             {
-                TargetId = targetId
+                TargetId = Guid.NewGuid()
             };
             var contact = _fixture.Create<List<ContactDetails>>();
-            _mockGateway.Setup(x => x.GetContactByTargetId(queryParam.TargetId)).ReturnsAsync(contact);
+            _mockGateway.Setup(x => x.GetContactDetailsByTargetId(queryParam)).ReturnsAsync(contact);
 
             var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
         }
 
-        [Test]
+        [Fact]
         public void GetContactByIdThrowsException()
         {
             var queryParam = new ContactQueryParameter
@@ -65,14 +62,11 @@ namespace ContactDetailsApi.Tests.V1.UseCase
                 TargetId = Guid.NewGuid()
             };
             var exception = new ApplicationException("Test Exception");
-            _mockGateway.Setup(x => x.GetContactByTargetId(queryParam.TargetId)).ThrowsAsync(exception);
+            _mockGateway.Setup(x => x.GetContactDetailsByTargetId(queryParam)).ThrowsAsync(exception);
 
             Func<Task<List<ContactDetailsResponseObject>>> func = async () => await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
 
-
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
-
-
     }
 }

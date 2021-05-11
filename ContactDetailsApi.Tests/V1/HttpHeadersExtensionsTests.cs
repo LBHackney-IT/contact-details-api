@@ -1,17 +1,13 @@
-using AutoFixture;
+using ContactDetailsApi.V1;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using Moq;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1
 {
-    [TestFixture]
     public class HttpHeadersExtensionsTests
     {
         private const string KEY = "someHeaderKey";
@@ -19,14 +15,14 @@ namespace ContactDetailsApi.Tests.V1
         private readonly Mock<IHeaderDictionary> _mockHeaders = new Mock<IHeaderDictionary>();
         delegate void SubmitCallback(string x, out StringValues y);
 
-        [Test]
+        [Fact]
         public void GetHeaderValueThrowsNullHeaders()
         {
             Func<string> func = () => HttpHeadersExtensions.GetHeaderValue(null, KEY);
             func.Should().Throw<ArgumentNullException>();
         }
 
-        [Test]
+        [Fact]
         public void GetHeaderValueKeyNotFoundReturnsNull()
         {
             StringValues outVal;
@@ -34,7 +30,7 @@ namespace ContactDetailsApi.Tests.V1
             _mockHeaders.Object.GetHeaderValue(KEY).Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void GetHeaderValueFounddNullKeyValue()
         {
             StringValues outVal;
@@ -42,7 +38,7 @@ namespace ContactDetailsApi.Tests.V1
             _mockHeaders.Object.GetHeaderValue(KEY).Should().BeNull();
         }
 
-        [Test]
+        [Fact]
         public void GetHeaderValueFoundEmptyKeyValue()
         {
             StringValues outVal = new StringValues("");
@@ -50,7 +46,7 @@ namespace ContactDetailsApi.Tests.V1
             _mockHeaders.Object.GetHeaderValue(KEY).Should().Be(string.Empty);
         }
 
-        [Test]
+        [Fact]
         public void GetHeaderValueFoundSingleKeyValue()
         {
             StringValues outVal;
@@ -60,7 +56,7 @@ namespace ContactDetailsApi.Tests.V1
             _mockHeaders.Object.GetHeaderValue(KEY).Should().Be(VALUE);
         }
 
-        [Test]
+        [Fact]
         public void GetHeaderValueFoundManyKeyValuesReturnsFirst()
         {
             StringValues outVal;

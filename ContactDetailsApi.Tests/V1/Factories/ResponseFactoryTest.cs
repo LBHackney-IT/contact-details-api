@@ -1,21 +1,16 @@
 using AutoFixture;
-using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using FluentAssertions;
-using Moq;
-using NUnit.Framework;
-using System;
-using System.Collections;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Factories
 {
-    [TestFixture]
     public class ResponseFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
 
-        [Test]
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
             var domain = _fixture.Create<ContactDetails>();

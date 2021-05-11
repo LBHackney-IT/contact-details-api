@@ -2,9 +2,8 @@ using ContactDetailsApi.V1.Logging;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Logging;
 using Moq;
-using NUnit.Framework;
 using System;
-using System.Collections.Generic;
+using Xunit;
 
 namespace ContactDetailsApi.Tests
 {
@@ -12,8 +11,7 @@ namespace ContactDetailsApi.Tests
     {
         public Mock<ILogger<LogCallAspect>> MockLogger { get; private set; }
 
-        [OneTimeSetUp]
-        public void RunBeforeTests()
+        public LogCallAspectFixture()
         {
             MockLogger = SetupLogCallAspect();
         }
@@ -31,4 +29,8 @@ namespace ContactDetailsApi.Tests
             return mockLogger;
         }
     }
+
+    [CollectionDefinition("LogCall collection")]
+    public class LogCallAspectFixtureCollection : ICollectionFixture<LogCallAspectFixture>
+    { }
 }

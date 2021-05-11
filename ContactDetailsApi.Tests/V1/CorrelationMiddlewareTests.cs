@@ -1,24 +1,21 @@
-using System.Threading.Tasks;
-using ContactDetailsApi.V1.Controllers;
-using ContactDetailsApi.V1.Infrastructure;
+using ContactDetailsApi.V1;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using NUnit.Framework;
+using System.Threading.Tasks;
+using Xunit;
 
-namespace ContactDetailsApi.Tests.V1.Infrastructure
+namespace ContactDetailsApi.Tests.V1
 {
-    [TestFixture]
     public class CorrelationMiddlewareTest
     {
-        private CorrelationMiddleware _sut;
+        private readonly CorrelationMiddleware _sut;
 
-        [SetUp]
-        public void Init()
+        public CorrelationMiddlewareTest()
         {
             _sut = new CorrelationMiddleware(null);
         }
 
-        [Test]
+        [Fact]
         public async Task DoesNotReplaceCorrelationIdIfOneExists()
         {
             // Arrange
@@ -34,7 +31,7 @@ namespace ContactDetailsApi.Tests.V1.Infrastructure
             httpContext.HttpContext.Request.Headers[Constants.CorrelationId].Should().BeEquivalentTo(headerValue);
         }
 
-        [Test]
+        [Fact]
         public async Task AddsCorrelationIdIfOneDoesNotExist()
         {
             // Arrange

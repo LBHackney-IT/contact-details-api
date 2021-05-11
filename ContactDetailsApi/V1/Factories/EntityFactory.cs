@@ -2,7 +2,6 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Factories
 {
