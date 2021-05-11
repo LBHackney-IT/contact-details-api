@@ -37,12 +37,12 @@ namespace ContactDetailsApi.V1.Gateways
                 };
                 dbOperationConfig = new DynamoDBOperationConfig() { QueryFilter = scanConditions };
             }
-            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(query.TargetId.Value, dbOperationConfig);
 
-            while ((queryResult != null) && !queryResult.IsDone)
+            var queryResult = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(query.TargetId.Value, dbOperationConfig);
+            while (!queryResult.IsDone)
                 contactDetailsEntities.AddRange(await queryResult.GetNextSetAsync().ConfigureAwait(false));
 
-            return contactDetailsEntities?.ToDomain();
+            return contactDetailsEntities.ToDomain();
         }
     }
 }

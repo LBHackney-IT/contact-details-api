@@ -12,18 +12,27 @@ namespace ContactDetailsApi.Tests.V1
     {
         private const string KEY = "someHeaderKey";
         private const string VALUE = "some value";
+
         private readonly Mock<IHeaderDictionary> _mockHeaders = new Mock<IHeaderDictionary>();
-        delegate void SubmitCallback(string x, out StringValues y);
 
         [Fact]
-        public void GetHeaderValueThrowsNullHeaders()
+        public void GetHeaderValueTestNullHeaders()
         {
             Func<string> func = () => HttpHeadersExtensions.GetHeaderValue(null, KEY);
             func.Should().Throw<ArgumentNullException>();
         }
 
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void GetHeaderValueTestInvalidKey(string key)
+        {
+            Func<string> func = () => _mockHeaders.Object.GetHeaderValue(key);
+            func.Should().Throw<ArgumentNullException>();
+        }
+
         [Fact]
-        public void GetHeaderValueKeyNotFoundReturnsNull()
+        public void GetHeaderValueTestKeyNotFoundReturnsNull()
         {
             StringValues outVal;
             _mockHeaders.Setup(x => x.TryGetValue(KEY, out outVal)).Returns(false);
@@ -31,7 +40,7 @@ namespace ContactDetailsApi.Tests.V1
         }
 
         [Fact]
-        public void GetHeaderValueFounddNullKeyValue()
+        public void GetHeaderValueTestKeyFoundNullValue()
         {
             StringValues outVal;
             _mockHeaders.Setup(x => x.TryGetValue(KEY, out outVal)).Returns(true);
@@ -39,15 +48,17 @@ namespace ContactDetailsApi.Tests.V1
         }
 
         [Fact]
-        public void GetHeaderValueFoundEmptyKeyValue()
+        public void GetHeaderValueTestKeyFoundEmptyString()
         {
             StringValues outVal = new StringValues("");
             _mockHeaders.Setup(x => x.TryGetValue(KEY, out outVal)).Returns(true);
             _mockHeaders.Object.GetHeaderValue(KEY).Should().Be(string.Empty);
         }
 
+        delegate void SubmitCallback(string x, out StringValues y);
+
         [Fact]
-        public void GetHeaderValueFoundSingleKeyValue()
+        public void GetHeaderValueTestKeyFoundSingleValue()
         {
             StringValues outVal;
             _mockHeaders.Setup(x => x.TryGetValue(KEY, out outVal))
@@ -57,7 +68,7 @@ namespace ContactDetailsApi.Tests.V1
         }
 
         [Fact]
-        public void GetHeaderValueFoundManyKeyValuesReturnsFirst()
+        public void GetHeaderValueTestKeyFoundManyValueReturnsFirst()
         {
             StringValues outVal;
             _mockHeaders.Setup(x => x.TryGetValue(KEY, out outVal))
@@ -65,6 +76,5 @@ namespace ContactDetailsApi.Tests.V1
                 .Returns(true);
             _mockHeaders.Object.GetHeaderValue(KEY).Should().Be(VALUE);
         }
-
     }
 }

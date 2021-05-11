@@ -2,6 +2,7 @@ using AutoFixture;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using FluentAssertions;
+using System.Collections.Generic;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Factories
@@ -11,7 +12,16 @@ namespace ContactDetailsApi.Tests.V1.Factories
         private readonly Fixture _fixture = new Fixture();
 
         [Fact]
-        public void CanMapADatabaseEntityToADomainObject()
+        public void CanMapANullDomainContactDetailsToADomainObject()
+        {
+            ContactDetails domain = null;
+            var response = domain.ToResponse();
+
+            domain.Should().BeNull();
+        }
+
+        [Fact]
+        public void CanMapADomainContactDetailsToAResponseObject()
         {
             var domain = _fixture.Create<ContactDetails>();
             var response = domain.ToResponse();
@@ -24,6 +34,24 @@ namespace ContactDetailsApi.Tests.V1.Factories
             domain.CreatedBy.Should().BeEquivalentTo(response.CreatedBy);
             domain.IsActive.Should().Be(response.IsActive);
             domain.RecordValidUntil.Should().Be(response.RecordValidUntil);
+        }
+
+        [Fact]
+        public void CanMapDomainContactDetailsListToAResponsesList()
+        {
+            var contacts = _fixture.CreateMany<ContactDetails>(10);
+            var responseNotes = contacts.ToResponse();
+
+            responseNotes.Should().BeEquivalentTo(contacts);
+        }
+
+        [Fact]
+        public void CanMapNullDomainContactDetailsListToAnEmptyResponsesList()
+        {
+            List<ContactDetails> contacts = null;
+            var responseNotes = contacts.ToResponse();
+
+            responseNotes.Should().BeEmpty();
         }
     }
 }
