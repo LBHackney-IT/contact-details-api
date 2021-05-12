@@ -1,8 +1,10 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
+using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -14,10 +16,10 @@ namespace ContactDetailsApi.V1.Controllers
     [ApiVersion("1.0")]
     public class ContactDetailsController : BaseController
     {
-        private readonly IGetContactByTargetIdUseCase _getContactByTargetIdUseCase;
-        public ContactDetailsController(IGetContactByTargetIdUseCase getByTargetIdUseCase)
+        private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
+        public ContactDetailsController(IGetContactDetailsByTargetIdUseCase getByTargetIdUseCase)
         {
-            _getContactByTargetIdUseCase = getByTargetIdUseCase;
+            _getContactDetailsByTargetIdUseCase = getByTargetIdUseCase;
         }
 
         /// <summary>
@@ -30,13 +32,14 @@ namespace ContactDetailsApi.V1.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpGet]
-        public async Task<IActionResult> GetContactByTargetId([FromQuery] ContactQueryParameter queryParam)
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> GetContactDetailsByTargetId([FromQuery] ContactQueryParameter queryParam)
         {
 
-            var contacts = await _getContactByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
-            if (contacts == null || !contacts.Any()) return NotFound(queryParam);
+            var contacts = await _getContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
+            if (contacts == null || !contacts.Any()) return NotFound(queryParam.TargetId);
 
-            return Ok(contacts);
+            return Ok(new GetContactDetailsResponse(contacts));
         }
     }
 }

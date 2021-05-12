@@ -1,8 +1,7 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ContactDetailsApi.V1.Factories
 {

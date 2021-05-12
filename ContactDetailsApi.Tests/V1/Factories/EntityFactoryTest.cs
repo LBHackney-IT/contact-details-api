@@ -3,18 +3,15 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
-using NUnit.Framework;
-using System.Data;
+using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Factories
 {
-    [TestFixture]
     public class EntityFactoryTest
     {
         private readonly Fixture _fixture = new Fixture();
 
-
-        [Test]
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
             var databaseEntity = _fixture.Create<ContactDetailsEntity>();
@@ -30,8 +27,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
         }
 
-
-        [Test]
+        [Fact]
         public void CanMapADomainEntityToADatabaseObject()
         {
             var contactDetails = _fixture.Create<ContactDetails>();
