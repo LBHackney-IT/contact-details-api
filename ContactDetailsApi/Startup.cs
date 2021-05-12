@@ -149,7 +149,9 @@ namespace ContactDetailsApi
                 };
                 config.AddLambdaLogger(loggerOptions);
 
-                if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == Environments.Development)
+                var aspNetcoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                if ((aspNetcoreEnvironment != Environments.Production)
+                    && (aspNetcoreEnvironment != Environments.Staging))
                 {
                     config.AddConsole();
                 }
