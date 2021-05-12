@@ -23,7 +23,7 @@ namespace ContactDetailsApi.V1.Infrastructure
         public SourceServiceArea SourceServiceArea { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
-        public DateTime RecordValidUntil { get; set; }
+        public DateTime? RecordValidUntil { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbBoolConverter))]
         public bool IsActive { get; set; }

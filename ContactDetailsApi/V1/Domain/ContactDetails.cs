@@ -14,7 +14,7 @@ namespace ContactDetailsApi.V1.Domain
 
         public SourceServiceArea SourceServiceArea { get; set; }
 
-        public DateTime RecordValidUntil { get; set; }
+        public DateTime? RecordValidUntil { get; set; }
 
         public bool IsActive { get; set; }
 
