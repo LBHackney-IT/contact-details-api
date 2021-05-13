@@ -15,7 +15,7 @@ namespace ContactDetailsApi.V1.Boundary.Response
 
         public SourceServiceArea SourceServiceArea { get; set; }
 
-        public DateTime RecordValidUntil { get; set; }
+        public DateTime? RecordValidUntil { get; set; }
 
         public bool IsActive { get; set; }
 
