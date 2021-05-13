@@ -9,7 +9,6 @@ namespace ContactDetailsApi.V1.Factories
     {
         public static ContactDetails ToDomain(this ContactDetailsEntity databaseEntity)
         {
-
             return new ContactDetails
             {
                 Id = databaseEntity.Id,
