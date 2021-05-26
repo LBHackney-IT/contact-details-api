@@ -6,6 +6,8 @@ using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
+using Hackney.Core.HealthCheck;
+using Hackney.Core.DynamoDb.HealthCheck;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -23,6 +25,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace ContactDetailsApi
 {
@@ -57,6 +60,8 @@ namespace ContactDetailsApi
             });
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
+
+            services.AddDynamoDbHealthCheck<ContactDetailsEntity>();
 
             services.AddSwaggerGen(c =>
             {
@@ -211,6 +216,11 @@ namespace ContactDetailsApi
             {
                 // SwaggerGen won't find controllers that are routed via this technique.
                 endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
+
+                endpoints.MapHealthChecks("/api/v1/healthcheck/ping", new HealthCheckOptions()
+                {
+                    ResponseWriter = HealthCheckResponseWriter.WriteResponse
+                });
             });
 
             app.UseLogCall();

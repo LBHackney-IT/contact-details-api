@@ -5,12 +5,16 @@ ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
 
 ENV DynamoDb_LocalMode='true'
 
+ARG LBHPACKAGESTOKEN
+ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
+
 WORKDIR /app
 
-# Copy csproj and restore as distinct layers
+# Copy csproj and nuget config and restore as distinct layers
 COPY ./ContactDetailsApi.sln ./
 COPY ./ContactDetailsApi/ContactDetailsApi.csproj ./ContactDetailsApi/
 COPY ./ContactDetailsApi.Tests/ContactDetailsApi.Tests.csproj ./ContactDetailsApi.Tests/
+COPY /NuGet.Config /root/.nuget/NuGet/NuGet.Config
 
 RUN dotnet restore ./ContactDetailsApi/ContactDetailsApi.csproj
 RUN dotnet restore ./ContactDetailsApi.Tests/ContactDetailsApi.Tests.csproj
