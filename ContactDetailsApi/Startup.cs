@@ -1,14 +1,18 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using ContactDetailsApi.V1;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
-using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
-using Hackney.Core.HealthCheck;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
+using Hackney.Core.HealthCheck;
+using Hackney.Core.Logging;
+using Hackney.Core.Middleware.CorrelationId;
+using Hackney.Core.Middleware.Exception;
+using Hackney.Core.Middleware.Logging;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
@@ -25,7 +29,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace ContactDetailsApi
 {
@@ -120,47 +123,13 @@ namespace ContactDetailsApi
                     c.IncludeXmlComments(xmlPath);
             });
 
-            ConfigureLogging(services, Configuration);
+            services.ConfigureLambdaLogging(Configuration);
 
             services.AddLogCallAspect();
             services.ConfigureDynamoDB();
 
             RegisterGateways(services);
             RegisterUseCases(services);
-        }
-
-        private static void ConfigureLogging(IServiceCollection services, IConfiguration configuration)
-        {
-            // We rebuild the logging stack so as to ensure the console logger is not used in production.
-            // See here: https://weblog.west-wind.com/posts/2018/Dec/31/Dont-let-ASPNET-Core-Default-Console-Logging-Slow-your-App-down
-            services.AddLogging(config =>
-            {
-                // clear out default configuration
-                config.ClearProviders();
-
-                config.AddConfiguration(configuration.GetSection("Logging"));
-                config.AddDebug();
-                config.AddEventSourceLogger();
-
-                // Create and populate LambdaLoggerOptions object
-                var loggerOptions = new LambdaLoggerOptions
-                {
-                    IncludeCategory = false,
-                    IncludeLogLevel = true,
-                    IncludeNewline = true,
-                    IncludeEventId = true,
-                    IncludeException = true,
-                    IncludeScopes = true
-                };
-                config.AddLambdaLogger(loggerOptions);
-
-                var aspNetcoreEnvironment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-                if ((aspNetcoreEnvironment != Environments.Production)
-                    && (aspNetcoreEnvironment != Environments.Staging))
-                {
-                    config.AddConsole();
-                }
-            });
         }
 
         private static void RegisterGateways(IServiceCollection services)
@@ -184,6 +153,7 @@ namespace ContactDetailsApi
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -194,7 +164,6 @@ namespace ContactDetailsApi
             }
 
             app.UseXRay("contact-details-api");
-
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

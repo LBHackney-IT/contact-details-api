@@ -1,5 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
-using ContactDetailsApi.V1.Infrastructure;
+using Hackney.Core.DynamoDb.Converters;
 
 namespace ContactDetailsApi.V1.Domain
 {

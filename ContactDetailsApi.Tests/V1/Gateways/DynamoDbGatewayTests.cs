@@ -64,10 +64,17 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             response.Should().BeEmpty();
         }
 
-        [Fact]
-        public async Task GetContactDetailsByTargetIdReturnsExpectedContactDetails()
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task GetContactDetailsByTargetIdReturnsExpectedContactDetails(bool hasValidDate)
         {
+            DateTime? validDate = null;
+            if (hasValidDate)
+                validDate = DateTime.UtcNow;
+
             var entity = _fixture.Build<ContactDetailsEntity>()
+                                 .With(x => x.RecordValidUntil, validDate)
                                  .With(x => x.IsActive, true)
                                  .Create();
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);

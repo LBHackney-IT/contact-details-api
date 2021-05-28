@@ -50,6 +50,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                            .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
                                                                  .With(y => y.CreatedAt, funcDT)
                                                                  .Create())
+                           .With(x => x.RecordValidUntil, DateTime.UtcNow)
                            .With(x => x.IsActive, isActive)
                            .With(x => x.TargetType, TargetType.person)
                            .With(x => x.TargetId, TargetId)
