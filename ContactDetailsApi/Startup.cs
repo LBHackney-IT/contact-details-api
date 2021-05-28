@@ -4,6 +4,8 @@ using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
@@ -53,6 +55,7 @@ namespace ContactDetailsApi
 
             services
                 .AddMvc()
+                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             services.AddApiVersioning(o =>
