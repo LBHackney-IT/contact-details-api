@@ -9,7 +9,7 @@ namespace ContactDetailsApi.V1.Domain
         public ContactType ContactType { get; set; }
 
         [DynamoDBProperty(Converter = typeof(DynamoDbEnumConverter<SubType>))]
-        public SubType SubType { get; set; }
+        public SubType? SubType { get; set; }
 
         public string Value { get; set; }
 
