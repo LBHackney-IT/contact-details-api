@@ -14,7 +14,7 @@ namespace ContactDetailsApi.V1.Domain
     public enum ContactType
     {
         phone,
-        emailAddress,
+        email,
         address
     }
 
