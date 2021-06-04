@@ -4,7 +4,7 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
-using ContactDetailsApi.V1.Logging;
+using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
