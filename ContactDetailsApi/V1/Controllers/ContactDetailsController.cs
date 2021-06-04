@@ -1,7 +1,7 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
-using ContactDetailsApi.V1.Logging;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
