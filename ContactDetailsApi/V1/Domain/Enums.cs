@@ -24,6 +24,9 @@ namespace ContactDetailsApi.V1.Domain
     {
         mobile,
         correspondenceAddress,
-        landline
+        landline,
+        home,
+        work,
+        other
     }
 }
