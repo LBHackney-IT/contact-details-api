@@ -17,9 +17,12 @@ namespace ContactDetailsApi.V1.Controllers
     public class ContactDetailsController : BaseController
     {
         private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
-        public ContactDetailsController(IGetContactDetailsByTargetIdUseCase getByTargetIdUseCase)
+        private readonly ICreateContactUseCase _createContactUseCase;
+
+        public ContactDetailsController(IGetContactDetailsByTargetIdUseCase getByTargetIdUseCase, ICreateContactUseCase createContactUseCase)
         {
             _getContactDetailsByTargetIdUseCase = getByTargetIdUseCase;
+            _createContactUseCase = createContactUseCase;
         }
 
         /// <summary>
@@ -40,6 +43,24 @@ namespace ContactDetailsApi.V1.Controllers
             if (contacts == null || !contacts.Any()) return NotFound(queryParam.TargetId);
 
             return Ok(new GetContactDetailsResponse(contacts));
+        }
+
+        /// <summary>
+        /// Creates a new Contact
+        /// </summary>
+        /// <response code="201">Successfully Created</response>
+        /// <response code="404">Contact not found for ID requested</response>
+        /// <response code="500">Internal Server Error</response>
+        [ProducesResponseType(typeof(ContactDetailsResponseObject), StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        [HttpPost]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
+        {
+            var result = await _createContactUseCase.ExecuteAsync(contactRequest).ConfigureAwait(false);
+
+            return Created("api/v1/contactDetails", result);
         }
     }
 }

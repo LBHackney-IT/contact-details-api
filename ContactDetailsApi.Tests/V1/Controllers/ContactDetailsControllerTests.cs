@@ -18,24 +18,31 @@ namespace ContactDetailsApi.Tests.V1.Controllers
     {
         private readonly ContactDetailsController _classUnderTest;
         private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
+        private readonly Mock<ICreateContactUseCase> _mockCreateContactUseCase;
         private readonly Fixture _fixture = new Fixture();
 
         public ContactDetailsControllerTests()
         {
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
-            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object);
+            _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
+
+            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockCreateContactUseCase.Object);
         }
 
         [Fact]
         public async Task GetContactDetailsByTargetIdNotFoundReturnsNotFound()
         {
+            // Arrange
             var cqp = new ContactQueryParameter
             {
                 TargetId = Guid.NewGuid()
             };
             _mockGetByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((List<ContactDetailsResponseObject>) null);
 
+            // Act
             var response = await _classUnderTest.GetContactDetailsByTargetId(cqp).ConfigureAwait(false);
+
+            // Assert
             response.Should().BeOfType(typeof(NotFoundObjectResult));
             (response as NotFoundObjectResult).Value.Should().Be(cqp.TargetId);
         }
@@ -68,6 +75,38 @@ namespace ContactDetailsApi.Tests.V1.Controllers
 
             Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
 
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateContactReturnsCreatedTaskResponse()
+        {
+            // Arrange
+            var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
+            var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ReturnsAsync(contactResponse);
+
+            // Act
+            var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(CreatedResult));
+            (response as CreatedResult).Value.Should().BeEquivalentTo(contactResponse);
+        }
+
+        [Fact]
+        public void CreateContactThrowsException()
+        {
+            // Arrange
+            var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
+            var exception = new ApplicationException("Test Exception");
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ThrowsAsync(exception);
+
+            // Act
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+
+
+            // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
     }
