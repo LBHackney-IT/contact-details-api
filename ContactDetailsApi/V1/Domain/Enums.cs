@@ -22,11 +22,11 @@ namespace ContactDetailsApi.V1.Domain
 
     public enum SubType
     {
-        mobile,
         correspondenceAddress,
-        landline,
+        mobile,
         home,
         work,
-        other
+        other,
+        landline
     }
 }
