@@ -1,4 +1,3 @@
-using System;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using ContactDetailsApi.V1.Boundary.Request;
@@ -49,7 +48,6 @@ namespace ContactDetailsApi.V1.Gateways
         [LogCall]
         public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
         {
-            requestObject.Id = Guid.NewGuid();
             var personDbEntity = requestObject.ToDatabase();
 
             await _dynamoDbContext.SaveAsync(personDbEntity).ConfigureAwait(false);

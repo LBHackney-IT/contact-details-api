@@ -1,3 +1,4 @@
+using System;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
@@ -47,7 +48,7 @@ namespace ContactDetailsApi.V1.Factories
         {
             return new ContactDetailsEntity
             {
-                Id = entity.Id,
+                Id = entity.Id == Guid.Empty ? Guid.NewGuid() : entity.Id,
                 TargetId = entity.TargetId,
                 TargetType = entity.TargetType,
                 ContactInformation = entity.ContactInformation,
