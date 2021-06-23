@@ -25,5 +25,5 @@ namespace ContactDetailsApi.V1.UseCase
         }
     }
 
-    
+
 }
