@@ -44,5 +44,10 @@ namespace ContactDetailsApi.V1.Gateways
 
             return contactDetailsEntities.ToDomain();
         }
+
+        public Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
