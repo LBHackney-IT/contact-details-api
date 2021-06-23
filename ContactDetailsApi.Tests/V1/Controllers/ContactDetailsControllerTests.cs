@@ -18,12 +18,14 @@ namespace ContactDetailsApi.Tests.V1.Controllers
     {
         private readonly ContactDetailsController _classUnderTest;
         private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
+        private readonly Mock<IDeleteContactDetailsByTargetIdUseCase> _mockDeleteByIdUseCase;
         private readonly Fixture _fixture = new Fixture();
 
         public ContactDetailsControllerTests()
         {
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
-            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object);
+            _mockDeleteByIdUseCase = new Mock<IDeleteContactDetailsByTargetIdUseCase>();
+            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockDeleteByIdUseCase.Object);
         }
 
         [Fact]
@@ -67,6 +69,53 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             _mockGetByIdUseCase.Setup(x => x.Execute(queryParam)).ThrowsAsync(exception);
 
             Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
+
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task DeleteContactDetailsByTargetIdNotFoundReturnsNotFound()
+        {
+            var cqp = new ContactQueryParameter
+            {
+                TargetId = Guid.NewGuid(),
+                Id = Guid.NewGuid()
+            };
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((ContactDetailsResponseObject) null);
+
+            var response = await _classUnderTest.DeleteContactDetailsByTargetId(cqp).ConfigureAwait(false);
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(cqp.TargetId);
+        }
+
+        [Fact]
+        public async Task DeleteContactDetailsByTargetIdReturnsOkResponse()
+        {
+            var queryParam = new ContactQueryParameter
+            {
+                TargetId = Guid.NewGuid(),
+                Id = Guid.NewGuid()
+            };
+            var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam)).ReturnsAsync((contactResponse));
+
+            var response = await _classUnderTest.DeleteContactDetailsByTargetId(queryParam).ConfigureAwait(false);
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeEquivalentTo(contactResponse);
+        }
+
+        [Fact]
+        public void DeleteContactDetailsByTargetIdThrowsException()
+        {
+            var queryParam = new ContactQueryParameter
+            {
+                TargetId = Guid.NewGuid(),
+                Id = Guid.NewGuid()
+            };
+            var exception = new ApplicationException("Test Exception");
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam)).ThrowsAsync(exception);
+
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.DeleteContactDetailsByTargetId(queryParam).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

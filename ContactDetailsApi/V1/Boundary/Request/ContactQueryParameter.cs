@@ -8,6 +8,9 @@ namespace ContactDetailsApi.V1.Boundary.Request
         [FromQuery(Name = "targetId")]
         public Guid? TargetId { get; set; }
 
+        [FromQuery(Name = "id")]
+        public Guid? Id { get; set; }
+
         [FromQuery(Name = "includeHistoric")]
         public bool IncludeHistoric { get; set; }
     }
