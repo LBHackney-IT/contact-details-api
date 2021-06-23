@@ -2,6 +2,7 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
+using ContactDetailsApi.V1.Boundary.Request;
 
 namespace ContactDetailsApi.V1.Factories
 {
@@ -28,6 +29,21 @@ namespace ContactDetailsApi.V1.Factories
         }
 
         public static ContactDetailsEntity ToDatabase(this ContactDetails entity)
+        {
+            return new ContactDetailsEntity
+            {
+                Id = entity.Id,
+                TargetId = entity.TargetId,
+                TargetType = entity.TargetType,
+                ContactInformation = entity.ContactInformation,
+                SourceServiceArea = entity.SourceServiceArea,
+                CreatedBy = entity.CreatedBy,
+                IsActive = entity.IsActive,
+                RecordValidUntil = entity.RecordValidUntil
+            };
+        }
+
+        public static ContactDetailsEntity ToDatabase(this ContactDetailsRequestObject entity)
         {
             return new ContactDetailsEntity
             {

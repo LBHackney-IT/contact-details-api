@@ -1,3 +1,4 @@
+using System;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
 using ContactDetailsApi.V1.Boundary.Request;
@@ -45,9 +46,15 @@ namespace ContactDetailsApi.V1.Gateways
             return contactDetailsEntities.ToDomain();
         }
 
-        public Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
+        [LogCall]
+        public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
         {
-            throw new System.NotImplementedException();
+            requestObject.Id = Guid.NewGuid();
+            var personDbEntity = requestObject.ToDatabase();
+
+            await _dynamoDbContext.SaveAsync(personDbEntity).ConfigureAwait(false);
+
+            return personDbEntity.ToDomain();
         }
     }
 }
