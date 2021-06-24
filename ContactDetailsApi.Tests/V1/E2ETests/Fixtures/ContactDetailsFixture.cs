@@ -12,10 +12,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
     public class ContactDetailsFixture : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
-        private readonly IDynamoDBContext _dbContext;
+        public readonly IDynamoDBContext _dbContext;
         public List<ContactDetailsEntity> Contacts { get; private set; } = new List<ContactDetailsEntity>();
 
         public Guid TargetId { get; private set; }
+
         public string InvalidTargetId { get; private set; }
 
         public ContactDetailsFixture(IDynamoDBContext dbContext)
@@ -57,6 +58,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                            .CreateMany(count);
         }
 
+
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)
         {
             if (!Contacts.Any())
@@ -72,6 +74,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                 foreach (var note in Contacts)
                     await _dbContext.SaveAsync(note).ConfigureAwait(false);
             }
+        }
+
+        public void GivenContactDetailsDoesNotExist()
+        {
+            TargetId = Guid.NewGuid();
         }
     }
 }
