@@ -4,7 +4,6 @@ using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
@@ -143,6 +142,7 @@ namespace ContactDetailsApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetContactDetailsByTargetIdUseCase, GetContactDetailsByTargetIdUseCase>();
+            services.AddScoped<ICreateContactUseCase, CreateContactUseCase>();
             services.AddScoped<IDeleteContactDetailsByTargetIdUseCase, DeleteContactDetailsByTargetIdUseCase>();
         }
 

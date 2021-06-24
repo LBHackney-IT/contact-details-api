@@ -49,6 +49,16 @@ namespace ContactDetailsApi.V1.Gateways
         }
 
         [LogCall]
+        public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
+        {
+            var contact = requestObject.ToDatabase();
+
+            await _dynamoDbContext.SaveAsync(contact).ConfigureAwait(false);
+
+            return contact.ToDomain();
+        }
+
+        [LogCall]
         public async Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query)
         {
             _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}");

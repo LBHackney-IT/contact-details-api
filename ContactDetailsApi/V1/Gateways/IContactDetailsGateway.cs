@@ -9,5 +9,7 @@ namespace ContactDetailsApi.V1.Gateways
     {
         Task<List<ContactDetails>> GetContactDetailsByTargetId(ContactQueryParameter query);
         Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query);
+
+        Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject);
     }
 }
