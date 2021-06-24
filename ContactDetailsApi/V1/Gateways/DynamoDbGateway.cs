@@ -48,11 +48,11 @@ namespace ContactDetailsApi.V1.Gateways
         [LogCall]
         public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
         {
-            var personDbEntity = requestObject.ToDatabase();
+            var contact = requestObject.ToDatabase();
 
-            await _dynamoDbContext.SaveAsync(personDbEntity).ConfigureAwait(false);
+            await _dynamoDbContext.SaveAsync(contact).ConfigureAwait(false);
 
-            return personDbEntity.ToDomain();
+            return contact.ToDomain();
         }
     }
 }

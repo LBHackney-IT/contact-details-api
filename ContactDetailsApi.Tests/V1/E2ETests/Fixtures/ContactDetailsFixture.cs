@@ -77,7 +77,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
-                .With(x => x.TargetId, TargetId);
+                .With(x => x.TargetId, Guid.NewGuid);
         }
 
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)

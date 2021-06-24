@@ -20,6 +20,15 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
         public CreateContactSteps(HttpClient httpClient) : base(httpClient)
         { }
 
+        private async Task<HttpResponseMessage> CallApi(string id, bool? includeHistoric = null)
+        {
+            var route = $"api/v1/contactDetails?targetId={id}";
+            if (includeHistoric.HasValue)
+                route += $"&includeHistoric={includeHistoric.Value}";
+            var uri = new Uri(route, UriKind.Relative);
+            return await _httpClient.GetAsync(uri).ConfigureAwait(false);
+        }
+
         public async Task WhenTheCreateContactEndpointIsCalled(ContactDetailsRequestObject requestObject)
         {
             var route = $"api/v1/contactDetails";
@@ -44,6 +53,9 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
             apiResult.Should().BeEquivalentTo(expected);
+
+            var recordExisting = await CallApi(apiResult.TargetId.ToString(), true).ConfigureAwait(false);
+            recordExisting.IsSuccessStatusCode.Should().BeTrue();
         }
 
         private async Task<ContactDetailsResponseObject> ExtractResultFromHttpResponse(HttpResponseMessage response)
