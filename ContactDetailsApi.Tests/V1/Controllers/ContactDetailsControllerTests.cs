@@ -26,10 +26,9 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         {
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
             _mockDeleteByIdUseCase = new Mock<IDeleteContactDetailsByTargetIdUseCase>();
-            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockDeleteByIdUseCase.Object);
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
 
-            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockCreateContactUseCase.Object);
+            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockDeleteByIdUseCase.Object, _mockCreateContactUseCase.Object);
         }
 
         [Fact]
