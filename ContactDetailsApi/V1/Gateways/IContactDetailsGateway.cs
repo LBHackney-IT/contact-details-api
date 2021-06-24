@@ -8,6 +8,6 @@ namespace ContactDetailsApi.V1.Gateways
     public interface IContactDetailsGateway
     {
         Task<List<ContactDetails>> GetContactDetailsByTargetId(ContactQueryParameter query);
-        Task<ContactDetails> DeleteContactDetailsByTargetId(ContactQueryParameter query);
+        Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query);
     }
 }

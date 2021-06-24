@@ -100,14 +100,15 @@ namespace ContactDetailsApi.Tests.V1.Gateways
                                  .Create();
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
-            var query = new ContactQueryParameter
+            var query = new DeleteContactQueryParameter
             {
                 TargetId = entity.TargetId,
                 Id = entity.Id
             };
-            var result = await _classUnderTest.DeleteContactDetailsByTargetId(query).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(entity);
-            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
+            var result = await _classUnderTest.DeleteContactDetailsById(query).ConfigureAwait(false);
+            var load = await _dynamoDb.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
+            result.Should().BeEquivalentTo(load);
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
         }
     }
 }

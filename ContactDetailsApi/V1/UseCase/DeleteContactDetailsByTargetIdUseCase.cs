@@ -20,9 +20,9 @@ namespace ContactDetailsApi.V1.UseCase
         }
 
         [LogCall]
-        public async Task<ContactDetailsResponseObject> Execute(ContactQueryParameter query)
+        public async Task<ContactDetailsResponseObject> Execute(DeleteContactQueryParameter query)
         {
-            var contact = await _gateway.DeleteContactDetailsByTargetId(query).ConfigureAwait(false);
+            var contact = await _gateway.DeleteContactDetailsById(query).ConfigureAwait(false);
             return contact.ToResponse();
         }
     }

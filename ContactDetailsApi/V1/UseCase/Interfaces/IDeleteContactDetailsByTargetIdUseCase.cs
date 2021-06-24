@@ -9,6 +9,6 @@ namespace ContactDetailsApi.V1.UseCase.Interfaces
 {
     public interface IDeleteContactDetailsByTargetIdUseCase
     {
-        Task<ContactDetailsResponseObject> Execute(ContactQueryParameter query);
+        Task<ContactDetailsResponseObject> Execute(DeleteContactQueryParameter query);
     }
 }

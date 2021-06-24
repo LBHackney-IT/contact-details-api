@@ -49,28 +49,14 @@ namespace ContactDetailsApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<ContactDetails> DeleteContactDetailsByTargetId(ContactQueryParameter query)
+        public async Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query)
         {
-            _logger.LogDebug($"Calling IDynamoDBContext.QueryAsync for targetId {query.TargetId} and id {query.Id}");
-            DynamoDBOperationConfig dbOperationConfig = null;
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}");
 
-            List<ScanCondition> scanConditions = new List<ScanCondition>
-                {
-                    new ScanCondition(nameof(ContactDetailsEntity.Id), ScanOperator.Equal, query.Id),
-                    new ScanCondition(nameof(ContactDetailsEntity.TargetId), ScanOperator.Equal, query.TargetId)
-                };
-
-            dbOperationConfig = new DynamoDBOperationConfig() { QueryFilter = scanConditions };
-            var result = _dynamoDbContext.QueryAsync<ContactDetailsEntity>(query.TargetId.Value, dbOperationConfig);
-            ContactDetailsEntity entity = null;
-            while (!result.IsDone)
-            {
-                entity = result.GetNextSetAsync().Result.First();
-                entity.IsActive = false;
-                await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
-                break;
-            }
-            if (entity == null) throw new NullReferenceException($"Contact with target id {query.TargetId} and id {query.Id} not found");
+            var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
+            if (entity == null) return null;
+            entity.IsActive = false;
+            await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
 
             return entity.ToDomain();
         }

@@ -57,13 +57,13 @@ namespace ContactDetailsApi.V1.Controllers
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         [HttpDelete]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> DeleteContactDetailsByTargetId([FromQuery] ContactQueryParameter queryParam)
+        public async Task<IActionResult> DeleteContactDetailsById([FromQuery] DeleteContactQueryParameter queryParam)
         {
 
-            var contacts = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
-            if (contacts == null) return NotFound(queryParam.TargetId);
+            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
+            if (contact == null) return NotFound(new { TargetId = queryParam.TargetId, Id = queryParam.Id });
 
-            return Ok(contacts);
+            return Ok(contact);
         }
     }
 }

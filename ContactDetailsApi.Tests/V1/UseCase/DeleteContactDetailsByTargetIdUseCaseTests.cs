@@ -31,12 +31,12 @@ namespace ContactDetailsApi.Tests.V1.UseCase
         [Fact]
         public async Task DeleteByIdUseCaseShouldBeNull()
         {
-            var queryParam = new ContactQueryParameter
+            var queryParam = new DeleteContactQueryParameter
             {
                 TargetId = Guid.NewGuid(),
                 Id = Guid.NewGuid()
             };
-            _mockGateway.Setup(x => x.DeleteContactDetailsByTargetId(queryParam)).ReturnsAsync((ContactDetails) null);
+            _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync((ContactDetails) null);
 
             var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
             response.Should().BeNull();
@@ -45,13 +45,13 @@ namespace ContactDetailsApi.Tests.V1.UseCase
         [Fact]
         public async Task DeleteContactByIdReturnsOkResponse()
         {
-            var queryParam = new ContactQueryParameter
+            var queryParam = new DeleteContactQueryParameter
             {
                 TargetId = Guid.NewGuid(),
                 Id = Guid.NewGuid()
             };
             var contact = _fixture.Create<ContactDetails>();
-            _mockGateway.Setup(x => x.DeleteContactDetailsByTargetId(queryParam)).ReturnsAsync(contact);
+            _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
 
             var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
@@ -60,13 +60,13 @@ namespace ContactDetailsApi.Tests.V1.UseCase
         [Fact]
         public void DeleteContactByIdThrowsException()
         {
-            var queryParam = new ContactQueryParameter
+            var queryParam = new DeleteContactQueryParameter
             {
                 TargetId = Guid.NewGuid(),
                 Id = Guid.NewGuid()
             };
             var exception = new ApplicationException("Test Exception");
-            _mockGateway.Setup(x => x.DeleteContactDetailsByTargetId(queryParam)).ThrowsAsync(exception);
+            _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ThrowsAsync(exception);
 
             Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
 
