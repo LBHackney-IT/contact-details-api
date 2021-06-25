@@ -51,5 +51,15 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenTheContactDetailsAreReturned(_contactDetailsFixture.Contact))
                 .BDDfy();
         }
+
+        [Fact]
+        public void ServiceReturnsBadRequestWithInvalidContactDetails()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAnInvalidNewContactRequest())
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.Contact))
+                .Then(t => _steps.ThenBadRequestIsReturned())
+                .And(t => _steps.ThenTheResponseIncludesValidationErrors())
+                .BDDfy();
+        }
     }
 }

@@ -12,6 +12,8 @@ using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Request;
 using Newtonsoft.Json;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json.Linq;
 
 namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 {
@@ -56,6 +58,24 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
             var recordExisting = await CallApi(apiResult.TargetId.ToString(), true).ConfigureAwait(false);
             recordExisting.IsSuccessStatusCode.Should().BeTrue();
+        }
+
+        public async Task ThenTheResponseIncludesValidationErrors()
+        {
+            var responseContent = await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            JObject jo = JObject.Parse(responseContent);
+            var errorProperties = jo["errors"].Children().Select(x => x.Path.Split('.').Last().Trim('\'', ']')).ToList();
+
+            errorProperties.Should().Contain("TargetId");
+            errorProperties.Should().Contain("ContactInformation");
+            errorProperties.Should().Contain("SourceServiceArea");
+            errorProperties.Should().Contain("CreatedBy");
+        }
+
+        public void ThenBadRequestIsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         }
 
         private async Task<ContactDetailsResponseObject> ExtractResultFromHttpResponse(HttpResponseMessage response)
