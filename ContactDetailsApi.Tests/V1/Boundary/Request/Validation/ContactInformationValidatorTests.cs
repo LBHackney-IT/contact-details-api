@@ -108,7 +108,7 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         [InlineData("")]
         [InlineData("Some<tag>value")]
         [InlineData("invalidphone")]
-        [InlineData("321654")]
+        [InlineData("3214")]
         public void ValueShouldErrorWithInvalidPhoneNumber(string invalid)
         {
             var model = new ContactInformation()
