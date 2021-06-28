@@ -53,7 +53,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
             return _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
-                    .With(y => y.CreatedAt, funcDT)
                     .Create())
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
@@ -73,7 +72,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
             return _fixture.Build<ContactDetailsRequestObject>()
                 .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
-                    .With(y => y.CreatedAt, funcDT)
                     .With(y => y.EmailAddress, "somone@somewhere.com")
                     .Create())
                 .With(x => x.ContactInformation, () => _fixture.Build<ContactInformation>()

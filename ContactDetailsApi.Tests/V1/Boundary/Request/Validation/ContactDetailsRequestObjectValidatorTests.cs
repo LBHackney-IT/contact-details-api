@@ -109,22 +109,5 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
             var result = _sut.TestValidate(model);
             result.ShouldNotHaveValidationErrorFor(x => x.RecordValidUntil);
         }
-
-        [Fact]
-        public void CreatedByShouldErrorWhenNull()
-        {
-            var model = new ContactDetailsRequestObject() { CreatedBy = null };
-            var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.CreatedBy);
-        }
-
-        [Fact]
-        public void CreatedByShouldErrorWithInvalidValue()
-        {
-            var invalid = new CreatedBy();
-            var model = new ContactDetailsRequestObject() { CreatedBy = invalid };
-            var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.CreatedBy.Id);
-        }
     }
 }
