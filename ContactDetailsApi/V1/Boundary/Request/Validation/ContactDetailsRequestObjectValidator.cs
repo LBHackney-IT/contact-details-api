@@ -16,8 +16,6 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
                                              .SetValidator(new SourceServiceAreaValidator());
             RuleFor(x => x.RecordValidUntil).NotEqual(default(DateTime))
                                             .When(x => x.RecordValidUntil.HasValue);
-            RuleFor(x => x.CreatedBy).NotNull()
-                                     .SetValidator(new CreatedByValidator());
         }
     }
 }

@@ -70,7 +70,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             errorProperties.Should().Contain("TargetId");
             errorProperties.Should().Contain("ContactInformation");
             errorProperties.Should().Contain("SourceServiceArea");
-            errorProperties.Should().Contain("CreatedBy");
         }
 
         public void ThenBadRequestIsReturned()
