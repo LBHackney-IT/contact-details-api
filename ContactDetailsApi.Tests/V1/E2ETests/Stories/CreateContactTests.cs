@@ -60,6 +60,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .And(t => _steps.ThenTheResponseIncludesValidationErrors())
                 .BDDfy();
+
         }
     }
 }

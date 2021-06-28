@@ -36,3 +36,16 @@ terraform {
     key     = "services/contact-details-api/state"
   }
 }
+
+resource "aws_sns_topic" "contactdetails_topic" {
+  name                        = "contactdetails.fifo"
+  fifo_topic                  = true
+  content_based_deduplication = true
+  kms_master_key_id = "alias/aws/sns"
+}
+
+resource "aws_ssm_parameter" "contact_details_sns_arn" {
+  name  = "/sns-topic/production/contact_details/arn"
+  type  = "String"
+  value = aws_sns_topic.contactdetails_topic.arn
+}
