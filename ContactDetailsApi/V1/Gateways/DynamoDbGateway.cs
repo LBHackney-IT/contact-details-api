@@ -1,12 +1,15 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Gateways
@@ -44,5 +47,32 @@ namespace ContactDetailsApi.V1.Gateways
 
             return contactDetailsEntities.ToDomain();
         }
+
+        [LogCall]
+        public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
+        {
+            var contact = requestObject.ToDatabase();
+
+            await _dynamoDbContext.SaveAsync(contact).ConfigureAwait(false);
+
+            return contact.ToDomain();
+        }
+
+        [LogCall]
+        public async Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query)
+        {
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}");
+
+            var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
+            if (entity == null) return null;
+            entity.IsActive = false;
+            await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
+
+            return entity.ToDomain();
+        }
+
+
+
     }
+
 }

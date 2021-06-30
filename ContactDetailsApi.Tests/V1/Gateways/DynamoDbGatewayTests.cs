@@ -84,5 +84,31 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             result.Should().BeEquivalentTo(entity);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {entity.TargetId}", Times.Once());
         }
+
+        [Theory]
+        [InlineData(false)]
+        [InlineData(true)]
+        public async Task DeleteContactDetailsByTargetIdSuccessfullySoftDeletes(bool hasValidDate)
+        {
+            DateTime? validDate = null;
+            if (hasValidDate)
+                validDate = DateTime.UtcNow;
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                                 .With(x => x.RecordValidUntil, validDate)
+                                 .With(x => x.IsActive, false)
+                                 .Create();
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var query = new DeleteContactQueryParameter
+            {
+                TargetId = entity.TargetId,
+                Id = entity.Id
+            };
+            var result = await _classUnderTest.DeleteContactDetailsById(query).ConfigureAwait(false);
+            var load = await _dynamoDb.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
+            result.Should().BeEquivalentTo(load);
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
+        }
     }
 }

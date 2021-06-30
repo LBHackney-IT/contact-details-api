@@ -143,6 +143,8 @@ namespace ContactDetailsApi
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetContactDetailsByTargetIdUseCase, GetContactDetailsByTargetIdUseCase>();
+            services.AddScoped<ICreateContactUseCase, CreateContactUseCase>();
+            services.AddScoped<IDeleteContactDetailsByTargetIdUseCase, DeleteContactDetailsByTargetIdUseCase>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

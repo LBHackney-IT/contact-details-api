@@ -1,8 +1,10 @@
 using AutoFixture;
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using System;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Factories
@@ -41,6 +43,30 @@ namespace ContactDetailsApi.Tests.V1.Factories
             contactDetails.IsActive.Should().Be(databaseEntity.IsActive);
             contactDetails.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
             contactDetails.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void CanMapARequestToADatabaseObject(bool hasId)
+        {
+            var id = hasId ? Guid.NewGuid() : Guid.Empty;
+            var request = _fixture.Build<ContactDetailsRequestObject>()
+                                         .With(x => x.Id, id)
+                                         .Create();
+            var databaseEntity = request.ToDatabase();
+
+            if (hasId)
+                request.Id.Should().Be(databaseEntity.Id);
+            else
+                databaseEntity.Id.Should().NotBeEmpty();
+            request.TargetId.Should().Be(databaseEntity.TargetId);
+            request.TargetType.Should().Be(databaseEntity.TargetType);
+            request.SourceServiceArea.Should().BeEquivalentTo(databaseEntity.SourceServiceArea);
+            request.RecordValidUntil.Should().Be(databaseEntity.RecordValidUntil);
+            request.IsActive.Should().Be(databaseEntity.IsActive);
+            request.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
+            request.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
         }
     }
 }
