@@ -130,6 +130,7 @@ namespace ContactDetailsApi
 
             services.AddLogCallAspect();
             services.ConfigureDynamoDB();
+            services.ConfigureSns();
 
             RegisterGateways(services);
             RegisterUseCases(services);

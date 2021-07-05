@@ -16,11 +16,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
     [Collection("DynamoDb collection")]
     public class DeleteContactDetailsByTargetIdTests : IDisposable
     {
-        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly AwsIntegrationTests<Startup> _dbFixture;
         private readonly ContactDetailsFixture _contactDetailsFixture;
         private readonly DeleteContactDetailsSteps _steps;
 
-        public DeleteContactDetailsByTargetIdTests(DynamoDbIntegrationTests<Startup> dbFixture)
+        public DeleteContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
