@@ -38,6 +38,7 @@ namespace ContactDetailsApi.Tests
             _factory = new AwsMockWebApplicationFactory<TStartup>(_tables);
 
             Client = _factory.CreateClient();
+            CreateSnsTopic();
         }
 
         public void Dispose()
@@ -62,6 +63,21 @@ namespace ContactDetailsApi.Tests
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
                 Environment.SetEnvironmentVariable(name, defaultValue);
         }
+
+        private void CreateSnsTopic()
+        {
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
+
+            var response = SimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
+            {
+                Name = "personcreated",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("NEW_PERSON_SNS_ARN", response.TopicArn);
+        }
     }
 
     public class TableDef
@@ -75,7 +91,7 @@ namespace ContactDetailsApi.Tests
 
 
     [CollectionDefinition("Aws collection", DisableParallelization = true)]
-    public class DynamoDbCollection : ICollectionFixture<AwsIntegrationTests<Startup>>
+    public class AwsCollection : ICollectionFixture<AwsIntegrationTests<Startup>>
     {
         // This class has no code, and is never created. Its purpose is simply
         // to be the place to apply [CollectionDefinition] and all the
