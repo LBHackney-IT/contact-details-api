@@ -53,4 +53,4 @@ services:
       - HOST_TMP_FOLDER=/tmp/localstack      
     volumes:
       - "./.localstack:/tmp/localstack"
-      - "/var/run/docker.sock:/var/run/docker.sock"s      
+      - "/var/run/docker.sock:/var/run/docker.sock"
