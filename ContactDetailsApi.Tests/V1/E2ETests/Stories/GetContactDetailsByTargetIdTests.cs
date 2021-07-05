@@ -10,7 +10,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "to be able to view all relevant details about a person in one place ",
         SoThat = "I am aware of the the Person’s most up to date information and can take appropriate action")]
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class GetContactDetailsByTargetIdTests : IDisposable
     {
         private readonly AwsIntegrationTests<Startup> _dbFixture;
@@ -20,7 +20,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         public GetContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
             _steps = new GetContactDetailsSteps(_dbFixture.Client);
         }
 

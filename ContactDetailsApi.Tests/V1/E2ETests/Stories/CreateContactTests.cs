@@ -10,7 +10,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "to be able to create a new contact ",
         SoThat = "I am able to add contacts when the need rises")]
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class CreateContactTests : IDisposable
     {
         private readonly AwsIntegrationTests<Startup> _dbFixture;
@@ -20,7 +20,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         public CreateContactTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
             _steps = new CreateContactSteps(_dbFixture.Client);
         }
 
