@@ -32,6 +32,7 @@ namespace ContactDetailsApi.Tests
             builder.ConfigureServices(services =>
             {
                 services.ConfigureDynamoDB();
+                services.ConfigureSns();
 
                 var serviceProvider = services.BuildServiceProvider();
                 DynamoDb = serviceProvider.GetRequiredService<IAmazonDynamoDB>();

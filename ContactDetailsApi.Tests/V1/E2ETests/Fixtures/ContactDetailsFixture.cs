@@ -30,6 +30,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
         {
             _dbContext = dbContext;
             _amazonSimpleNotificationService = amazonSimpleNotificationService;
+
+            CreateSnsTopic();
         }
 
         public void Dispose()
@@ -67,7 +69,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
         private ContactDetailsRequestObject CreateContact(bool isActive)
         {
-            CreateSnsTopic();
             return SetupContactCreationFixture(isActive).Create();
         }
 

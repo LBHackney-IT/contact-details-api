@@ -33,8 +33,9 @@ namespace ContactDetailsApi.Tests
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
-            _factory = new AwsMockWebApplicationFactory<TStartup>(_tables);
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
+
+            _factory = new AwsMockWebApplicationFactory<TStartup>(_tables);
 
             Client = _factory.CreateClient();
         }
