@@ -90,7 +90,7 @@ namespace ContactDetailsApi.V1.Controllers
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
-            var result = await _createContactUseCase.ExecuteAsync(contactRequest).ConfigureAwait(false);
+            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);
         }

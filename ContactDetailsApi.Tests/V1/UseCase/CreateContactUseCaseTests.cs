@@ -10,6 +10,7 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Hackney.Core.JWT;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
@@ -31,10 +32,12 @@ namespace ContactDetailsApi.Tests.V1.UseCase
         public async Task CreateContactReturnsContact()
         {
             var contact = _fixture.Create<ContactDetails>();
+            var token = _fixture.Create<Token>();
+
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
                 .ReturnsAsync(contact);
 
-            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject()).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
         }
 
@@ -46,9 +49,11 @@ namespace ContactDetailsApi.Tests.V1.UseCase
                 TargetId = Guid.NewGuid()
             };
             var exception = new ApplicationException("Test Exception");
+            var token = _fixture.Create<Token>();
+
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>())).ThrowsAsync(exception);
 
-            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject()).ConfigureAwait(false);
+            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

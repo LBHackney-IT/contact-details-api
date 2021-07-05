@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using Hackney.Core.JWT;
 
 namespace ContactDetailsApi.V1.UseCase
 {
@@ -15,7 +16,7 @@ namespace ContactDetailsApi.V1.UseCase
             _gateway = gateway;
         }
 
-        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest)
+        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token)
         {
             var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
 

@@ -140,8 +140,9 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         {
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
+            var token = _fixture.Create<Token>();
             var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
-            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ReturnsAsync(contactResponse);
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, token)).ReturnsAsync(contactResponse);
 
             // Act
             var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
@@ -157,7 +158,8 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
             var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
-            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ReturnsAsync(contactResponse);
+            var token = _fixture.Create<Token>();
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, token)).ReturnsAsync(contactResponse);
 
             // Act
             var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
@@ -173,7 +175,8 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
             var exception = new ApplicationException("Test Exception");
-            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ThrowsAsync(exception);
+            var token = _fixture.Create<Token>();
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, token)).ThrowsAsync(exception);
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
