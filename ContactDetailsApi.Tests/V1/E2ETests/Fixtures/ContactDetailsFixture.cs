@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
 using AutoFixture.Dsl;
 using ContactDetailsApi.V1.Boundary.Request;
 

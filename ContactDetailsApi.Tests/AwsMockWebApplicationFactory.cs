@@ -1,3 +1,4 @@
+using System;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 
 namespace ContactDetailsApi.Tests
 {
@@ -40,7 +42,7 @@ namespace ContactDetailsApi.Tests
                 SimpleNotificationService = serviceProvider.GetRequiredService<IAmazonSimpleNotificationService>();
 
                 EnsureTablesExist(DynamoDb, _tables);
-
+                CreateSnsTopic();
             });
         }
 
@@ -70,6 +72,21 @@ namespace ContactDetailsApi.Tests
                     // It already exists :-)
                 }
             }
+        }
+
+        private void CreateSnsTopic()
+        {
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
+
+            var response = SimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
+            {
+                Name = "personcreated",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("NEW_PERSON_SNS_ARN", response.TopicArn);
         }
     }
 }
