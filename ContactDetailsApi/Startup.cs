@@ -31,6 +31,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
 
 namespace ContactDetailsApi
 {
@@ -134,6 +136,9 @@ namespace ContactDetailsApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
+
+            services.AddScoped<IHttpContextWrapper, HttpContextWrapper>();
+            services.AddScoped<ITokenFactory, TokenFactory>();
         }
 
         private static void RegisterGateways(IServiceCollection services)

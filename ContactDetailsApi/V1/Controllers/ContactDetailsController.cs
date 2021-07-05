@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
 
 namespace ContactDetailsApi.V1.Controllers
 {
@@ -19,13 +21,18 @@ namespace ContactDetailsApi.V1.Controllers
         private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
         private readonly IDeleteContactDetailsByTargetIdUseCase _deleteContactDetailsByTargetIdUseCase;
         private readonly ICreateContactUseCase _createContactUseCase;
+        private readonly IHttpContextWrapper _httpContextWrapper;
+        private readonly ITokenFactory _tokenFactory;
 
         public ContactDetailsController(IGetContactDetailsByTargetIdUseCase getByTargetIdUseCase,
-            IDeleteContactDetailsByTargetIdUseCase deleteContactDetailsByTargetIdUseCase, ICreateContactUseCase createContactUseCase)
+            IDeleteContactDetailsByTargetIdUseCase deleteContactDetailsByTargetIdUseCase, ICreateContactUseCase createContactUseCase,
+            IHttpContextWrapper httpContextWrapper, ITokenFactory tokenFactory)
         {
             _getContactDetailsByTargetIdUseCase = getByTargetIdUseCase;
             _deleteContactDetailsByTargetIdUseCase = deleteContactDetailsByTargetIdUseCase;
             _createContactUseCase = createContactUseCase;
+            _httpContextWrapper = httpContextWrapper;
+            _tokenFactory = tokenFactory;
         }
 
         /// <summary>
@@ -82,6 +89,7 @@ namespace ContactDetailsApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
             var result = await _createContactUseCase.ExecuteAsync(contactRequest).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);
