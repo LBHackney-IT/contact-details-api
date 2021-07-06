@@ -1,4 +1,4 @@
-service: contacts-details-api
+service: contact-details-api
 provider:
   name: aws
   runtime: dotnetcore3.1
