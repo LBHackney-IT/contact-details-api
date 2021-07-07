@@ -1,4 +1,4 @@
-﻿namespace ContactDetailsApi.V1.Domain.Sns
+namespace ContactDetailsApi.V1.Domain.Sns
 {
     public class User
     {
