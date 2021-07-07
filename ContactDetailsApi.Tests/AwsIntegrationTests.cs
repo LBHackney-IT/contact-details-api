@@ -76,7 +76,7 @@ namespace ContactDetailsApi.Tests
                 Attributes = snsAttrs
             }).Result;
 
-            Environment.SetEnvironmentVariable("NEW_PERSON_SNS_ARN", response.TopicArn);
+            Environment.SetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN", response.TopicArn);
         }
     }
 

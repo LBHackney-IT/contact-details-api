@@ -134,7 +134,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                 Attributes = snsAttrs
             }).Result;
 
-            Environment.SetEnvironmentVariable("PERSON_SNS_ARN", response.TopicArn);
+            Environment.SetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN", response.TopicArn);
         }
     }
 }

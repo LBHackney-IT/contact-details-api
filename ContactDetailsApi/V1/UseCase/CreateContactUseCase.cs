@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
@@ -23,12 +24,20 @@ namespace ContactDetailsApi.V1.UseCase
 
         public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token)
         {
-            var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
+            try
+            {
+                var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
 
-            var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token);
-            await _snsGateway.Publish(createContactDetailsSnsMessage).ConfigureAwait(false);
+                var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token);
+                await _snsGateway.Publish(createContactDetailsSnsMessage).ConfigureAwait(false);
 
-            return contact.ToResponse();
+                return contact.ToResponse();
+            }
+            catch (Exception ex)
+            {
+                var s = ex.Message;
+                throw;
+            }
         }
     }
 }
