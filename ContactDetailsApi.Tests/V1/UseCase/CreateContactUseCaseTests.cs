@@ -8,7 +8,6 @@ using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hackney.Core.JWT;
 using Xunit;
@@ -19,13 +18,18 @@ namespace ContactDetailsApi.Tests.V1.UseCase
     public class CreateContactUseCaseTests : LogCallAspectFixture
     {
         private readonly Mock<IContactDetailsGateway> _mockGateway;
+        private readonly Mock<ISnsGateway> _mockSnsGateway;
+        private readonly Mock<ISnsFactory> _mockSnsFactory;
         private readonly CreateContactUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
         public CreateContactUseCaseTests()
         {
             _mockGateway = new Mock<IContactDetailsGateway>();
-            _classUnderTest = new CreateContactUseCase(_mockGateway.Object);
+            _mockSnsGateway = new Mock<ISnsGateway>();
+            _mockSnsFactory = new Mock<ISnsFactory>();
+
+            _classUnderTest = new CreateContactUseCase(_mockGateway.Object, _mockSnsGateway.Object, _mockSnsFactory.Object);
         }
 
         [Fact]
@@ -39,6 +43,21 @@ namespace ContactDetailsApi.Tests.V1.UseCase
 
             var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
+        }
+
+        [Fact]
+        public async Task CreateContactPublishes()
+        {
+            var contact = _fixture.Create<ContactDetails>();
+            var token = _fixture.Create<Token>();
+
+            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
+                .ReturnsAsync(contact);
+
+            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
+
+            _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetailsRequestObject>(), It.IsAny<Token>()));
+            _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>()));
         }
 
         [Fact]

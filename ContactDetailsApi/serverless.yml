@@ -20,6 +20,7 @@ functions:
     role: lambdaExecutionRole
     environment:
       ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
+      CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
     events:
       - http:
           path: /{proxy+}

@@ -1,4 +1,3 @@
-using System;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.Model;
@@ -9,7 +8,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
 
 namespace ContactDetailsApi.Tests
 {

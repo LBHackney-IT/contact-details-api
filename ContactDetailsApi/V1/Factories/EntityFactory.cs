@@ -10,13 +10,13 @@ namespace ContactDetailsApi.V1.Factories
 {
     public class ContactDetailsSnsFactory : ISnsFactory
     {
-        public ContactDetailsSns Create(ContactDetailsRequestObject person, Token token)
+        public ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token)
         {
             return new ContactDetailsSns
             {
                 CorrelationId = Guid.NewGuid(),
                 DateTime = DateTime.UtcNow,
-                EntityId = person.Id,
+                EntityId = contactDetails.Id,
                 Id = Guid.NewGuid(),
                 EventType = CreateEventConstants.EVENTTYPE,
                 Version = CreateEventConstants.V1VERSION,
@@ -29,7 +29,7 @@ namespace ContactDetailsApi.V1.Factories
 
     public interface ISnsFactory
     {
-        ContactDetailsSns Create(ContactDetailsRequestObject person, Token token);
+        ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token);
     }
 
     public class ContactDetailsSns
