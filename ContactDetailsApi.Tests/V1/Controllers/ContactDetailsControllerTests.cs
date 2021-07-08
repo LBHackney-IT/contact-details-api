@@ -9,6 +9,9 @@ using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
+using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Controllers
@@ -20,6 +23,8 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
         private readonly Mock<ICreateContactUseCase> _mockCreateContactUseCase;
         private readonly Mock<IDeleteContactDetailsByTargetIdUseCase> _mockDeleteByIdUseCase;
+        private readonly Mock<IHttpContextWrapper> _mockHttpContextWrapper;
+        private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Fixture _fixture = new Fixture();
 
         public ContactDetailsControllerTests()
@@ -27,8 +32,11 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
             _mockDeleteByIdUseCase = new Mock<IDeleteContactDetailsByTargetIdUseCase>();
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
+            _mockHttpContextWrapper = new Mock<IHttpContextWrapper>();
+            _mockTokenFactory = new Mock<ITokenFactory>();
 
-            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockDeleteByIdUseCase.Object, _mockCreateContactUseCase.Object);
+            _classUnderTest = new ContactDetailsController(_mockGetByIdUseCase.Object, _mockDeleteByIdUseCase.Object, _mockCreateContactUseCase.Object,
+                _mockHttpContextWrapper.Object, _mockTokenFactory.Object);
         }
 
         [Fact]
@@ -133,7 +141,8 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
             var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
-            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ReturnsAsync(contactResponse);
+
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, It.IsAny<Token>())).ReturnsAsync(contactResponse);
 
             // Act
             var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
@@ -144,12 +153,30 @@ namespace ContactDetailsApi.Tests.V1.Controllers
         }
 
         [Fact]
+        public async Task CreateContactCallsTokenAndHttpWrappers()
+        {
+            // Arrange
+            var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
+            var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
+            var token = _fixture.Create<Token>();
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, token)).ReturnsAsync(contactResponse);
+
+            // Act
+            var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+
+            // Assert
+            _mockHttpContextWrapper.Verify(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>()));
+            _mockTokenFactory.Verify(x => x.Create(It.IsAny<IHeaderDictionary>()));
+        }
+
+        [Fact]
         public void CreateContactThrowsException()
         {
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
             var exception = new ApplicationException("Test Exception");
-            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest)).ThrowsAsync(exception);
+            var token = _fixture.Create<Token>();
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, It.IsAny<Token>())).ThrowsAsync(exception);
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);

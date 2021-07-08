@@ -13,7 +13,7 @@ using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Gateways
 {
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
@@ -22,7 +22,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         private readonly DynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
 
-        public DynamoDbGatewayTests(DynamoDbIntegrationTests<Startup> dbTestFixture)
+        public DynamoDbGatewayTests(AwsIntegrationTests<Startup> dbTestFixture)
         {
             _logger = new Mock<ILogger<DynamoDbGateway>>();
             _dynamoDb = dbTestFixture.DynamoDbContext;

@@ -6,6 +6,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using AutoFixture.Dsl;
 using ContactDetailsApi.V1.Boundary.Request;
 
@@ -18,13 +20,16 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
         public List<ContactDetailsEntity> Contacts { get; private set; } = new List<ContactDetailsEntity>();
         public ContactDetailsRequestObject Contact { get; private set; } = new ContactDetailsRequestObject();
 
+        private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+
         public Guid TargetId { get; private set; }
 
         public string InvalidTargetId { get; private set; }
 
-        public ContactDetailsFixture(IDynamoDBContext dbContext)
+        public ContactDetailsFixture(IDynamoDBContext dbContext, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             _dbContext = dbContext;
+            _amazonSimpleNotificationService = amazonSimpleNotificationService;
         }
 
         public void Dispose()
@@ -115,6 +120,21 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
         public void GivenAnInvalidNewContactRequest()
         {
             Contact = new ContactDetailsRequestObject();
+        }
+
+        private void CreateSnsTopic()
+        {
+            var snsAttrs = new Dictionary<string, string>();
+            snsAttrs.Add("fifo_topic", "true");
+            snsAttrs.Add("content_based_deduplication", "true");
+
+            var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
+            {
+                Name = "contactdetails",
+                Attributes = snsAttrs
+            }).Result;
+
+            Environment.SetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN", response.TopicArn);
         }
     }
 }

@@ -1,9 +1,7 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V1.E2ETests.Steps;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using TestStack.BDDfy;
 using Xunit;
 
@@ -13,17 +11,17 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "to be able to delete contact details",
         SoThat = "I am aware of the the Person’s most up to date contact information")]
-    [Collection("DynamoDb collection")]
+    [Collection("Aws collection")]
     public class DeleteContactDetailsByTargetIdTests : IDisposable
     {
-        private readonly DynamoDbIntegrationTests<Startup> _dbFixture;
+        private readonly AwsIntegrationTests<Startup> _dbFixture;
         private readonly ContactDetailsFixture _contactDetailsFixture;
         private readonly DeleteContactDetailsSteps _steps;
 
-        public DeleteContactDetailsByTargetIdTests(DynamoDbIntegrationTests<Startup> dbFixture)
+        public DeleteContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
             _steps = new DeleteContactDetailsSteps(_dbFixture.Client);
         }
 

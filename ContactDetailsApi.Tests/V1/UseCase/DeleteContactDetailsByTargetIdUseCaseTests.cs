@@ -8,8 +8,6 @@ using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
