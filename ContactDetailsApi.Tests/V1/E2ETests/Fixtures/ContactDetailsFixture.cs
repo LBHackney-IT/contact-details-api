@@ -130,7 +130,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
             var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
             {
-                Name = "person",
+                Name = "contactdetails",
                 Attributes = snsAttrs
             }).Result;
 

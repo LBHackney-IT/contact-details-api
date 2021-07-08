@@ -72,7 +72,7 @@ namespace ContactDetailsApi.Tests
 
             var response = SimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
             {
-                Name = "personcreated",
+                Name = "contactdetailscreated",
                 Attributes = snsAttrs
             }).Result;
 
