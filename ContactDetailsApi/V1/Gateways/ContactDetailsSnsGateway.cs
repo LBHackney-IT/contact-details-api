@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
+using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;

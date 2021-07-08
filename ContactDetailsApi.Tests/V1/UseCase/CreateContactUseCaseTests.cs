@@ -9,6 +9,7 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Threading.Tasks;
+using ContactDetailsApi.V1.Domain.Sns;
 using Hackney.Core.JWT;
 using Xunit;
 
