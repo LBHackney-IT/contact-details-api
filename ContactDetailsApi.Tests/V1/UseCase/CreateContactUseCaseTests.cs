@@ -11,6 +11,7 @@ using System;
 using System.Threading.Tasks;
 using ContactDetailsApi.V1.Domain.Sns;
 using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
@@ -58,7 +59,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetailsRequestObject>(), It.IsAny<Token>()));
-            _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>()));
+            _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
         [Fact]

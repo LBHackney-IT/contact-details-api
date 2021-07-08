@@ -31,6 +31,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using ContactDetailsApi.V1.Factories;
+using Hackney.Core.DI;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 
@@ -137,10 +138,16 @@ namespace ContactDetailsApi
             RegisterGateways(services);
             RegisterUseCases(services);
 
-            services.AddScoped<IHttpContextWrapper, HttpContextWrapper>();
-            services.AddScoped<ITokenFactory, TokenFactory>();
-            services.AddScoped<ISnsGateway, ContactDetailsSnsGateway>();
             services.AddScoped<ISnsFactory, ContactDetailsSnsFactory>();
+
+            ConfigureHackneyCoreDI(services);
+        }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
         }
 
         private static void RegisterGateways(IServiceCollection services)
