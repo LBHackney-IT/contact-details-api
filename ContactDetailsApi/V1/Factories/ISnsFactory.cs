@@ -6,6 +6,6 @@ namespace ContactDetailsApi.V1.Factories
 {
     public interface ISnsFactory
     {
-        ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token);
+        ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token, string eventType);
     }
 }

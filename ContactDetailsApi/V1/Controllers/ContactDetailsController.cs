@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Controllers
 {
@@ -90,7 +91,7 @@ namespace ContactDetailsApi.V1.Controllers
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
-            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
+            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token, ContactDetailsConstants.CREATED).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);
         }

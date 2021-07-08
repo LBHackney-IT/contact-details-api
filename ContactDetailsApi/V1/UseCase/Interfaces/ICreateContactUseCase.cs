@@ -7,6 +7,6 @@ namespace ContactDetailsApi.V1.UseCase.Interfaces
 {
     public interface ICreateContactUseCase
     {
-        Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject query, Token token);
+        Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject query, Token token, string eventType);
     }
 }

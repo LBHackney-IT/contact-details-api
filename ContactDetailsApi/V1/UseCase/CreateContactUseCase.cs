@@ -7,6 +7,7 @@ using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.UseCase
 {
@@ -23,14 +24,14 @@ namespace ContactDetailsApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token)
+        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token, string eventType)
         {
             try
             {
                 var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
                 var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-                var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token);
+                var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token, eventType);
 
                 await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 

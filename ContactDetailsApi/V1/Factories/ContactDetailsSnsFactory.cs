@@ -3,12 +3,13 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.JWT;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Factories
 {
     public class ContactDetailsSnsFactory : ISnsFactory
     {
-        public ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token)
+        public ContactDetailsSns Create(ContactDetailsRequestObject contactDetails, Token token, string eventType)
         {
             return new ContactDetailsSns
             {
@@ -16,7 +17,7 @@ namespace ContactDetailsApi.V1.Factories
                 DateTime = DateTime.UtcNow,
                 EntityId = contactDetails.Id,
                 Id = Guid.NewGuid(),
-                EventType = CreateEventConstants.EVENTTYPE,
+                EventType = eventType,
                 Version = CreateEventConstants.V1VERSION,
                 SourceDomain = CreateEventConstants.SOURCEDOMAIN,
                 SourceSystem = CreateEventConstants.SOURCESYSTEM,
