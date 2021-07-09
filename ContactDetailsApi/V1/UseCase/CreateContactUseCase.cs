@@ -24,24 +24,17 @@ namespace ContactDetailsApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token, string eventType)
+        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest,
+            Token token, string eventType)
         {
-            try
-            {
-                var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
-                var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
+            var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
+            var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-                var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, eventType);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, eventType);
 
-                await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
+            await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 
-                return contact.ToResponse();
-            }
-            catch (Exception ex)
-            {
-                var s = ex.Message;
-                throw;
-            }
+            return contact.ToResponse();
         }
     }
 }
