@@ -24,7 +24,6 @@ namespace ContactDetailsApi.V1.Controllers
         private readonly ICreateContactUseCase _createContactUseCase;
         private readonly IHttpContextWrapper _httpContextWrapper;
         private readonly ITokenFactory _tokenFactory;
-        private readonly Token _token;
 
         public ContactDetailsController(IGetContactDetailsByTargetIdUseCase getByTargetIdUseCase,
             IDeleteContactDetailsByTargetIdUseCase deleteContactDetailsByTargetIdUseCase, ICreateContactUseCase createContactUseCase,
@@ -35,7 +34,6 @@ namespace ContactDetailsApi.V1.Controllers
             _createContactUseCase = createContactUseCase;
             _httpContextWrapper = httpContextWrapper;
             _tokenFactory = tokenFactory;
-            _token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
         }
 
         /// <summary>
@@ -72,7 +70,9 @@ namespace ContactDetailsApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> DeleteContactDetailsById([FromQuery] DeleteContactQueryParameter queryParam)
         {
-            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam, _token, ContactDetailsConstants.DELETED).ConfigureAwait(false);
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+
+            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam, token, ContactDetailsConstants.DELETED).ConfigureAwait(false);
             if (contact == null) return NotFound(new { TargetId = queryParam.TargetId, Id = queryParam.Id });
 
             return Ok(contact);
@@ -91,7 +91,9 @@ namespace ContactDetailsApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
-            var result = await _createContactUseCase.ExecuteAsync(contactRequest, _token, ContactDetailsConstants.CREATED).ConfigureAwait(false);
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+
+            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token, ContactDetailsConstants.CREATED).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);
         }
