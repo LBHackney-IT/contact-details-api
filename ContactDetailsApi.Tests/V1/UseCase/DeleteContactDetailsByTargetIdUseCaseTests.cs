@@ -9,6 +9,9 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Threading.Tasks;
+using ContactDetailsApi.V1.Domain.Sns;
+using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
@@ -17,13 +20,18 @@ namespace ContactDetailsApi.Tests.V1.UseCase
     public class DeleteContactDetailsByTargetIdUseCaseTests : LogCallAspectFixture
     {
         private readonly Mock<IContactDetailsGateway> _mockGateway;
+        private readonly Mock<ISnsFactory> _mockSnsFactory;
+        private readonly Mock<ISnsGateway> _mockSnsGateway;
         private readonly DeleteContactDetailsByTargetIdUseCase _classUnderTest;
         private readonly Fixture _fixture = new Fixture();
 
         public DeleteContactDetailsByTargetIdUseCaseTests()
         {
             _mockGateway = new Mock<IContactDetailsGateway>();
-            _classUnderTest = new DeleteContactDetailsByTargetIdUseCase(_mockGateway.Object);
+            _mockSnsFactory = new Mock<ISnsFactory>();
+            _mockSnsGateway = new Mock<ISnsGateway>();
+
+            _classUnderTest = new DeleteContactDetailsByTargetIdUseCase(_mockGateway.Object, _mockSnsFactory.Object, _mockSnsGateway.Object);
         }
 
         [Fact]
@@ -36,7 +44,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             };
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync((ContactDetails) null);
 
-            var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
             response.Should().BeNull();
         }
 
@@ -51,8 +59,25 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
 
-            var response = await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
+        }
+
+        [Fact]
+        public async Task DeleteContactByIdPublishesMessage()
+        {
+            var queryParam = new DeleteContactQueryParameter
+            {
+                TargetId = Guid.NewGuid(),
+                Id = Guid.NewGuid()
+            };
+            var contact = _fixture.Create<ContactDetails>();
+            _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
+
+            await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
+
+            _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
+            _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 
         [Fact]
@@ -66,7 +91,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var exception = new ApplicationException("Test Exception");
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ThrowsAsync(exception);
 
-            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.Execute(queryParam).ConfigureAwait(false);
+            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

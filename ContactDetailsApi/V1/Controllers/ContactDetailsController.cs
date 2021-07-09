@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Controllers
 {
@@ -69,8 +70,9 @@ namespace ContactDetailsApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> DeleteContactDetailsById([FromQuery] DeleteContactQueryParameter queryParam)
         {
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
+            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam, token).ConfigureAwait(false);
             if (contact == null) return NotFound(new { TargetId = queryParam.TargetId, Id = queryParam.Id });
 
             return Ok(contact);
@@ -90,6 +92,7 @@ namespace ContactDetailsApi.V1.Controllers
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+
             var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);

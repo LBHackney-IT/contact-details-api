@@ -6,6 +6,8 @@ using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Hackney.Core.JWT;
+using Hackney.Core.Sns;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.UseCase
 {
@@ -22,22 +24,17 @@ namespace ContactDetailsApi.V1.UseCase
             _snsFactory = snsFactory;
         }
 
-        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token)
+        public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest,
+            Token token)
         {
-            try
-            {
-                var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
+            var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
+            var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-                var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token);
-                await _snsGateway.Publish(createContactDetailsSnsMessage).ConfigureAwait(false);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, ContactDetailsConstants.CREATED);
 
-                return contact.ToResponse();
-            }
-            catch (Exception ex)
-            {
-                var s = ex.Message;
-                throw;
-            }
+            await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
+
+            return contact.ToResponse();
         }
     }
 }
