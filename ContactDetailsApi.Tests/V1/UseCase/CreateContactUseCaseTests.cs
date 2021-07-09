@@ -58,7 +58,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
 
             var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token, It.IsAny<string>()).ConfigureAwait(false);
 
-            _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetailsRequestObject>(), It.IsAny<Token>(), It.IsAny<string>()));
+            _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 

@@ -96,7 +96,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
                 TargetId = Guid.NewGuid(),
                 Id = Guid.NewGuid()
             };
-            _mockDeleteByIdUseCase.Setup(x => x.Execute(cqp)).ReturnsAsync((ContactDetailsResponseObject) null);
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(cqp, It.IsAny<Token>(), It.IsAny<string>())).ReturnsAsync((ContactDetailsResponseObject) null);
 
             var response = await _classUnderTest.DeleteContactDetailsById(cqp).ConfigureAwait(false);
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -112,7 +112,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
                 Id = Guid.NewGuid()
             };
             var contactResponse = _fixture.Create<ContactDetailsResponseObject>();
-            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam)).ReturnsAsync((contactResponse));
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>())).ReturnsAsync((contactResponse));
 
             var response = await _classUnderTest.DeleteContactDetailsById(queryParam).ConfigureAwait(false);
             response.Should().BeOfType(typeof(OkObjectResult));
@@ -128,7 +128,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
                 Id = Guid.NewGuid()
             };
             var exception = new ApplicationException("Test Exception");
-            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam)).ThrowsAsync(exception);
+            _mockDeleteByIdUseCase.Setup(x => x.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>())).ThrowsAsync(exception);
 
             Func<Task<IActionResult>> func = async () => await _classUnderTest.DeleteContactDetailsById(queryParam).ConfigureAwait(false);
 

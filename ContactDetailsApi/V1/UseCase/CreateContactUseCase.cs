@@ -31,7 +31,7 @@ namespace ContactDetailsApi.V1.UseCase
                 var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
                 var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-                var createContactDetailsSnsMessage = _snsFactory.Create(contactRequest, token, eventType);
+                var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, eventType);
 
                 await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 
