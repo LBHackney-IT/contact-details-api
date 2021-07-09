@@ -92,7 +92,7 @@ namespace ContactDetailsApi.V1.Controllers
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
             var result = await _createContactUseCase.ExecuteAsync(contactRequest, _token, ContactDetailsConstants.CREATED).ConfigureAwait(false);
-            
+
             return Created("api/v1/contactDetails", result);
         }
     }

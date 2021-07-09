@@ -73,8 +73,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
 
-            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
-
+            await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
 
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetails>(), It.IsAny<string>(), It.IsAny<string>()));
