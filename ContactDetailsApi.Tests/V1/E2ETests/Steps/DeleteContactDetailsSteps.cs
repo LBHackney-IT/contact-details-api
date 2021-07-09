@@ -29,7 +29,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
             var message = new HttpRequestMessage(HttpMethod.Delete, uri);
 
-
             message.Method = HttpMethod.Delete;
             message.Headers.Add("Authorization", token);
 
