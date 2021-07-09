@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using ContactDetailsApi.V1.Domain;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
+using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.UseCase
 {
@@ -26,23 +27,23 @@ namespace ContactDetailsApi.V1.UseCase
         }
 
         [LogCall]
-        public async Task<ContactDetailsResponseObject> Execute(DeleteContactQueryParameter query, Token token, string eventType)
+        public async Task<ContactDetailsResponseObject> Execute(DeleteContactQueryParameter query, Token token)
         {
             var contact = await _gateway.DeleteContactDetailsById(query).ConfigureAwait(false);
 
             if (contact != null)
             {
-                await PublishContact(token, eventType, contact).ConfigureAwait(false);
+                await PublishContact(token, contact).ConfigureAwait(false);
             }
 
             return contact.ToResponse();
         }
 
-        private async Task PublishContact(Token token, string eventType, ContactDetails contact)
+        private async Task PublishContact(Token token, ContactDetails contact)
         {
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, eventType);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, ContactDetailsConstants.DELETED);
 
             await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
         }

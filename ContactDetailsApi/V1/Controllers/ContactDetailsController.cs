@@ -72,7 +72,7 @@ namespace ContactDetailsApi.V1.Controllers
         {
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam, token, ContactDetailsConstants.DELETED).ConfigureAwait(false);
+            var contact = await _deleteContactDetailsByTargetIdUseCase.Execute(queryParam, token).ConfigureAwait(false);
             if (contact == null) return NotFound(new { TargetId = queryParam.TargetId, Id = queryParam.Id });
 
             return Ok(contact);
@@ -93,7 +93,7 @@ namespace ContactDetailsApi.V1.Controllers
         {
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token, ContactDetailsConstants.CREATED).ConfigureAwait(false);
+            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
 
             return Created("api/v1/contactDetails", result);
         }

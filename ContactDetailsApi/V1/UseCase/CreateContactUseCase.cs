@@ -25,12 +25,12 @@ namespace ContactDetailsApi.V1.UseCase
         }
 
         public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest,
-            Token token, string eventType)
+            Token token)
         {
             var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, eventType);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, ContactDetailsConstants.CREATED);
 
             await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 

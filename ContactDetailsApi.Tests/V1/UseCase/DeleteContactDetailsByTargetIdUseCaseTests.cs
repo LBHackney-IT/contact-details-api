@@ -44,7 +44,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             };
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync((ContactDetails) null);
 
-            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
             response.Should().BeNull();
         }
 
@@ -59,7 +59,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
 
-            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
+            var response = await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
         }
 
@@ -74,7 +74,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ReturnsAsync(contact);
 
-            await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
+            await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
 
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
@@ -91,7 +91,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var exception = new ApplicationException("Test Exception");
             _mockGateway.Setup(x => x.DeleteContactDetailsById(queryParam)).ThrowsAsync(exception);
 
-            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.Execute(queryParam, It.IsAny<Token>(), It.IsAny<string>()).ConfigureAwait(false);
+            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.Execute(queryParam, It.IsAny<Token>()).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }

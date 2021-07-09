@@ -43,7 +43,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
                 .ReturnsAsync(contact);
 
-            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token, It.IsAny<string>()).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
             response.Should().BeEquivalentTo(contact.ToResponse());
         }
 
@@ -56,7 +56,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
                 .ReturnsAsync(contact);
 
-            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token, It.IsAny<string>()).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
@@ -74,7 +74,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
 
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>())).ThrowsAsync(exception);
 
-            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token, It.IsAny<string>()).ConfigureAwait(false);
+            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
