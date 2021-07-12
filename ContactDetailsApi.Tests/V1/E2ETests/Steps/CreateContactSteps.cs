@@ -1,8 +1,6 @@
 using ContactDetailsApi.V1.Boundary.Response;
-using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -33,6 +31,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
         public async Task WhenTheCreateContactEndpointIsCalled(ContactDetailsRequestObject requestObject)
         {
+            var token =
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
             var route = $"api/v1/contactDetails";
 
             var uri = new Uri(route, UriKind.Relative);
@@ -41,6 +41,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
             message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Post;
+            message.Headers.Add("Authorization", token);
 
             _httpClient.DefaultRequestHeaders
                 .Accept

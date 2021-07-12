@@ -4,7 +4,6 @@ using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
-using FluentValidation;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
@@ -31,6 +30,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ContactDetailsApi.V1.Factories;
+using Hackney.Core.DI;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
 
 namespace ContactDetailsApi
 {
@@ -130,9 +133,21 @@ namespace ContactDetailsApi
 
             services.AddLogCallAspect();
             services.ConfigureDynamoDB();
+            services.ConfigureSns();
 
             RegisterGateways(services);
             RegisterUseCases(services);
+
+            services.AddScoped<ISnsFactory, ContactDetailsSnsFactory>();
+
+            ConfigureHackneyCoreDI(services);
+        }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
         }
 
         private static void RegisterGateways(IServiceCollection services)
