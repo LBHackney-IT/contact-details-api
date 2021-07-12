@@ -9,7 +9,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
-using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Controllers
 {

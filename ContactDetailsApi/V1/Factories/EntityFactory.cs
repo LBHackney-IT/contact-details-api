@@ -4,7 +4,6 @@ using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 using ContactDetailsApi.V1.Boundary.Request;
-using User = ContactDetailsApi.V1.Domain.User;
 
 namespace ContactDetailsApi.V1.Factories
 {

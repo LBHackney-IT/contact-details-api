@@ -32,8 +32,6 @@ using System.Linq;
 using System.Reflection;
 using ContactDetailsApi.V1.Factories;
 using Hackney.Core.DI;
-using Hackney.Core.Http;
-using Hackney.Core.JWT;
 
 namespace ContactDetailsApi
 {
