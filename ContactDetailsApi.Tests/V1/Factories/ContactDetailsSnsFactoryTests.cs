@@ -34,7 +34,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var result = _sut.Create(contactDetails, new Token(), eventType);
 
             // assert
-            result.EventData.OldData.Should().BeNull();
+            result.EventData.OldData.Value.Should().BeNull();
             result.EventData.NewData.Value.Should().Be(contactDetails.ContactInformation.Value);
         }
 
@@ -55,7 +55,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var result = _sut.Create(contactDetails, new Token(), eventType);
 
             // assert
-            result.EventData.NewData.Should().BeNull();
+            result.EventData.NewData.Value.Should().BeNull();
             result.EventData.OldData.Value.Should().Be(contactDetails.ContactInformation.Value);
         }
     }
