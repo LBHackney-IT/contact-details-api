@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.JWT;
 using Hackney.Shared.Sns;
+using System.Configuration;
 
 namespace ContactDetailsApi.V1.Factories
 {
