@@ -13,5 +13,16 @@ namespace ContactDetailsApi.V1.Domain.Sns
         public DateTime DateTime { get; set; }
         public User User { get; set; }
         public Guid EntityId { get; set; }
+        public EventData EventData { get; set; }
+    }
+
+    public class DataItem
+    {
+        public string Value { get; set; }
+    }
+    public class EventData
+    {
+        public DataItem OldData { get; set; }
+        public DataItem NewData { get; set; }
     }
 }
