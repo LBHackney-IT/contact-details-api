@@ -1,3 +1,4 @@
+using System;
 using AutoFixture;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
@@ -23,6 +24,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             // arrange
             var contactDetails = new ContactDetails
             {
+                Id = Guid.NewGuid(),
                 ContactInformation = new ContactInformation
                 {
                     Value = "SomeValue"
@@ -35,6 +37,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
 
             // assert
             result.EventData.OldData.Value.Should().BeNull();
+            result.EventData.NewData.Id.Should().Be(contactDetails.Id);
             result.EventData.NewData.Value.Should().Be(contactDetails.ContactInformation.Value);
         }
 
@@ -56,6 +59,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
 
             // assert
             result.EventData.NewData.Value.Should().BeNull();
+            result.EventData.OldData.Id.Should().Be(contactDetails.Id);
             result.EventData.OldData.Value.Should().Be(contactDetails.ContactInformation.Value);
         }
     }

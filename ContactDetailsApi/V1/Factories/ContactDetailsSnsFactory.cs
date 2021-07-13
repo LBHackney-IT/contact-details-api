@@ -23,7 +23,7 @@ namespace ContactDetailsApi.V1.Factories
             {
                 CorrelationId = Guid.NewGuid().ToString(),
                 DateTime = DateTime.UtcNow,
-                EntityId = contactDetails.Id,
+                EntityId = contactDetails.TargetId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
                 Version = CreateEventConstants.V1VERSION,
@@ -41,14 +41,14 @@ namespace ContactDetailsApi.V1.Factories
                 case ContactDetailsConstants.CREATED:
                     contactDetailsSns.EventData = new EventData
                     {
-                        NewData = new DataItem { Value = contactDetails.ContactInformation.Value },
+                        NewData = new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id },
                         OldData = new DataItem()
                     };
                     break;
                 case ContactDetailsConstants.DELETED:
                     contactDetailsSns.EventData = new EventData
                     {
-                        OldData = new DataItem { Value = contactDetails.ContactInformation.Value },
+                        OldData = new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id },
                         NewData = new DataItem()
 
                     };
