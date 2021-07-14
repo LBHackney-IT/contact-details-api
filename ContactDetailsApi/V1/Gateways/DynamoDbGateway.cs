@@ -46,13 +46,13 @@ namespace ContactDetailsApi.V1.Gateways
         }
 
         [LogCall]
-        public async Task<ContactDetails> CreateContact(ContactDetailsRequestObject requestObject)
+        public async Task<ContactDetails> CreateContact(ContactDetailsEntity contactDetails)
         {
-            var contact = requestObject.ToDatabase();
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {contactDetails.TargetId} and id {contactDetails.Id}");
 
-            await _dynamoDbContext.SaveAsync(contact).ConfigureAwait(false);
+            await _dynamoDbContext.SaveAsync(contactDetails).ConfigureAwait(false);
 
-            return contact.ToDomain();
+            return contactDetails.ToDomain();
         }
 
         [LogCall]
@@ -63,6 +63,8 @@ namespace ContactDetailsApi.V1.Gateways
             var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
             if (entity == null) return null;
             entity.IsActive = false;
+
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}");
             await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
 
             return entity.ToDomain();

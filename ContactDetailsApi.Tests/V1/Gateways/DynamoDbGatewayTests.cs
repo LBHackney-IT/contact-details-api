@@ -109,6 +109,21 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             var load = await _dynamoDb.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
             result.Should().BeEquivalentTo(load);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
+        }
+
+        [Fact]
+        public async Task CreateContactDetailsCreatesRecord()
+        {
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                                 .With(x => x.IsActive, true)
+                                 .Create();
+
+            var result = await _classUnderTest.CreateContact(entity).ConfigureAwait(false);
+            result.Should().BeEquivalentTo(entity);
+            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
+            _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {entity.TargetId} and id {entity.Id}", Times.Once());
         }
     }
 }

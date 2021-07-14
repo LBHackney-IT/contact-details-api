@@ -27,7 +27,9 @@ namespace ContactDetailsApi.V1.UseCase
         public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest,
             Token token)
         {
-            var contact = await _gateway.CreateContact(contactRequest).ConfigureAwait(false);
+            var dbObject = contactRequest.ToDomain(token).ToDatabase();
+            var contact = await _gateway.CreateContact(dbObject).ConfigureAwait(false);
+
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
             var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, ContactDetailsConstants.CREATED);

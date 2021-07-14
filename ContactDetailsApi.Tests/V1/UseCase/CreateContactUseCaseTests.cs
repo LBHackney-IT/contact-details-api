@@ -2,16 +2,17 @@ using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
+using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
+using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
+using Hackney.Core.JWT;
+using Hackney.Core.Sns;
 using Moq;
 using System;
 using System.Threading.Tasks;
-using ContactDetailsApi.V1.Domain.Sns;
-using Hackney.Core.JWT;
-using Hackney.Core.Sns;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
@@ -40,7 +41,7 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             var token = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
+            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>()))
                 .ReturnsAsync(contact);
 
             var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
@@ -53,10 +54,10 @@ namespace ContactDetailsApi.Tests.V1.UseCase
             var contact = _fixture.Create<ContactDetails>();
             var token = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>()))
+            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>()))
                 .ReturnsAsync(contact);
 
-            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
+            _ = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
@@ -65,14 +66,10 @@ namespace ContactDetailsApi.Tests.V1.UseCase
         [Fact]
         public void CreateContactThrowsException()
         {
-            var queryParam = new ContactQueryParameter
-            {
-                TargetId = Guid.NewGuid()
-            };
             var exception = new ApplicationException("Test Exception");
             var token = _fixture.Create<Token>();
 
-            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsRequestObject>())).ThrowsAsync(exception);
+            _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>())).ThrowsAsync(exception);
 
             Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
 
