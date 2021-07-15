@@ -1,15 +1,14 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
 using Hackney.Core.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
-using Hackney.Core.Http;
-using Hackney.Core.JWT;
-using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Controllers
 {
@@ -49,7 +48,6 @@ namespace ContactDetailsApi.V1.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> GetContactDetailsByTargetId([FromQuery] ContactQueryParameter queryParam)
         {
-
             var contacts = await _getContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
             if (contacts == null || !contacts.Any()) return NotFound(queryParam.TargetId);
 
