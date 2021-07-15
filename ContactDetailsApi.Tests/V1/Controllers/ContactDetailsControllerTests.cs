@@ -4,14 +4,14 @@ using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Controllers;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using FluentAssertions;
+using Hackney.Core.Http;
+using Hackney.Core.JWT;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hackney.Core.Http;
-using Hackney.Core.JWT;
-using Microsoft.AspNetCore.Http;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Controllers
@@ -162,7 +162,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, token)).ReturnsAsync(contactResponse);
 
             // Act
-            var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+            _ = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
 
             // Assert
             _mockHttpContextWrapper.Verify(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>()));
@@ -175,12 +175,11 @@ namespace ContactDetailsApi.Tests.V1.Controllers
             // Arrange
             var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
             var exception = new ApplicationException("Test Exception");
-            var token = _fixture.Create<Token>();
+
             _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, It.IsAny<Token>())).ThrowsAsync(exception);
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
-
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
