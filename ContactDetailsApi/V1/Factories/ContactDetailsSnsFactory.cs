@@ -41,14 +41,14 @@ namespace ContactDetailsApi.V1.Factories
                 case ContactDetailsConstants.CREATED:
                     contactDetailsSns.EventData = new EventData
                     {
-                        NewData = new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id },
+                        NewData = ReturnDataItem(contactDetails),
                         OldData = new DataItem()
                     };
                     break;
                 case ContactDetailsConstants.DELETED:
                     contactDetailsSns.EventData = new EventData
                     {
-                        OldData = new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id },
+                        OldData = ReturnDataItem(contactDetails),
                         NewData = new DataItem()
 
                     };
@@ -56,6 +56,14 @@ namespace ContactDetailsApi.V1.Factories
                 default:
                     throw new NotImplementedException($"Event {eventType} not recognized");
             }
+        }
+
+        private static DataItem ReturnDataItem(ContactDetails contactDetails)
+        {
+            return new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id,
+                ContactType = contactDetails.ContactInformation.ContactType,
+                Description = contactDetails.ContactInformation.Description
+            };
         }
     }
 }
