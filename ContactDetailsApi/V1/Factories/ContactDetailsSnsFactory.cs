@@ -60,7 +60,10 @@ namespace ContactDetailsApi.V1.Factories
 
         private static DataItem ReturnDataItem(ContactDetails contactDetails)
         {
-            return new DataItem { Value = contactDetails.ContactInformation.Value, Id = contactDetails.Id,
+            return new DataItem
+            {
+                Value = contactDetails.ContactInformation.Value,
+                Id = contactDetails.Id,
                 ContactType = contactDetails.ContactInformation.ContactType,
                 Description = contactDetails.ContactInformation.Description
             };
