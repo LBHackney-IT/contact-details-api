@@ -1,15 +1,15 @@
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
+using AutoFixture.Dsl;
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
-using AutoFixture.Dsl;
-using ContactDetailsApi.V1.Boundary.Request;
 
 namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 {
@@ -53,9 +53,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
         private IEnumerable<ContactDetailsEntity> CreateContacts(int count, bool isActive)
         {
-            var random = new Random();
-            Func<DateTime> funcDT = () => DateTime.UtcNow.AddDays(0 - random.Next(100));
-
             return _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
                     .Create())
@@ -65,26 +62,19 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                 .With(x => x.TargetId, TargetId).CreateMany(count);
         }
 
-        private ContactDetailsRequestObject CreateContact(bool isActive)
+        private ContactDetailsRequestObject CreateContact()
         {
-            return SetupContactCreationFixture(isActive).Create();
+            return SetupContactCreationFixture().Create();
         }
 
-        private IPostprocessComposer<ContactDetailsRequestObject> SetupContactCreationFixture(bool isActive)
+        private IPostprocessComposer<ContactDetailsRequestObject> SetupContactCreationFixture()
         {
-            var random = new Random();
-            Func<DateTime> funcDT = () => DateTime.UtcNow.AddDays(0 - random.Next(100));
-
             return _fixture.Build<ContactDetailsRequestObject>()
-                .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
-                    .With(y => y.EmailAddress, "somone@somewhere.com")
-                    .Create())
                 .With(x => x.ContactInformation, () => _fixture.Build<ContactInformation>()
                     .With(y => y.ContactType, ContactType.email)
                     .With(y => y.Value, "somone-else@somewhere.com")
                     .Create())
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
-                .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
                 .With(x => x.TargetId, Guid.NewGuid);
         }
@@ -114,7 +104,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
         public void GivenANewContactRequest()
         {
-            Contact = CreateContact(true);
+            Contact = CreateContact();
         }
 
         public void GivenAnInvalidNewContactRequest()

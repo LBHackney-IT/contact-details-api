@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.JWT;
 using System;
 using Xunit;
 
@@ -48,25 +49,41 @@ namespace ContactDetailsApi.Tests.V1.Factories
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void CanMapARequestToADatabaseObject(bool hasId)
+        public void CanMapARequestToADomainObject(bool hasId)
         {
             var id = hasId ? Guid.NewGuid() : Guid.Empty;
             var request = _fixture.Build<ContactDetailsRequestObject>()
                                          .With(x => x.Id, id)
                                          .Create();
-            var databaseEntity = request.ToDatabase();
+            var token = _fixture.Create<Token>();
+            var domainEntity = request.ToDomain(token);
 
             if (hasId)
-                request.Id.Should().Be(databaseEntity.Id);
+                request.Id.Should().Be(domainEntity.Id);
             else
-                databaseEntity.Id.Should().NotBeEmpty();
-            request.TargetId.Should().Be(databaseEntity.TargetId);
-            request.TargetType.Should().Be(databaseEntity.TargetType);
-            request.SourceServiceArea.Should().BeEquivalentTo(databaseEntity.SourceServiceArea);
-            request.RecordValidUntil.Should().Be(databaseEntity.RecordValidUntil);
-            request.IsActive.Should().Be(databaseEntity.IsActive);
-            request.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
-            request.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
+                domainEntity.Id.Should().NotBeEmpty();
+            domainEntity.TargetId.Should().Be(request.TargetId);
+            domainEntity.TargetType.Should().Be(request.TargetType);
+            domainEntity.SourceServiceArea.Should().BeEquivalentTo(request.SourceServiceArea);
+            domainEntity.RecordValidUntil.Should().Be(request.RecordValidUntil);
+            domainEntity.IsActive.Should().BeTrue();
+            domainEntity.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
+            domainEntity.CreatedBy.EmailAddress.Should().BeEquivalentTo(token.Email);
+            domainEntity.CreatedBy.FullName.Should().BeEquivalentTo(token.Name);
+            domainEntity.CreatedBy.Id.Should().NotBeEmpty();
+            domainEntity.ContactInformation.Should().BeEquivalentTo(request.ContactInformation);
+        }
+
+        [Fact]
+        public void CanMapATokenToACreatedBy()
+        {
+            var token = _fixture.Create<Token>();
+            var createdBy = token.ToCreatedBy();
+
+            createdBy.Id.Should().NotBeEmpty();
+            createdBy.FullName.Should().Be(token.Name);
+            createdBy.EmailAddress.Should().Be(token.Email);
+            createdBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 100);
         }
     }
 }
