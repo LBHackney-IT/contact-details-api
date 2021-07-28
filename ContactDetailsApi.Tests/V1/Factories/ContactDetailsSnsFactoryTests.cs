@@ -21,14 +21,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
         public void GivenContactDetailsWhenCreatingEventShouldPopulateNewData()
         {
             // arrange
-            var contactDetails = new ContactDetails
-            {
-                Id = Guid.NewGuid(),
-                ContactInformation = new ContactInformation
-                {
-                    Value = "SomeValue"
-                }
-            };
+            var contactDetails = CreateContactDetails();
             var eventType = ContactDetailsConstants.CREATED;
 
             // act
@@ -38,19 +31,15 @@ namespace ContactDetailsApi.Tests.V1.Factories
             result.EventData.OldData.Value.Should().BeNull();
             result.EventData.NewData.Id.Should().Be(contactDetails.Id);
             result.EventData.NewData.Value.Should().Be(contactDetails.ContactInformation.Value);
+            result.EventData.NewData.ContactType.Should().Be(contactDetails.ContactInformation.ContactType);
+            result.EventData.NewData.Description.Should().Be(contactDetails.ContactInformation.Description);
         }
 
         [Fact]
         public void GivenContactDetailsWhenDeletingEventShouldPopulateOldData()
         {
             // arrange
-            var contactDetails = new ContactDetails
-            {
-                ContactInformation = new ContactInformation
-                {
-                    Value = "SomeValue"
-                }
-            };
+            var contactDetails = CreateContactDetails();
             var eventType = ContactDetailsConstants.DELETED;
 
             // act
@@ -60,6 +49,21 @@ namespace ContactDetailsApi.Tests.V1.Factories
             result.EventData.NewData.Value.Should().BeNull();
             result.EventData.OldData.Id.Should().Be(contactDetails.Id);
             result.EventData.OldData.Value.Should().Be(contactDetails.ContactInformation.Value);
+            result.EventData.OldData.ContactType.Should().Be(contactDetails.ContactInformation.ContactType);
+            result.EventData.OldData.Description.Should().Be(contactDetails.ContactInformation.Description);
+        }
+
+        private static ContactDetails CreateContactDetails()
+        {
+            return new ContactDetails
+            {
+                ContactInformation = new ContactInformation
+                {
+                    Value = "SomeValue",
+                    ContactType = ContactType.address,
+                    Description = "SomeDescription"
+                }
+            };
         }
     }
 }
