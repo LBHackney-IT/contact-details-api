@@ -70,7 +70,6 @@ namespace ContactDetailsApi.Tests.V1.Factories
             domainEntity.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
             domainEntity.CreatedBy.EmailAddress.Should().BeEquivalentTo(token.Email);
             domainEntity.CreatedBy.FullName.Should().BeEquivalentTo(token.Name);
-            domainEntity.CreatedBy.Id.Should().NotBeEmpty();
             domainEntity.ContactInformation.Should().BeEquivalentTo(request.ContactInformation);
         }
 
@@ -80,7 +79,6 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var token = _fixture.Create<Token>();
             var createdBy = token.ToCreatedBy();
 
-            createdBy.Id.Should().NotBeEmpty();
             createdBy.FullName.Should().Be(token.Name);
             createdBy.EmailAddress.Should().Be(token.Email);
             createdBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 100);

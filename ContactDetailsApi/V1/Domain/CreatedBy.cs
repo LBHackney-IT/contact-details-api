@@ -6,8 +6,6 @@ namespace ContactDetailsApi.V1.Domain
 {
     public class CreatedBy
     {
-        public Guid? Id { get; set; }
-
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime? CreatedAt { get; set; }
 
