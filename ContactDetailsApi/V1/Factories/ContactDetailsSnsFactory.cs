@@ -29,7 +29,7 @@ namespace ContactDetailsApi.V1.Factories
                 Version = CreateEventConstants.V1VERSION,
                 SourceDomain = CreateEventConstants.SOURCEDOMAIN,
                 SourceSystem = CreateEventConstants.SOURCESYSTEM,
-                User = new Domain.Sns.User { Id = Guid.NewGuid(), Name = token.Name, Email = token.Email }
+                User = new Domain.Sns.User { Name = token.Name, Email = token.Email }
             };
         }
 
