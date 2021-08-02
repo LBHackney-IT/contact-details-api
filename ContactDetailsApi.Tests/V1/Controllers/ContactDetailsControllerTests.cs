@@ -166,7 +166,7 @@ namespace ContactDetailsApi.Tests.V1.Controllers
 
             // Assert
             _mockHttpContextWrapper.Verify(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>()));
-            _mockTokenFactory.Verify(x => x.Create(It.IsAny<IHeaderDictionary>()));
+            _mockTokenFactory.Verify(x => x.Create(It.IsAny<IHeaderDictionary>(), It.IsAny<string>()));
         }
 
         [Fact]
