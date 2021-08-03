@@ -90,9 +90,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                                                                         .Excluding(y => y.IsActive));
             apiResult.Id.Should().NotBeEmpty();
             apiResult.IsActive.Should().BeTrue();
-            apiResult.CreatedBy.Should().BeEquivalentTo(GetToken(Jwt).ToCreatedBy(), config => config.Excluding(x => x.CreatedAt)
-                                                                                                     .Excluding(y => y.Id));
-            apiResult.CreatedBy.Id.Should().NotBeEmpty();
+            apiResult.CreatedBy.Should().BeEquivalentTo(GetToken(Jwt).ToCreatedBy(), config => config.Excluding(x => x.CreatedAt));
             apiResult.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
 
             var getResponse = await CallApi(apiResult.TargetId.ToString(), true).ConfigureAwait(false);

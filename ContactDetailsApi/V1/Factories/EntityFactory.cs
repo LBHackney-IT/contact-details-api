@@ -66,8 +66,7 @@ namespace ContactDetailsApi.V1.Factories
             {
                 CreatedAt = DateTime.UtcNow,
                 EmailAddress = token.Email,
-                FullName = token.Name,
-                Id = Guid.NewGuid() // token.Sub ???
+                FullName = token.Name
             };
         }
     }
