@@ -64,7 +64,7 @@ namespace ContactDetailsApi.V1.Factories
             {
                 Value = contactDetails.ContactInformation.Value,
                 Id = contactDetails.Id,
-                ContactType = contactDetails.ContactInformation.ContactType,
+                ContactType = (int)contactDetails.ContactInformation.ContactType,
                 Description = contactDetails.ContactInformation.Description
             };
         }

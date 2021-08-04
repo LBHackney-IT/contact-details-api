@@ -31,7 +31,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             result.EventData.OldData.Value.Should().BeNull();
             result.EventData.NewData.Id.Should().Be(contactDetails.Id);
             result.EventData.NewData.Value.Should().Be(contactDetails.ContactInformation.Value);
-            result.EventData.NewData.ContactType.Should().Be(contactDetails.ContactInformation.ContactType);
+            result.EventData.NewData.ContactType.Should().Be((int)contactDetails.ContactInformation.ContactType);
             result.EventData.NewData.Description.Should().Be(contactDetails.ContactInformation.Description);
         }
 
@@ -49,7 +49,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             result.EventData.NewData.Value.Should().BeNull();
             result.EventData.OldData.Id.Should().Be(contactDetails.Id);
             result.EventData.OldData.Value.Should().Be(contactDetails.ContactInformation.Value);
-            result.EventData.OldData.ContactType.Should().Be(contactDetails.ContactInformation.ContactType);
+            result.EventData.OldData.ContactType.Should().Be((int)contactDetails.ContactInformation.ContactType);
             result.EventData.OldData.Description.Should().Be(contactDetails.ContactInformation.Description);
         }
 
