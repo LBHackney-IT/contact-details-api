@@ -8,6 +8,7 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
     public class SourceServiceAreaValidatorTests
     {
         private readonly SourceServiceAreaValidator _sut;
+        private const string StringWithTags = "Some string with <tag> in it.";
 
         public SourceServiceAreaValidatorTests()
         {
@@ -15,11 +16,12 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         }
 
         [Fact]
-        public void ShouldErrorWithInvalidArea()
+        public void ShouldErrorWithTagsInArea()
         {
-            var model = new SourceServiceArea() { Area = "Some<tag>value" };
+            var model = new SourceServiceArea() { Area = StringWithTags };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Area);
+            result.ShouldHaveValidationErrorFor(x => x.Area)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
         [Theory]

@@ -10,6 +10,7 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
     public class ContactInformationValidatorTests
     {
         private readonly ContactInformationValidator _sut;
+        private const string StringWithTags = "Some string with <tag> in it.";
 
         public ContactInformationValidatorTests()
         {
@@ -67,19 +68,26 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        [InlineData("Some<tag>value")]
-        public void ValueShouldErrorWithInvalidValue(string invalid)
+        public void ValueShouldErrorWithNoValue(string invalid)
         {
             var model = new ContactInformation() { Value = invalid };
             var result = _sut.TestValidate(model);
             result.ShouldHaveValidationErrorFor(x => x.Value);
         }
 
+        [Fact]
+        public void ValueShouldErrorWithTagsInValue()
+        {
+            var model = new ContactInformation() { Value = StringWithTags };
+            var result = _sut.TestValidate(model);
+            result.ShouldHaveValidationErrorFor(x => x.Value)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
+        }
+
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("Some<tag>value")]
         [InlineData("invalidEmail")]
+        [InlineData("@invalidEmail")]
+        [InlineData("invalidEmail@")]
         public void ValueShouldErrorWithInvalidEmail(string invalid)
         {
             var model = new ContactInformation()
@@ -88,7 +96,8 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
                 ContactType = ContactType.email
             };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Value);
+            result.ShouldHaveValidationErrorFor(x => x.Value)
+                  .WithErrorCode(ErrorCodes.InvalidEmail);
         }
 
         [Fact]
@@ -104,9 +113,6 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         }
 
         [Theory]
-        [InlineData(null)]
-        [InlineData("")]
-        [InlineData("Some<tag>value")]
         [InlineData("invalidphone")]
         [InlineData("3214")]
         public void ValueShouldErrorWithInvalidPhoneNumber(string invalid)
@@ -117,7 +123,8 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
                 ContactType = ContactType.phone
             };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Value);
+            result.ShouldHaveValidationErrorFor(x => x.Value)
+                  .WithErrorCode(ErrorCodes.InvalidPhoneNumber);
         }
 
         [Theory]
@@ -136,11 +143,12 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         }
 
         [Fact]
-        public void DescriptionShouldErrorWithInvalidValue()
+        public void DescriptionShouldErrorWithWithTagsInValue()
         {
-            var model = new ContactInformation() { Description = "Some<tag>value" };
+            var model = new ContactInformation() { Description = StringWithTags };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.Description);
+            result.ShouldHaveValidationErrorFor(x => x.Description)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
         [Theory]
@@ -157,10 +165,11 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         [Fact]
         public void AddressExtendedShouldErrorWithInvalidValue()
         {
-            var invalidAddressExtended = new AddressExtended() { UPRN = "Some<tag>value" };
+            var invalidAddressExtended = new AddressExtended() { UPRN = StringWithTags };
             var model = new ContactInformation() { AddressExtended = invalidAddressExtended };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.AddressExtended.UPRN);
+            result.ShouldHaveValidationErrorFor(x => x.AddressExtended.UPRN)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
     }
 }

@@ -9,8 +9,10 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
         public AddressExtendedValidator()
         {
             RuleFor(x => x.UPRN).NotXssString()
+                                .WithErrorCode(ErrorCodes.XssCheckFailure)
                                 .When(x => !string.IsNullOrWhiteSpace(x.UPRN));
             RuleFor(x => x.OverseasAddress).NotXssString()
+                                           .WithErrorCode(ErrorCodes.XssCheckFailure)
                                            .When(x => !string.IsNullOrWhiteSpace(x.OverseasAddress));
         }
     }

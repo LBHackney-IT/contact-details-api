@@ -9,6 +9,7 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
         public SourceServiceAreaValidator()
         {
             RuleFor(x => x.Area).NotXssString()
+                                .WithErrorCode(ErrorCodes.XssCheckFailure)
                                 .When(x => !string.IsNullOrWhiteSpace(x.Area));
         }
     }

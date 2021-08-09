@@ -15,17 +15,26 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
         public ContactInformationValidator()
         {
             RuleFor(x => x.ContactType).IsInEnum();
+
             RuleFor(x => x.SubType).IsInEnum()
                                    .When(x => x.SubType.HasValue);
+
             RuleFor(x => x.Value).NotNull()
-                                 .NotEmpty()
-                                 .NotXssString();
+                                 .NotEmpty();
+            RuleFor(x => x.Value).NotXssString()
+                                 .WithErrorCode(ErrorCodes.XssCheckFailure)
+                                 .When(x => !string.IsNullOrWhiteSpace(x.Value));
             RuleFor(x => x.Value).EmailAddress()
+                                 .WithErrorCode(ErrorCodes.InvalidEmail)
                                  .When(x => x.ContactType == ContactType.email);
             RuleFor(x => x.Value).Matches(IntPhoneNumberRegEx)
+                                 .WithErrorCode(ErrorCodes.InvalidPhoneNumber)
                                  .When(y => y.ContactType == ContactType.phone);
+
             RuleFor(x => x.Description).NotXssString()
+                                       .WithErrorCode(ErrorCodes.XssCheckFailure)
                                        .When(x => !string.IsNullOrWhiteSpace(x.Description));
+
             RuleFor(x => x.AddressExtended).SetValidator(new AddressExtendedValidator());
         }
     }
