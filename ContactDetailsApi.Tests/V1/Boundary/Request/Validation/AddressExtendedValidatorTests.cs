@@ -8,6 +8,7 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
     public class AddressExtendedValidatorTests
     {
         private readonly AddressExtendedValidator _sut;
+        private const string StringWithTags = "Some string with <tag> in it.";
 
         public AddressExtendedValidatorTests()
         {
@@ -15,11 +16,12 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         }
 
         [Fact]
-        public void ShouldErrorWithInvalidUPRN()
+        public void ShouldErrorWithTagsInUPRN()
         {
-            var model = new AddressExtended() { UPRN = "Some<tag>value" };
+            var model = new AddressExtended() { UPRN = StringWithTags };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.UPRN);
+            result.ShouldHaveValidationErrorFor(x => x.UPRN)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
         [Theory]
@@ -34,11 +36,12 @@ namespace ContactDetailsApi.Tests.V1.Boundary.Request.Validation
         }
 
         [Fact]
-        public void ShouldErrorWithInvalidOverseasAddress()
+        public void ShouldErrorWithTagsInOverseasAddress()
         {
-            var model = new AddressExtended() { OverseasAddress = "Some<tag>value" };
+            var model = new AddressExtended() { OverseasAddress = StringWithTags };
             var result = _sut.TestValidate(model);
-            result.ShouldHaveValidationErrorFor(x => x.OverseasAddress);
+            result.ShouldHaveValidationErrorFor(x => x.OverseasAddress)
+                  .WithErrorCode(ErrorCodes.XssCheckFailure);
         }
 
         [Theory]
