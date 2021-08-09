@@ -1,10 +1,12 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
+using Hackney.Core.DI;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
@@ -30,10 +32,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using ContactDetailsApi.V1.Factories;
-using Hackney.Core.DI;
-using Hackney.Core.Http;
-using Hackney.Core.JWT;
 
 namespace ContactDetailsApi
 {
@@ -58,8 +56,9 @@ namespace ContactDetailsApi
 
             services
                 .AddMvc()
-                .AddFluentValidation(fv => fv.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly()))
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+
+            services.AddFluentValidation();
 
             services.AddApiVersioning(o =>
             {
