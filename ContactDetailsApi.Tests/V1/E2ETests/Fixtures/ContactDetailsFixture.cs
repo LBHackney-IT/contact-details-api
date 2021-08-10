@@ -79,7 +79,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                 .With(x => x.TargetId, Guid.NewGuid);
         }
 
-
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)
         {
             if (!Contacts.Any())
@@ -110,6 +109,20 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
         public void GivenAnInvalidNewContactRequest()
         {
             Contact = new ContactDetailsRequestObject();
+        }
+
+        public void GivenAnNewContactRequestWithAnInvalidPhoneNumber()
+        {
+            Contact = CreateContact();
+            Contact.ContactInformation.ContactType = ContactType.phone;
+            Contact.ContactInformation.Value = "Something wrong";
+        }
+
+        public void GivenAnNewContactRequestWithAnInvalidEmail()
+        {
+            Contact = CreateContact();
+            Contact.ContactInformation.ContactType = ContactType.email;
+            Contact.ContactInformation.Value = "Something wrong";
         }
 
         private void CreateSnsTopic()

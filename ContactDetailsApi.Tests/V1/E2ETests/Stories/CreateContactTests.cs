@@ -1,5 +1,6 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V1.E2ETests.Steps;
+using ContactDetailsApi.V1.Boundary.Request.Validation;
 using System;
 using TestStack.BDDfy;
 using Xunit;
@@ -60,7 +61,24 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
                 .Then(t => _steps.ThenBadRequestIsReturned())
                 .And(t => _steps.ThenTheResponseIncludesValidationErrors())
                 .BDDfy();
+        }
 
+        [Fact]
+        public void ServiceReturnsBadRequestWithInvalidPhoneNumber()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAnNewContactRequestWithAnInvalidPhoneNumber())
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.Contact))
+                .Then(t => _steps.ThenBadRequestValidationErrorResultIsReturned("Value", ErrorCodes.InvalidPhoneNumber))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void ServiceReturnsBadRequestWithInvalidEmail()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAnNewContactRequestWithAnInvalidEmail())
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.Contact))
+                .Then(t => _steps.ThenBadRequestValidationErrorResultIsReturned("Value", ErrorCodes.InvalidEmail))
+                .BDDfy();
         }
     }
 }
