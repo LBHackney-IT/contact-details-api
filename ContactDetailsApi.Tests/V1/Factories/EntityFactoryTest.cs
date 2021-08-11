@@ -6,6 +6,7 @@ using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
 using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V1.Factories
@@ -28,6 +29,27 @@ namespace ContactDetailsApi.Tests.V1.Factories
             databaseEntity.IsActive.Should().Be(entity.IsActive);
             databaseEntity.CreatedBy.Should().BeEquivalentTo(entity.CreatedBy);
             databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
+        }
+
+        [Fact]
+        public void CanMapADbEntityCollectionToAnOrderedDomainObjectCollection()
+        {
+            Random rand = new Random();
+            var databaseEntities = new List<ContactDetailsEntity>();
+            for (int i = 0; i < 10; i++)
+            {
+                var dt = DateTime.UtcNow.AddHours(rand.Next(500));
+                databaseEntities.Add(_fixture.Build<ContactDetailsEntity>()
+                                         .With(x => x.CreatedBy, _fixture.Build<CreatedBy>()
+                                                                         .With(y => y.CreatedAt, dt)
+                                                                         .Create())
+                                         .Create());
+            }
+
+            var entities = databaseEntities.ToDomain();
+
+            entities.Should().BeEquivalentTo(databaseEntities);
+            entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
         }
 
         [Fact]

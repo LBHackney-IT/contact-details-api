@@ -48,6 +48,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             {
                 var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
                 apiResult.Results.Should().BeEquivalentTo(expected);
+                apiResult.Results.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
             }
             else
             {
