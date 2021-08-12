@@ -17,7 +17,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             ContactDetails domain = null;
             var response = domain.ToResponse();
 
-            domain.Should().BeNull();
+            response.Should().BeNull();
         }
 
         [Fact]
