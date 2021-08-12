@@ -42,7 +42,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var contacts = _fixture.CreateMany<ContactDetails>(10);
             var responseNotes = contacts.ToResponse();
 
-            responseNotes.Should().BeEquivalentTo(contacts);
+            responseNotes.Should().BeEquivalentTo(contacts, config => config.Excluding(x => x.LastModified));
         }
 
         [Fact]
