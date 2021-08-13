@@ -31,5 +31,8 @@ namespace ContactDetailsApi.V1.Infrastructure
 
         [DynamoDBProperty(Converter = typeof(DynamoDbObjectConverter<CreatedBy>))]
         public CreatedBy CreatedBy { get; set; }
+
+        [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
+        public DateTime? LastModified { get; set; }
     }
 }

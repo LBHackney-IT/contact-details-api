@@ -1,25 +1,20 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
-using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 {
     public class DeleteContactDetailsSteps : BaseSteps
     {
         public DeleteContactDetailsSteps(HttpClient httpClient) : base(httpClient)
-        {
-        }
+        { }
+
         private async Task<HttpResponseMessage> CallApi(string targetId, string id)
         {
             var token =
@@ -39,14 +34,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             return await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
 
-        private async Task<ContactDetailsResponseObject> ExtractResultFromHttpResponse(HttpResponseMessage response)
-        {
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<ContactDetailsResponseObject>(responseContent, _jsonOptions);
-            return apiResult;
-        }
-
         public async Task WhenTheDeleteContactDetailsApiIsCalled(string targetId, string id)
         {
             _lastResponse = await CallApi(targetId, id).ConfigureAwait(false);
@@ -54,9 +41,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
         public async Task ThenTheContactDetailsAreDeleted(ContactDetailsFixture contactDetailsFixture)
         {
-            var result = await contactDetailsFixture._dbContext.LoadAsync<ContactDetailsEntity>(contactDetailsFixture.TargetId, contactDetailsFixture.Contacts.First().Id).ConfigureAwait(false);
+            var result = await contactDetailsFixture._dbContext.LoadAsync<ContactDetailsEntity>(contactDetailsFixture.TargetId,
+                                                                                                contactDetailsFixture.Contacts.First().Id)
+                                                    .ConfigureAwait(false);
             result.IsActive.Should().BeFalse();
-
+            result.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
         }
 
         public void ThenNotFoundReturned()

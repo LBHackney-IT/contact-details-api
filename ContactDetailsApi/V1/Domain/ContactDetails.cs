@@ -19,5 +19,7 @@ namespace ContactDetailsApi.V1.Domain
         public bool IsActive { get; set; }
 
         public CreatedBy CreatedBy { get; set; }
+
+        public DateTime? LastModified { get; set; }
     }
 }

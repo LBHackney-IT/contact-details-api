@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -76,12 +77,14 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             var entity = _fixture.Build<ContactDetailsEntity>()
                                  .With(x => x.RecordValidUntil, validDate)
                                  .With(x => x.IsActive, true)
+                                 .With(x => x.LastModified, validDate)
                                  .Create();
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
             var query = new ContactQueryParameter { TargetId = entity.TargetId };
             var result = await _classUnderTest.GetContactDetailsByTargetId(query).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(entity);
+            result.Should().HaveCount(1);
+            result.First().Should().BeEquivalentTo(entity);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {entity.TargetId}", Times.Once());
         }
 
@@ -107,7 +110,9 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             };
             var result = await _classUnderTest.DeleteContactDetailsById(query).ConfigureAwait(false);
             var load = await _dynamoDb.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
-            result.Should().BeEquivalentTo(load);
+            result.Should().BeEquivalentTo(load, config => config.Excluding(y => y.LastModified));
+            load.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
         }
@@ -122,6 +127,11 @@ namespace ContactDetailsApi.Tests.V1.Gateways
 
             var result = await _classUnderTest.CreateContact(entity).ConfigureAwait(false);
             result.Should().BeEquivalentTo(entity);
+
+            var load = await _dynamoDb.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
+            result.Should().BeEquivalentTo(load, config => config.Excluding(y => y.LastModified));
+            load.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+
             _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {entity.TargetId} and id {entity.Id}", Times.Once());
         }
