@@ -6,7 +6,6 @@ using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
-using Hackney.Core.DI;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
