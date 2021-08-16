@@ -18,6 +18,20 @@ namespace ContactDetailsApi.Tests.V1.Factories
         }
 
         [Fact]
+        public void GivenContactDetailsWhenUnsupportedEventShouldThrow()
+        {
+            // arrange
+            var contactDetails = CreateContactDetails();
+            var eventType = "Unsupported";
+
+            // act
+            Action act = () => _sut.Create(contactDetails, new Token(), eventType);
+
+            // assert
+            act.Should().Throw<NotImplementedException>().WithMessage($"Event {eventType} not recognized");
+        }
+
+        [Fact]
         public void GivenContactDetailsWhenCreatingEventShouldPopulateNewData()
         {
             // arrange

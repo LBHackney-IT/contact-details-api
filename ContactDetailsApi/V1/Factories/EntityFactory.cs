@@ -21,7 +21,8 @@ namespace ContactDetailsApi.V1.Factories
                 SourceServiceArea = databaseEntity.SourceServiceArea,
                 CreatedBy = databaseEntity.CreatedBy,
                 IsActive = databaseEntity.IsActive,
-                RecordValidUntil = databaseEntity.RecordValidUntil
+                RecordValidUntil = databaseEntity.RecordValidUntil,
+                LastModified = databaseEntity.LastModified
             };
         }
 
@@ -58,7 +59,8 @@ namespace ContactDetailsApi.V1.Factories
                 SourceServiceArea = entity.SourceServiceArea,
                 CreatedBy = entity.CreatedBy,
                 IsActive = entity.IsActive,
-                RecordValidUntil = entity.RecordValidUntil
+                RecordValidUntil = entity.RecordValidUntil,
+                LastModified = entity.LastModified
             };
         }
 

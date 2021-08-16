@@ -29,6 +29,28 @@ namespace ContactDetailsApi.Tests.V1.Factories
             databaseEntity.IsActive.Should().Be(entity.IsActive);
             databaseEntity.CreatedBy.Should().BeEquivalentTo(entity.CreatedBy);
             databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
+            databaseEntity.LastModified.Should().Be(entity.LastModified);
+        }
+
+        [Fact]
+        public void CanMapADbEntityCollectionToAnOrderedDomainObjectCollection()
+        {
+            Random rand = new Random();
+            var databaseEntities = new List<ContactDetailsEntity>();
+            for (int i = 0; i < 10; i++)
+            {
+                var dt = DateTime.UtcNow.AddHours(rand.Next(500));
+                databaseEntities.Add(_fixture.Build<ContactDetailsEntity>()
+                                         .With(x => x.CreatedBy, _fixture.Build<CreatedBy>()
+                                                                         .With(y => y.CreatedAt, dt)
+                                                                         .Create())
+                                         .Create());
+            }
+
+            var entities = databaseEntities.ToDomain();
+
+            entities.Should().BeEquivalentTo(databaseEntities);
+            entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
         }
 
         [Fact]
@@ -66,6 +88,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             contactDetails.IsActive.Should().Be(databaseEntity.IsActive);
             contactDetails.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
             contactDetails.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
+            contactDetails.LastModified.Should().Be(databaseEntity.LastModified);
         }
 
         [Theory]
@@ -93,6 +116,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             domainEntity.CreatedBy.EmailAddress.Should().BeEquivalentTo(token.Email);
             domainEntity.CreatedBy.FullName.Should().BeEquivalentTo(token.Name);
             domainEntity.ContactInformation.Should().BeEquivalentTo(request.ContactInformation);
+            domainEntity.LastModified.Should().BeNull();
         }
 
         [Fact]

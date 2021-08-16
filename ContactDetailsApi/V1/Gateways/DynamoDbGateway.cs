@@ -6,6 +6,7 @@ using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -50,6 +51,7 @@ namespace ContactDetailsApi.V1.Gateways
         {
             _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {contactDetails.TargetId} and id {contactDetails.Id}");
 
+            contactDetails.LastModified = DateTime.UtcNow;
             await _dynamoDbContext.SaveAsync(contactDetails).ConfigureAwait(false);
 
             return contactDetails.ToDomain();
@@ -63,6 +65,7 @@ namespace ContactDetailsApi.V1.Gateways
             var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
             if (entity == null) return null;
             entity.IsActive = false;
+            entity.LastModified = DateTime.UtcNow;
 
             _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}");
             await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
