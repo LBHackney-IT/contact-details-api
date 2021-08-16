@@ -54,27 +54,6 @@ namespace ContactDetailsApi.Tests.V1.Factories
         }
 
         [Fact]
-        public void CanMapADbEntityCollectionToAnOrderedDomainObjectCollection()
-        {
-            Random rand = new Random();
-            var databaseEntities = new List<ContactDetailsEntity>();
-            for (int i = 0; i < 10; i++)
-            {
-                var dt = DateTime.UtcNow.AddHours(rand.Next(500));
-                databaseEntities.Add(_fixture.Build<ContactDetailsEntity>()
-                                         .With(x => x.CreatedBy, _fixture.Build<CreatedBy>()
-                                                                         .With(y => y.CreatedAt, dt)
-                                                                         .Create())
-                                         .Create());
-            }
-
-            var entities = databaseEntities.ToDomain();
-
-            entities.Should().BeEquivalentTo(databaseEntities);
-            entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
-        }
-
-        [Fact]
         public void CanMapADomainEntityToADatabaseObject()
         {
             var contactDetails = _fixture.Create<ContactDetails>();
