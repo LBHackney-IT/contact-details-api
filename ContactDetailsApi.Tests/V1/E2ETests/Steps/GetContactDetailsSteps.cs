@@ -1,4 +1,5 @@
 using ContactDetailsApi.V1.Boundary.Response;
+using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using System;
@@ -46,8 +47,9 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
             if (expected.Any())
             {
+                var expectedAsResponses = expected.Select(x => x.ToDomain()).ToResponse();
                 var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
-                apiResult.Results.Should().BeEquivalentTo(expected);
+                apiResult.Results.Should().BeEquivalentTo(expectedAsResponses);
                 apiResult.Results.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
             }
             else

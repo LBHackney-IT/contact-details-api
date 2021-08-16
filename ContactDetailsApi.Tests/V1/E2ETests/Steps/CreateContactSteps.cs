@@ -28,23 +28,6 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
         public CreateContactSteps(HttpClient httpClient) : base(httpClient)
         { }
 
-        private async Task<HttpResponseMessage> CallApi(string id, bool? includeHistoric = null)
-        {
-            var route = $"api/v1/contactDetails?targetId={id}";
-            if (includeHistoric.HasValue)
-                route += $"&includeHistoric={includeHistoric.Value}";
-            var uri = new Uri(route, UriKind.Relative);
-            return await _httpClient.GetAsync(uri).ConfigureAwait(false);
-        }
-
-        private async Task<GetContactDetailsResponse> ExtractGetResultFromHttpResponse(HttpResponseMessage response)
-        {
-            response.StatusCode.Should().Be(HttpStatusCode.OK);
-            var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<GetContactDetailsResponse>(responseContent, _jsonOptions);
-            return apiResult;
-        }
-
         private static ContactDetailsEntity ResponseToDatabase(ContactDetailsResponseObject response)
         {
             return new ContactDetailsEntity
@@ -84,7 +67,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             var expected = fixture.Contact;
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
 
-            fixture.Contacts.Add(ResponseToDatabase(apiResult));
+            var resultAsDb = ResponseToDatabase(apiResult);
+            fixture.Contacts.Add(resultAsDb);
             expected.Should().BeEquivalentTo(apiResult, config => config.Excluding(x => x.Id)
                                                                         .Excluding(y => y.CreatedBy)
                                                                         .Excluding(y => y.IsActive));
@@ -93,10 +77,9 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             apiResult.CreatedBy.Should().BeEquivalentTo(GetToken(Jwt).ToCreatedBy(), config => config.Excluding(x => x.CreatedAt));
             apiResult.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
 
-            var getResponse = await CallApi(apiResult.TargetId.ToString(), true).ConfigureAwait(false);
-            var getResults = await ExtractGetResultFromHttpResponse(getResponse).ConfigureAwait(false);
-            getResults.Results.Count.Should().Be(1);
-            getResults.Results.First().Should().BeEquivalentTo(apiResult);
+            var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
+            dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
+            dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
         }
 
         public async Task ThenTheResponseIncludesValidationErrors()

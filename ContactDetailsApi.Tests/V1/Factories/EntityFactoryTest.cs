@@ -29,6 +29,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             databaseEntity.IsActive.Should().Be(entity.IsActive);
             databaseEntity.CreatedBy.Should().BeEquivalentTo(entity.CreatedBy);
             databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
+            databaseEntity.LastModified.Should().Be(entity.LastModified);
         }
 
         [Fact]
@@ -66,6 +67,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             contactDetails.IsActive.Should().Be(databaseEntity.IsActive);
             contactDetails.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
             contactDetails.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
+            contactDetails.LastModified.Should().Be(databaseEntity.LastModified);
         }
 
         [Theory]
@@ -93,6 +95,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             domainEntity.CreatedBy.EmailAddress.Should().BeEquivalentTo(token.Email);
             domainEntity.CreatedBy.FullName.Should().BeEquivalentTo(token.Name);
             domainEntity.ContactInformation.Should().BeEquivalentTo(request.ContactInformation);
+            domainEntity.LastModified.Should().BeNull();
         }
 
         [Fact]
