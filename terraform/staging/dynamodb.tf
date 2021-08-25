@@ -21,7 +21,7 @@ resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
         Environment       = var.environment_name
         terraform-managed = true
         project_name      = var.project_name
-        backup_policy     = "Stg"
+        BackupPolicy     = "Stg"
     }
 
     point_in_time_recovery {
