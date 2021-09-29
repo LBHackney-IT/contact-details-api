@@ -1,10 +1,11 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
+using Amazon.SimpleNotificationService;
+using Amazon.SimpleNotificationService.Model;
+using ContactDetailsApi.V1.Domain.Sns;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
 using Xunit;
 
 namespace ContactDetailsApi.Tests
@@ -14,6 +15,8 @@ namespace ContactDetailsApi.Tests
         public HttpClient Client { get; private set; }
         public IDynamoDBContext DynamoDbContext => _factory?.DynamoDbContext;
         public IAmazonSimpleNotificationService SimpleNotificationService => _factory?.SimpleNotificationService;
+
+        public SnsEventVerifier<ContactDetailsSns> SnsVerifer { get; private set; }
 
         private readonly AwsMockWebApplicationFactory<TStartup> _factory;
 
@@ -52,6 +55,8 @@ namespace ContactDetailsApi.Tests
         {
             if (disposing && !_disposed)
             {
+                if (null != SnsVerifer)
+                    SnsVerifer.Dispose();
                 if (null != _factory)
                     _factory.Dispose();
                 _disposed = true;
@@ -77,6 +82,8 @@ namespace ContactDetailsApi.Tests
             }).Result;
 
             Environment.SetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN", response.TopicArn);
+
+            SnsVerifer = new SnsEventVerifier<ContactDetailsSns>(_factory.AmazonSQS, SimpleNotificationService, response.TopicArn);
         }
     }
 
