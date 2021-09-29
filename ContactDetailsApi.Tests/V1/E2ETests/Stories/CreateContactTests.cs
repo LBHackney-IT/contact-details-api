@@ -50,6 +50,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
             this.Given(g => _contactDetailsFixture.GivenANewContactRequest())
                 .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.Contact))
                 .Then(t => _steps.ThenTheContactDetailsAreSavedAndReturned(_contactDetailsFixture))
+                .Then(t => _steps.ThenTheContactDetailsCreatedEventIsRaised(_dbFixture.SnsVerifer))
                 .BDDfy();
         }
 

@@ -1,8 +1,8 @@
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
+using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
-using Hackney.Shared.Sns;
 using System;
 using Xunit;
 
@@ -36,7 +36,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
         {
             // arrange
             var contactDetails = CreateContactDetails();
-            var eventType = ContactDetailsConstants.CREATED;
+            var eventType = EventConstants.CREATED;
 
             // act
             var result = _sut.Create(contactDetails, new Token(), eventType);
@@ -54,7 +54,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
         {
             // arrange
             var contactDetails = CreateContactDetails();
-            var eventType = ContactDetailsConstants.DELETED;
+            var eventType = EventConstants.DELETED;
 
             // act
             var result = _sut.Create(contactDetails, new Token(), eventType);

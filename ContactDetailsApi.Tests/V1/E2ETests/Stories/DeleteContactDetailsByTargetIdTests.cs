@@ -43,12 +43,14 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
                 _disposed = true;
             }
         }
+
         [Fact]
         public void ServiceSoftDeletesRequestedContactDetails()
         {
             this.Given(g => _contactDetailsFixture.GivenContactDetailsAlreadyExist(1, 0))
                 .When(w => _steps.WhenTheDeleteContactDetailsApiIsCalled(_contactDetailsFixture.TargetId.ToString(), _contactDetailsFixture.Contacts.First().Id.ToString()))
                 .Then(t => _steps.ThenTheContactDetailsAreDeleted(_contactDetailsFixture))
+                .Then(t => _steps.ThenTheContactDetailsDeletedEventIsRaised(_contactDetailsFixture, _dbFixture.SnsVerifer))
                 .BDDfy();
         }
 
