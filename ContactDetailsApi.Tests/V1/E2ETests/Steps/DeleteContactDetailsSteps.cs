@@ -1,4 +1,5 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
+using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
@@ -18,7 +19,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
         private async Task<HttpResponseMessage> CallApi(string targetId, string id)
         {
             var token =
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
+                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
             var route = $"api/v1/contactDetails?targetId={targetId}&id={id}";
             var uri = new Uri(route, UriKind.Relative);
 
@@ -56,6 +57,35 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
         public void ThenBadRequestReturned()
         {
             _lastResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        }
+
+        public void ThenTheContactDetailsDeletedEventIsRaised(ContactDetailsFixture contactDetailsFixture,
+                                                                    SnsEventVerifier<ContactDetailsSns> snsVerifer)
+        {
+            var deletedRecord = contactDetailsFixture.Contacts.First();
+
+            Action<ContactDetailsSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 1000);
+                actual.EntityId.Should().Be(deletedRecord.TargetId);
+
+                actual.EventData.OldData.ContactType.Should().Be((int) deletedRecord.ContactInformation.ContactType);
+                actual.EventData.OldData.Description.Should().Be(deletedRecord.ContactInformation.Description);
+                actual.EventData.OldData.Id.Should().Be(deletedRecord.Id);
+                actual.EventData.OldData.Value.Should().Be(deletedRecord.ContactInformation.Value);
+                actual.EventData.NewData.Should().BeEquivalentTo(new DataItem());
+
+                actual.EventType.Should().Be(EventConstants.DELETED);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(EventConstants.SOURCEDOMAIN);
+                actual.SourceSystem.Should().Be(EventConstants.SOURCESYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(EventConstants.V1VERSION);
+            };
+
+            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
         }
     }
 }
