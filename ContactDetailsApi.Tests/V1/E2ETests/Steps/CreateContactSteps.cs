@@ -1,6 +1,7 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
+using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
@@ -23,7 +24,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 {
     public class CreateContactSteps : BaseSteps
     {
-        private const string Jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImV2YW5nZWxvcy5ha3RvdWRpYW5ha2lzQGhhY2tuZXkuZ292LnVrIiwiaXNzIjoiSGFja25leSIsIm5hbWUiOiJFdmFuZ2Vsb3MgQWt0b3VkaWFuYWtpcyIsImdyb3VwcyI6WyJzYW1sLWF3cy1jb25zb2xlLW10ZmgtZGV2ZWxvcGVyIl0sImlhdCI6MTYyMzA1ODIzMn0.Jnd2kQTMiAUeKMJCYQVEVXbFc9BbIH90OociR15gfpw";
+        private const string Jwt = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
 
         public CreateContactSteps(HttpClient httpClient) : base(httpClient)
         { }
@@ -60,6 +61,34 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                 .Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
             _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
+        }
+
+        public async Task ThenTheContactDetailsCreatedEventIsRaised(SnsEventVerifier<ContactDetailsSns> snsVerifer)
+        {
+            var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
+
+            Action<ContactDetailsSns> verifyFunc = (actual) =>
+            {
+                actual.CorrelationId.Should().NotBeEmpty();
+                actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 1000);
+                actual.EntityId.Should().Be(apiResult.TargetId);
+
+                actual.EventData.NewData.ContactType.Should().Be((int) apiResult.ContactInformation.ContactType);
+                actual.EventData.NewData.Description.Should().Be(apiResult.ContactInformation.Description);
+                actual.EventData.NewData.Id.Should().Be(apiResult.Id);
+                actual.EventData.NewData.Value.Should().Be(apiResult.ContactInformation.Value);
+                actual.EventData.OldData.Should().BeEquivalentTo(new DataItem());
+
+                actual.EventType.Should().Be(EventConstants.CREATED);
+                actual.Id.Should().NotBeEmpty();
+                actual.SourceDomain.Should().Be(EventConstants.SOURCEDOMAIN);
+                actual.SourceSystem.Should().Be(EventConstants.SOURCESYSTEM);
+                actual.User.Email.Should().Be("e2e-testing@development.com");
+                actual.User.Name.Should().Be("Tester");
+                actual.Version.Should().Be(EventConstants.V1VERSION);
+            };
+
+            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
         public async Task ThenTheContactDetailsAreSavedAndReturned(ContactDetailsFixture fixture)

@@ -26,9 +26,9 @@ namespace ContactDetailsApi.V1.Factories
                 EntityId = contactDetails.TargetId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
-                Version = CreateEventConstants.V1VERSION,
-                SourceDomain = CreateEventConstants.SOURCEDOMAIN,
-                SourceSystem = CreateEventConstants.SOURCESYSTEM,
+                Version = EventConstants.V1VERSION,
+                SourceDomain = EventConstants.SOURCEDOMAIN,
+                SourceSystem = EventConstants.SOURCESYSTEM,
                 User = new Domain.Sns.User { Name = token.Name, Email = token.Email }
             };
         }
@@ -38,14 +38,14 @@ namespace ContactDetailsApi.V1.Factories
         {
             switch (eventType)
             {
-                case ContactDetailsConstants.CREATED:
+                case EventConstants.CREATED:
                     contactDetailsSns.EventData = new EventData
                     {
                         NewData = ReturnDataItem(contactDetails),
                         OldData = new DataItem()
                     };
                     break;
-                case ContactDetailsConstants.DELETED:
+                case EventConstants.DELETED:
                     contactDetailsSns.EventData = new EventData
                     {
                         OldData = ReturnDataItem(contactDetails),

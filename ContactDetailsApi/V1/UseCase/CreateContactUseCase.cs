@@ -1,13 +1,13 @@
-using System;
-using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Gateways;
+using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
-using Hackney.Shared.Sns;
+using System;
+using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.UseCase
 {
@@ -32,7 +32,7 @@ namespace ContactDetailsApi.V1.UseCase
 
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, ContactDetailsConstants.CREATED);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, EventConstants.CREATED);
 
             await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 
