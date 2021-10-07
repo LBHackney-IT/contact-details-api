@@ -4,6 +4,10 @@ using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using ContactDetailsApi.V2.Factories;
+using ContactDetailsApi.V2.Gateways;
+using ContactDetailsApi.V2.UseCase;
+using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -138,8 +142,7 @@ namespace ContactDetailsApi
 
             RegisterGateways(services);
             RegisterUseCases(services);
-
-            services.AddScoped<ISnsFactory, ContactDetailsSnsFactory>();
+            RegisterFactories(services);
 
             ConfigureHackneyCoreDI(services);
         }
@@ -153,14 +156,22 @@ namespace ContactDetailsApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<IContactDetailsGateway, DynamoDbGateway>();
+            services.AddScoped<V1.Gateways.IContactDetailsGateway, V1.Gateways.DynamoDbGateway>();
+            services.AddScoped<V2.Gateways.IContactDetailsGateway, V2.Gateways.DynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
         {
             services.AddScoped<IGetContactDetailsByTargetIdUseCase, GetContactDetailsByTargetIdUseCase>();
-            services.AddScoped<ICreateContactUseCase, CreateContactUseCase>();
+            services.AddScoped<V1.UseCase.Interfaces.ICreateContactUseCase, V1.UseCase.CreateContactUseCase>();
             services.AddScoped<IDeleteContactDetailsByTargetIdUseCase, DeleteContactDetailsByTargetIdUseCase>();
+            services.AddScoped<V2.UseCase.Interfaces.ICreateContactUseCase, V2.UseCase.CreateContactUseCase>();
+        }
+
+        private static void RegisterFactories(IServiceCollection services)
+        {
+            services.AddScoped<V1.Factories.ISnsFactory, V1.Factories.ContactDetailsSnsFactory>();
+            services.AddScoped<V2.Factories.ISnsFactory, V2.Factories.ContactDetailsSnsFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
