@@ -1,6 +1,8 @@
 using AutoFixture;
+using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V2.Boundary.Request;
+using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
@@ -8,6 +10,7 @@ using Hackney.Core.JWT;
 using System;
 using Xunit;
 using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
+using ContactInformation = ContactDetailsApi.V2.Domain.ContactInformation;
 
 namespace ContactDetailsApi.Tests.V2.Factories
 {
@@ -55,6 +58,54 @@ namespace ContactDetailsApi.Tests.V2.Factories
             contactDetails.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
             contactDetails.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
             contactDetails.LastModified.Should().Be(databaseEntity.LastModified);
+        }
+
+        [Fact]
+        public void ContactDetailsToDatabaseWhenContactTypeIsAddressFormatsMultilineAddressIntoValueField()
+        {
+            // Arrange
+            var contactInformation = _fixture.Build<ContactInformation>()
+                .With(x => x.ContactType, ContactType.address)
+                .Create();
+
+
+            var contactDetails = _fixture.Build<ContactDetails>()
+                                    .With(x => x.ContactInformation, contactInformation)
+                                    .Create();
+            // Act
+            var databaseEntity = contactDetails.ToDatabase();
+
+            // Assert
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.AddressExtended.AddressLine1);
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.AddressExtended.AddressLine2);
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.AddressExtended.AddressLine3);
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.AddressExtended.AddressLine4);
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.AddressExtended.PostCode);
+        }
+
+        [Fact]
+        public void ContactDetailsToDatabaseWhenContactTypeIsNotAddressDoesntFOrmatMultilineAddressIntoValueField()
+        {
+            // Arrange
+            var contactInformation = _fixture.Build<ContactInformation>()
+                .With(x => x.ContactType, ContactType.phone)
+                .Create();
+
+
+            var contactDetails = _fixture.Build<ContactDetails>()
+                                    .With(x => x.ContactInformation, contactInformation)
+                                    .Create();
+            // Act
+            var databaseEntity = contactDetails.ToDatabase();
+
+            // Assert
+            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.Value);
+
+            databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine1);
+            databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine2);
+            databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine3);
+            databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine4);
+            databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.PostCode);
         }
 
         [Theory]

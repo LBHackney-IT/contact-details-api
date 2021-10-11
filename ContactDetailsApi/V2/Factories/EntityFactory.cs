@@ -55,7 +55,10 @@ namespace ContactDetailsApi.V2.Factories
                 LastModified = domain.LastModified
             };
 
-            entity.ContactInformation.Value = FormatSingleLineAddress(domain.ContactInformation.AddressExtended);
+            if (domain.ContactInformation.ContactType == V1.Domain.ContactType.address)
+            {
+                entity.ContactInformation.Value = FormatSingleLineAddress(domain.ContactInformation.AddressExtended);
+            }
 
             return entity;
         }
