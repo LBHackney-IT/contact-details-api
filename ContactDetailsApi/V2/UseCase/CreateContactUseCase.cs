@@ -6,6 +6,7 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using Hackney.Core.JWT;
+using Hackney.Core.Logging;
 using Hackney.Core.Sns;
 using System;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace ContactDetailsApi.V2.UseCase
             _snsFactory = snsFactory;
         }
 
+        [LogCall]
         public async Task<ContactDetailsResponseObject> ExecuteAsync(ContactDetailsRequestObject contactRequest, Token token)
         {
             var dbObject = contactRequest.ToDomain(token).ToDatabase();

@@ -49,8 +49,7 @@ namespace ContactDetailsApi.V2.Controllers
 
             var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
 
-            // Reminder to change URL to /v2
-            return Created("api/v1/contactDetails", result);
+            return Created("api/v2/contactDetails", result);
         }
     }
 }

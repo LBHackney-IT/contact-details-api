@@ -92,8 +92,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 if (inactive > 0)
                     Contacts.AddRange(CreateContacts(inactive, false));
 
-                foreach (var note in Contacts)
-                    await _dbContext.SaveAsync(note).ConfigureAwait(false);
+                foreach (var contact in Contacts)
+                {
+                    await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+                }
             }
         }
 
