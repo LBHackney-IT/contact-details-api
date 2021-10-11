@@ -122,13 +122,13 @@ namespace ContactDetailsApi.Tests.V2.Factories
             string expectedFormat)
         {
             // Arrange
-             var addressExtended = _fixture.Build<ContactDetailsApi.V2.Domain.AddressExtended>()
-                .With(x => x.AddressLine1, addressLine1)
-                .With(x => x.AddressLine2, addressLine2)
-                .With(x => x.AddressLine3, addressLine3)
-                .With(x => x.AddressLine4, addressLine4)
-                .With(x => x.PostCode, postCode)
-                .Create();
+            var addressExtended = _fixture.Build<ContactDetailsApi.V2.Domain.AddressExtended>()
+               .With(x => x.AddressLine1, addressLine1)
+               .With(x => x.AddressLine2, addressLine2)
+               .With(x => x.AddressLine3, addressLine3)
+               .With(x => x.AddressLine4, addressLine4)
+               .With(x => x.PostCode, postCode)
+               .Create();
 
             var contactInformation = _fixture.Build<ContactInformation>()
                 .With(x => x.ContactType, ContactType.address)
