@@ -99,13 +99,51 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var databaseEntity = contactDetails.ToDatabase();
 
             // Assert
-            databaseEntity.ContactInformation.Value.Should().Contain(contactInformation.Value);
+            databaseEntity.ContactInformation.Value.Should().Be(contactInformation.Value);
 
             databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine1);
             databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine2);
             databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine3);
             databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.AddressLine4);
             databaseEntity.ContactInformation.Value.Should().NotContain(contactInformation.AddressExtended.PostCode);
+        }
+
+        [Theory]
+        [InlineData("line1", "", "", "", "pc", "line1 pc")]
+        [InlineData("line1", "line2", "", "", "pc", "line1 line2 pc")]
+        [InlineData("line1", "line2", "line3", "", "pc", "line1 line2 line3 pc")]
+        [InlineData("line1", "line2", "line3", "line4", "pc", "line1 line2 line3 line4 pc")]
+        public void ContactDetailsToDatabaseOnlyIncludesNotEmptyFieldsInValue(
+            string addressLine1,
+            string addressLine2,
+            string addressLine3,
+            string addressLine4,
+            string postCode,
+            string expectedFormat)
+        {
+            // Arrange
+             var addressExtended = _fixture.Build<ContactDetailsApi.V2.Domain.AddressExtended>()
+                .With(x => x.AddressLine1, addressLine1)
+                .With(x => x.AddressLine2, addressLine2)
+                .With(x => x.AddressLine3, addressLine3)
+                .With(x => x.AddressLine4, addressLine4)
+                .With(x => x.PostCode, postCode)
+                .Create();
+
+            var contactInformation = _fixture.Build<ContactInformation>()
+                .With(x => x.ContactType, ContactType.address)
+                .With(x => x.AddressExtended, addressExtended)
+                .Create();
+
+            var contactDetails = _fixture.Build<ContactDetails>()
+                .With(x => x.ContactInformation, contactInformation)
+                .Create();
+
+            // Act
+            var databaseEntity = contactDetails.ToDatabase();
+
+            // Assert
+            databaseEntity.ContactInformation.Value.Should().Be(expectedFormat);
         }
 
         [Theory]
