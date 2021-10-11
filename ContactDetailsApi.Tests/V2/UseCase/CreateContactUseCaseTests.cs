@@ -41,12 +41,13 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             // Arrange
             var contact = _fixture.Create<ContactDetails>();
             var token = _fixture.Create<Token>();
+            var request = _fixture.Create<ContactDetailsRequestObject>();
 
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>()))
                 .ReturnsAsync(contact);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(request, token).ConfigureAwait(false);
 
             // Assert
             response.Should().BeEquivalentTo(contact.ToResponse());
@@ -58,12 +59,13 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             // Arrange
             var contact = _fixture.Create<ContactDetails>();
             var token = _fixture.Create<Token>();
+            var request = _fixture.Create<ContactDetailsRequestObject>();
 
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>()))
                 .ReturnsAsync(contact);
 
             // Act
-            _ = await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
+            _ = await _classUnderTest.ExecuteAsync(request, token).ConfigureAwait(false);
 
             // Assert
             _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), It.IsAny<Token>(), It.IsAny<string>()));
@@ -76,11 +78,12 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             // Arrange
             var exception = new ApplicationException("Test Exception");
             var token = _fixture.Create<Token>();
+            var request = _fixture.Create<ContactDetailsRequestObject>();
 
             _mockGateway.Setup(x => x.CreateContact(It.IsAny<ContactDetailsEntity>())).ThrowsAsync(exception);
 
             // Act
-            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(new ContactDetailsRequestObject(), token).ConfigureAwait(false);
+            Func<Task<ContactDetailsResponseObject>> func = async () => await _classUnderTest.ExecuteAsync(request, token).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

@@ -40,20 +40,29 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
-        public static ContactDetailsEntity ToDatabase(this ContactDetails entity)
+        public static ContactDetailsEntity ToDatabase(this ContactDetails domain)
         {
-            return new ContactDetailsEntity
+            var entity = new ContactDetailsEntity
             {
-                Id = entity.Id,
-                TargetId = entity.TargetId,
-                TargetType = entity.TargetType,
-                ContactInformation = entity.ContactInformation,
-                SourceServiceArea = entity.SourceServiceArea,
-                CreatedBy = entity.CreatedBy,
-                IsActive = entity.IsActive,
-                RecordValidUntil = entity.RecordValidUntil,
-                LastModified = entity.LastModified
+                Id = domain.Id,
+                TargetId = domain.TargetId,
+                TargetType = domain.TargetType,
+                ContactInformation = domain.ContactInformation,
+                SourceServiceArea = domain.SourceServiceArea,
+                CreatedBy = domain.CreatedBy,
+                IsActive = domain.IsActive,
+                RecordValidUntil = domain.RecordValidUntil,
+                LastModified = domain.LastModified
             };
+
+            entity.ContactInformation.Value = FormatSingleLineAddress(domain.ContactInformation.AddressExtended);
+
+            return entity;
+        }
+
+        private static string FormatSingleLineAddress(AddressExtended addressExtended)
+        {
+            return $"{addressExtended.AddressLine1} {addressExtended.AddressLine2} {addressExtended.AddressLine3} {addressExtended.AddressLine4} {addressExtended.PostCode}";
         }
     }
 }

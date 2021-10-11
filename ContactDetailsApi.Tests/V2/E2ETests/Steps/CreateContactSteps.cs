@@ -18,6 +18,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -135,17 +136,32 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
             var resultAsDb = ResponseToDatabase(apiResult);
             fixture.Contacts.Add(resultAsDb);
-            expected.Should().BeEquivalentTo(apiResult, config => config.Excluding(x => x.Id)
-                                                                        .Excluding(y => y.CreatedBy)
-                                                                        .Excluding(y => y.IsActive));
+            expected.Should().BeEquivalentTo(apiResult, config =>
+            {
+                return config.Excluding(x => x.Id)
+                    .Excluding(y => y.CreatedBy)
+                    .Excluding(y => y.IsActive)
+                    .Excluding(y => y.ContactInformation);
+            });
+
             apiResult.Id.Should().NotBeEmpty();
             apiResult.IsActive.Should().BeTrue();
             apiResult.CreatedBy.Should().BeEquivalentTo(GetToken(Jwt).ToCreatedBy(), config => config.Excluding(x => x.CreatedAt));
             apiResult.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
 
             var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
+
+      
+
             dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+
+            // assert multiline address saved in value field
+            dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine1);
+            dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine2);
+            dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine3);
+            dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine4);
+            dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.PostCode);
         }
 
         public async Task ThenTheResponseIncludesValidationErrors()
