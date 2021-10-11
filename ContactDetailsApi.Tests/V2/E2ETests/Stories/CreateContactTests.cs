@@ -55,6 +55,24 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         }
 
         [Fact]
+        public void ServiceSavesMultilineAddressToValueFieldWhenContactTypeIsAddress()
+        {
+            this.Given(g => _contactDetailsFixture.GivenANewContactRequestWhereContactTypeIsAddress())
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
+                .Then(t => _steps.TheMultilineAddressIsSavedInTheValueField(_contactDetailsFixture))
+                .BDDfy();
+        }
+
+        [Fact]
+        public void ServiceDoesntSaveMultilineAddressToValueFieldWhenContactTypeIsNotAddress()
+        {
+            this.Given(g => _contactDetailsFixture.GivenANewContactRequestWhereContactTypeIsNotAddress())
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
+                .Then(t => _steps.TheMultilineAddressIsNotSavedInTheValueField(_contactDetailsFixture))
+                .BDDfy();
+        }
+
+        [Fact]
         public void ServiceReturnsBadRequestWithInvalidContactDetails()
         {
             this.Given(g => _contactDetailsFixture.GivenAnInvalidNewContactRequest())

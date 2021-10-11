@@ -84,7 +84,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
         }
 
         [Fact]
-        public void ContactDetailsToDatabaseWhenContactTypeIsNotAddressDoesntFOrmatMultilineAddressIntoValueField()
+        public void ContactDetailsToDatabaseWhenContactTypeIsNotAddressDoesntFormatMultilineAddressIntoValueField()
         {
             // Arrange
             var contactInformation = _fixture.Build<ContactInformation>()

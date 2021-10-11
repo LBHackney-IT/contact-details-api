@@ -1,4 +1,5 @@
 using ContactDetailsApi.Tests.V2.E2ETests.Fixtures;
+using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
@@ -155,6 +156,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
             dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+        }
+
+        public async Task TheMultilineAddressIsSavedInTheValueField(ContactDetailsFixture fixture)
+        {
+            var expected = fixture.ContactRequestObject;
+            var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
+
+            var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
+
+            dbEntity.ContactInformation.ContactType.Should().Be(ContactType.address);
 
             // assert multiline address saved in value field
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine1);
@@ -162,6 +173,25 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine3);
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine4);
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.PostCode);
+        }
+
+        public async Task TheMultilineAddressIsNotSavedInTheValueField(ContactDetailsFixture fixture)
+        {
+            var expected = fixture.ContactRequestObject;
+            var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
+
+            var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
+
+            dbEntity.ContactInformation.ContactType.Should().NotBe(ContactType.address);
+
+            dbEntity.ContactInformation.Value.Should().Be(expected.ContactInformation.Value);
+
+            // assert multiline address saved in value field
+            dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.AddressLine1);
+            dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.AddressLine2);
+            dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.AddressLine3);
+            dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.AddressLine4);
+            dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.PostCode);
         }
 
         public async Task ThenTheResponseIncludesValidationErrors()

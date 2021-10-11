@@ -160,6 +160,32 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ContactRequestObject = new ContactDetailsRequestObject();
         }
 
+        public void GivenANewContactRequestWhereContactTypeIsAddress()
+        {
+            GivenANewContactRequest();
+
+            ContactRequestObject.ContactInformation.ContactType = ContactType.address;
+
+            var addressExtended = _fixture.Build<AddressExtended>()
+               .With(x => x.PostCode, "NW1 6EA")
+               .Create();
+
+            ContactRequestObject.ContactInformation.AddressExtended = addressExtended;
+        }
+
+        public void GivenANewContactRequestWhereContactTypeIsNotAddress()
+        {
+            GivenANewContactRequest();
+
+            ContactRequestObject.ContactInformation.ContactType = ContactType.email;
+
+            var addressExtended = _fixture.Build<AddressExtended>()
+             .With(x => x.PostCode, "NW1 6EA")
+             .Create();
+
+            ContactRequestObject.ContactInformation.AddressExtended = addressExtended;
+        }
+
         public void GivenAnNewContactRequestWithAnInvalidPhoneNumber()
         {
             ContactRequestObject = CreateContactRestObject();
