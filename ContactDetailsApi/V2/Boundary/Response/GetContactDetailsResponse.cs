@@ -9,7 +9,6 @@ namespace ContactDetailsApi.V2.Boundary.Response
     {
         public List<ContactDetailsResponseObject> Results { get; set; } = new List<ContactDetailsResponseObject>();
 
-        public GetContactDetailsResponse() { }
         public GetContactDetailsResponse(List<ContactDetailsResponseObject> results)
         {
             Results = results;

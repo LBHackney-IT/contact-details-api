@@ -157,6 +157,9 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             // Assert
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().Be(contactInformation.Value);
+
+            result.First().Should().BeEquivalentTo(entity, config => config.Excluding(x => x.ContactInformation));
+            result.First().ContactInformation.Should().BeEquivalentTo(contactInformation, config => config.Excluding(x => x.AddressExtended));
         }
 
         [Fact]
@@ -181,6 +184,9 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             // Assert
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().NotBe(contactInformation.Value);
+
+            result.Should().BeEquivalentTo(entity);
+
         }
     }
 }
