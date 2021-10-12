@@ -20,7 +20,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
     {
         private readonly Fixture _fixture = new Fixture();
 
-         [Fact]
+        [Fact]
         public void CanMapADatabaseEntityToADomainObject()
         {
             // Arrange
