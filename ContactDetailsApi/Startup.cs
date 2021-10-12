@@ -1,4 +1,5 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
+using ContactDetailsApi.V1.Boundary.Request.Validation;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
@@ -67,7 +68,7 @@ namespace ContactDetailsApi
                 o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
-            services.AddFluentValidation(Assembly.GetAssembly(typeof(V1.Boundary.Request.Validation.ContactInformationValidator)));
+            services.AddFluentValidation(Assembly.GetAssembly(typeof(ContactInformationValidator)));
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
