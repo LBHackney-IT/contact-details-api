@@ -1,5 +1,7 @@
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Domain;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -20,6 +22,12 @@ namespace ContactDetailsApi.V2.Factories
                 RecordValidUntil = domain.RecordValidUntil,
                 SourceServiceArea = domain.SourceServiceArea
             };
+        }
+
+        public static List<ContactDetailsResponseObject> ToResponse(this IEnumerable<ContactDetails> domainList)
+        {
+            if (null == domainList) return new List<ContactDetailsResponseObject>();
+            return domainList.Select(domain => domain.ToResponse()).ToList();
         }
     }
 }

@@ -1,4 +1,5 @@
 using AutoFixture;
+using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Controllers;
@@ -10,8 +11,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
+using ContactDetailsRequestObject = ContactDetailsApi.V2.Boundary.Request.ContactDetailsRequestObject;
 
 namespace ContactDetailsApi.Tests.V2.Controller
 {
@@ -20,6 +23,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
     {
         private readonly ContactDetailsController _classUnderTest;
         private readonly Mock<ICreateContactUseCase> _mockCreateContactUseCase;
+        private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
         private readonly Mock<IHttpContextWrapper> _mockHttpContextWrapper;
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Fixture _fixture = new Fixture();
@@ -27,11 +31,13 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public ContactDetailsControllerTests()
         {
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
+            _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
             _mockHttpContextWrapper = new Mock<IHttpContextWrapper>();
             _mockTokenFactory = new Mock<ITokenFactory>();
 
             _classUnderTest = new ContactDetailsController(
                 _mockCreateContactUseCase.Object,
+                _mockGetByIdUseCase.Object,
                 _mockHttpContextWrapper.Object,
                 _mockTokenFactory.Object);
         }
@@ -81,6 +87,66 @@ namespace ContactDetailsApi.Tests.V2.Controller
 
             // Act
             Func<Task<IActionResult>> func = async () => await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+
+            // Assert
+            func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task GetContactDetailsByTargetIdNotFoundReturnsNotFound()
+        {
+            // Arrange
+            var query = new ContactQueryParameter
+            {
+                TargetId = Guid.NewGuid()
+            };
+
+            _mockGetByIdUseCase
+                .Setup(x => x.Execute(query))
+                .ReturnsAsync((List<ContactDetailsResponseObject>) null);
+
+            // Act
+            var response = await _classUnderTest.GetContactDetailsByTargetId(query).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+            (response as NotFoundObjectResult).Value.Should().Be(query.TargetId);
+        }
+
+        [Fact]
+        public async Task GetContactDetailsByTargetIdReturnsOkResponse()
+        {
+            // Arrange
+            var queryParam = new ContactQueryParameter { TargetId = Guid.NewGuid() };
+            var contactResponse = _fixture.Create<List<ContactDetailsResponseObject>>();
+
+            _mockGetByIdUseCase
+                .Setup(x => x.Execute(queryParam))
+                .ReturnsAsync((contactResponse));
+
+            // Act
+            var response = await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(OkObjectResult));
+            (response as OkObjectResult).Value.Should().BeEquivalentTo(new GetContactDetailsResponse(contactResponse));
+        }
+
+        [Fact]
+        public void GetContactDetailsByTargetIdThrowsException()
+        {
+            // Arrange
+            var targetId = Guid.NewGuid();
+            var queryParam = new ContactQueryParameter { TargetId = targetId };
+
+            var exception = new ApplicationException("Test Exception");
+
+            _mockGetByIdUseCase
+                .Setup(x => x.Execute(queryParam))
+                .ThrowsAsync(exception);
+
+            // Act
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.GetContactDetailsByTargetId(queryParam).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

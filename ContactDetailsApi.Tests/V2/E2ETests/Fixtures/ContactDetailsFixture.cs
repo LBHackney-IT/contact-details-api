@@ -87,10 +87,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 TargetId = Guid.NewGuid();
 
                 if (active > 0)
+                {
                     Contacts.AddRange(CreateContacts(active, true));
+                }
 
                 if (inactive > 0)
+                {
                     Contacts.AddRange(CreateContacts(inactive, false));
+                }
 
                 foreach (var contact in Contacts)
                 {

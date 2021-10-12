@@ -162,10 +162,13 @@ namespace ContactDetailsApi
 
         private static void RegisterUseCases(IServiceCollection services)
         {
-            services.AddScoped<IGetContactDetailsByTargetIdUseCase, GetContactDetailsByTargetIdUseCase>();
-            services.AddScoped<V1.UseCase.Interfaces.ICreateContactUseCase, V1.UseCase.CreateContactUseCase>();
             services.AddScoped<IDeleteContactDetailsByTargetIdUseCase, DeleteContactDetailsByTargetIdUseCase>();
+
+            services.AddScoped<V1.UseCase.Interfaces.ICreateContactUseCase, V1.UseCase.CreateContactUseCase>();
             services.AddScoped<V2.UseCase.Interfaces.ICreateContactUseCase, V2.UseCase.CreateContactUseCase>();
+
+            services.AddScoped<V1.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V1.UseCase.GetContactDetailsByTargetIdUseCase>();
+            services.AddScoped<V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V2.UseCase.GetContactDetailsByTargetIdUseCase>();
         }
 
         private static void RegisterFactories(IServiceCollection services)

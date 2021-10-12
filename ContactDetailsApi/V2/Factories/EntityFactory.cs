@@ -4,6 +4,8 @@ using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Infrastructure;
 using Hackney.Core.JWT;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -11,12 +13,21 @@ namespace ContactDetailsApi.V2.Factories
     {
         public static ContactDetails ToDomain(this ContactDetailsEntity databaseEntity)
         {
+            var contactInformation = databaseEntity.ContactInformation;
+
+            if (contactInformation.ContactType == V1.Domain.ContactType.address &&
+                string.IsNullOrEmpty(contactInformation.AddressExtended.AddressLine1))
+            {
+                // only required for addresses created using v1 endpoint
+                contactInformation.AddressExtended.AddressLine1 = contactInformation.Value;
+            }
+
             return new ContactDetails
             {
                 Id = databaseEntity.Id,
                 TargetId = databaseEntity.TargetId,
                 TargetType = databaseEntity.TargetType,
-                ContactInformation = databaseEntity.ContactInformation,
+                ContactInformation = contactInformation,
                 SourceServiceArea = databaseEntity.SourceServiceArea,
                 CreatedBy = databaseEntity.CreatedBy,
                 IsActive = databaseEntity.IsActive,
@@ -66,6 +77,14 @@ namespace ContactDetailsApi.V2.Factories
         private static string FormatSingleLineAddress(AddressExtended addressExtended)
         {
             return $"{addressExtended.AddressLine1} {addressExtended.AddressLine2} {addressExtended.AddressLine3} {addressExtended.AddressLine4} {addressExtended.PostCode}";
+        }
+
+        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
+        {
+            return databaseEntity
+                .Select(p => p.ToDomain())
+                .OrderBy(x => x.CreatedBy.CreatedAt)
+                .ToList();
         }
     }
 }
