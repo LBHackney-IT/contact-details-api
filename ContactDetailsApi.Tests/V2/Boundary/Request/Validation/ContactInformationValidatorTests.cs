@@ -107,14 +107,6 @@ namespace ContactDetailsApi.Tests.V2.Boundary.Request.Validation
             result.ShouldHaveValidationErrorFor(x => x.Value);
         }
 
-
-
-
-
-
-
-
-
         [Fact]
         public void ValueShouldErrorWithTagsInValue()
         {
