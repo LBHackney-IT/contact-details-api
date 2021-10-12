@@ -1,13 +1,7 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using ContactDetailsApi.V1.Factories;
-using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
-using ContactDetailsApi.V2.Factories;
-using ContactDetailsApi.V2.Gateways;
-using ContactDetailsApi.V2.UseCase;
-using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -20,6 +14,7 @@ using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
 using Hackney.Core.Sns;
+using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -72,6 +67,8 @@ namespace ContactDetailsApi
                 o.AssumeDefaultVersionWhenUnspecified = true; // assume that the caller wants the default version if they don't specify
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
+            services.AddFluentValidation(Assembly.GetAssembly(typeof(V1.Boundary.Request.Validation.ContactInformationValidator)));
+            services.AddFluentValidation(Assembly.GetAssembly(typeof(V2.Boundary.Request.Validation.ContactInformationValidator)));
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 

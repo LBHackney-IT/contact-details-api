@@ -6,11 +6,6 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
 {
     public class ContactInformationValidator : AbstractValidator<ContactInformation>
     {
-        // TODO - Create a common validators for these
-        //private const string UkPhoneNumberRegEx
-        //    = @"^(((\+44\s?\d{4}|\(?0\d{4}\)?)\s?\d{3}\s?\d{3})|((\+44\s?\d{3}|\(?0\d{3}\)?)\s?\d{3}\s?\d{4})|((\+44\s?\d{2}|\(?0\d{2}\)?)\s?\d{4}\s?\d{4}))(\s?\#(\d{4}|\d{3}))?$";
-
-        private const string IntPhoneNumberRegEx = @"^[+]?([0-9]*[\.\s\-\(\)]|[0-9]+){6,24}$";
 
         public ContactInformationValidator()
         {
@@ -27,7 +22,7 @@ namespace ContactDetailsApi.V1.Boundary.Request.Validation
             RuleFor(x => x.Value).EmailAddress()
                                  .WithErrorCode(ErrorCodes.InvalidEmail)
                                  .When(x => x.ContactType == ContactType.email);
-            RuleFor(x => x.Value).Matches(IntPhoneNumberRegEx)
+            RuleFor(x => x.Value).IsPhoneNumber(PhoneNumberType.International)
                                  .WithErrorCode(ErrorCodes.InvalidPhoneNumber)
                                  .When(y => y.ContactType == ContactType.phone);
 
