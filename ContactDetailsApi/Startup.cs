@@ -60,8 +60,6 @@ namespace ContactDetailsApi
                 .AddMvc()
                 .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
-            services.AddFluentValidation();
-
             services.AddApiVersioning(o =>
             {
                 o.DefaultApiVersion = new ApiVersion(1, 0);
