@@ -76,7 +76,15 @@ namespace ContactDetailsApi.V2.Factories
 
         private static string FormatSingleLineAddress(AddressExtended addressExtended)
         {
-            return $"{addressExtended.AddressLine1} {addressExtended.AddressLine2} {addressExtended.AddressLine3} {addressExtended.AddressLine4} {addressExtended.PostCode}";
+            var address = addressExtended.AddressLine1;
+
+            if (!string.IsNullOrEmpty(addressExtended.AddressLine2)) address += $" {addressExtended.AddressLine2}";
+            if (!string.IsNullOrEmpty(addressExtended.AddressLine3)) address += $" {addressExtended.AddressLine3}";
+            if (!string.IsNullOrEmpty(addressExtended.AddressLine4)) address += $" {addressExtended.AddressLine4}";
+
+            address += $" {addressExtended.PostCode}";
+
+            return address;
         }
 
         public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)

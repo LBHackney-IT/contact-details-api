@@ -14,7 +14,8 @@ namespace ContactDetailsApi.V2.Boundary.Request.Validation
 
             RuleFor(x => x.SubType).IsInEnum().When(x => x.SubType.HasValue);
 
-            RuleFor(x => x.Value).NotNull().NotEmpty();
+            // value field not required for type address
+            RuleFor(x => x.Value).NotNull().NotEmpty().When(x => x.ContactType != ContactType.address);
 
             RuleFor(x => x.Value).NotXssString()
                 .WithErrorCode(ErrorCodes.XssCheckFailure)
