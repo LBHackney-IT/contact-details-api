@@ -68,7 +68,6 @@ namespace ContactDetailsApi
                 o.ApiVersionReader = new UrlSegmentApiVersionReader(); // read the version number from the url segment header)
             });
             services.AddFluentValidation(Assembly.GetAssembly(typeof(V1.Boundary.Request.Validation.ContactInformationValidator)));
-            services.AddFluentValidation(Assembly.GetAssembly(typeof(V2.Boundary.Request.Validation.ContactInformationValidator)));
 
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
