@@ -8,7 +8,9 @@ using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
 using System;
+using System.Collections.Generic;
 using Xunit;
+using AddressExtended = ContactDetailsApi.V2.Domain.AddressExtended;
 using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
 using ContactInformation = ContactDetailsApi.V2.Domain.ContactInformation;
 
@@ -25,18 +27,49 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var databaseEntity = _fixture.Create<ContactDetailsEntity>();
 
             // Act
-            var entity = databaseEntity.ToDomain();
+            var response = databaseEntity.ToDomain();
 
             // Assert
-            databaseEntity.Id.Should().Be(entity.Id);
-            databaseEntity.TargetId.Should().Be(entity.TargetId);
-            databaseEntity.TargetType.Should().Be(entity.TargetType);
-            databaseEntity.SourceServiceArea.Should().BeEquivalentTo(entity.SourceServiceArea);
-            databaseEntity.RecordValidUntil.Should().Be(entity.RecordValidUntil);
-            databaseEntity.IsActive.Should().Be(entity.IsActive);
-            databaseEntity.CreatedBy.Should().BeEquivalentTo(entity.CreatedBy);
-            databaseEntity.ContactInformation.Should().BeEquivalentTo(entity.ContactInformation);
-            databaseEntity.LastModified.Should().Be(entity.LastModified);
+            response.Id.Should().Be(databaseEntity.Id);
+            response.TargetId.Should().Be(databaseEntity.TargetId);
+            response.TargetType.Should().Be(databaseEntity.TargetType);
+            response.SourceServiceArea.Should().BeEquivalentTo(databaseEntity.SourceServiceArea);
+            response.RecordValidUntil.Should().Be(databaseEntity.RecordValidUntil);
+            response.IsActive.Should().Be(databaseEntity.IsActive);
+            response.CreatedBy.Should().BeEquivalentTo(databaseEntity.CreatedBy);
+            response.ContactInformation.Should().BeEquivalentTo(databaseEntity.ContactInformation);
+            response.LastModified.Should().Be(databaseEntity.LastModified);
+
+            var addressExtendedResponse = response.ContactInformation.AddressExtended;
+            addressExtendedResponse.AddressLine1.Should().Be(databaseEntity.ContactInformation.AddressExtended.AddressLine1);
+            addressExtendedResponse.AddressLine2.Should().Be(databaseEntity.ContactInformation.AddressExtended.AddressLine2);
+            addressExtendedResponse.AddressLine3.Should().Be(databaseEntity.ContactInformation.AddressExtended.AddressLine3);
+            addressExtendedResponse.AddressLine4.Should().Be(databaseEntity.ContactInformation.AddressExtended.AddressLine4);
+            addressExtendedResponse.PostCode.Should().Be(databaseEntity.ContactInformation.AddressExtended.PostCode);
+        }
+
+        [Fact]
+        public void ContactDetailsEntityToDomainWhenAddressLine1IsEmptyReturnsContentsOfValueField()
+        {
+            // Arrange
+            var addressExtended = _fixture.Build<AddressExtended>()
+                .With(x => x.AddressLine1, "")
+                .Create();
+
+            var contactInformation = _fixture.Build<ContactInformation>()
+                .With(x => x.ContactType, ContactType.address)
+                .With(x => x.AddressExtended, addressExtended)
+                .Create();
+
+            var databaseEntity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .Create();
+
+            // Act
+            var response = databaseEntity.ToDomain();
+
+            // Assert
+            response.ContactInformation.AddressExtended.AddressLine1.Should().Be(contactInformation.Value);
         }
 
         [Fact]
@@ -193,6 +226,44 @@ namespace ContactDetailsApi.Tests.V2.Factories
             createdBy.FullName.Should().Be(token.Name);
             createdBy.EmailAddress.Should().Be(token.Email);
             createdBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 100);
+        }
+
+        [Fact]
+        public void CanMapADbEntityCollectionToAnOrderedDomainObjectCollection()
+        {
+            // Arrange
+            var databaseEntities = CreateManyContactDetailsWithRandomDates(10);
+
+            // Act
+            var entities = databaseEntities.ToDomain();
+
+            // Assert
+            entities.Should().BeEquivalentTo(databaseEntities);
+            entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
+        }
+
+        private List<ContactDetailsEntity> CreateManyContactDetailsWithRandomDates(int quantity)
+        {
+            var random = new Random();
+
+            var databaseEntities = new List<ContactDetailsEntity>();
+
+            for (int i = 0; i < quantity; i++)
+            {
+                var randomDate = DateTime.UtcNow.AddHours(random.Next(500));
+
+                var createdBy = _fixture.Build<CreatedBy>()
+                    .With(y => y.CreatedAt, randomDate)
+                    .Create();
+
+                var entity = _fixture.Build<ContactDetailsEntity>()
+                    .With(x => x.CreatedBy, createdBy)
+                    .Create();
+
+                databaseEntities.Add(entity);
+            }
+
+            return databaseEntities;
         }
     }
 }
