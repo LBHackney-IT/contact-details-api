@@ -6,3 +6,4 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Usage", "CA2234:Pass system uri objects instead of strings", Justification = "<Pending>", Scope = "member", Target = "~M:ContactDetailsApi.V1.Controllers.ContactDetailsController.CreateContact(ContactDetailsApi.V1.Boundary.Request.ContactDetailsRequestObject)~System.Threading.Tasks.Task{Microsoft.AspNetCore.Mvc.IActionResult}")]
+[assembly: SuppressMessage("Usage", "CA2234:Pass system uri objects instead of strings", Justification = "<Pending>", Scope = "member", Target = "~M:ContactDetailsApi.V2.Controllers.ContactDetailsController.CreateContact(ContactDetailsApi.V2.Boundary.Request.ContactDetailsRequestObject)~System.Threading.Tasks.Task{Microsoft.AspNetCore.Mvc.IActionResult}")]
