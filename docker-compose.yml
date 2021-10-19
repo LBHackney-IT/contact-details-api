@@ -12,6 +12,7 @@ services:
       - 3000:3000
     environment:
       - DynamoDb_LocalMode=true
+      - Sns_LocalMode=true
       - DynamoDb_LocalServiceUrl=http://dynamodb-database:8000
       - AWS_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=local
@@ -28,6 +29,7 @@ services:
       - LBHPACKAGESTOKEN=${LBHPACKAGESTOKEN}
     environment:
       - DynamoDb_LocalMode=true
+      - Sns_LocalMode=true
       - DynamoDb_LocalServiceUrl=http://dynamodb-database:8000
       - AWS_REGION=eu-west-2
       - AWS_ACCESS_KEY_ID=local

@@ -4,6 +4,7 @@ using Amazon.DynamoDBv2.Model;
 using Amazon.SimpleNotificationService;
 using Amazon.SQS;
 using Hackney.Core.DynamoDb;
+using Hackney.Core.Sns;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
