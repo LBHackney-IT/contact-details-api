@@ -3,7 +3,6 @@ using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.JWT;
-using Hackney.Shared.Sns;
 
 namespace ContactDetailsApi.V1.Factories
 {
