@@ -8,8 +8,6 @@ namespace ContactDetailsApi.V2.Boundary.Request.Validation
 {
     public class AddressExtendedValidator : AbstractValidator<AddressExtended>
     {
-        private const string PostCodeRegEx = @"^((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9][A-Za-z]))))( )?(([0-9][A-Za-z]?[A-Za-z]?)?))$";
-
         public AddressExtendedValidator(ContactType contactType)
         {
             RuleFor(x => x.UPRN).NotXssString()
@@ -55,9 +53,6 @@ namespace ContactDetailsApi.V2.Boundary.Request.Validation
                 RuleFor(x => x.PostCode)
                     .NotNull()
                     .NotEmpty();
-
-                RuleFor(x => x.PostCode).Matches(PostCodeRegEx)
-                    .WithErrorCode(ErrorCodes.InvalidEmail);
             });
         }
     }

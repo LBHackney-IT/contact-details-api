@@ -144,7 +144,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ContactRequestObject = CreateContactRestObject();
 
             var addressExtended = _fixture.Build<AddressExtended>()
-               .With(x => x.PostCode, "")
+               .With(x => x.PostCode, (string) null)
                .Create();
 
             ContactRequestObject.ContactInformation.AddressExtended = addressExtended;
