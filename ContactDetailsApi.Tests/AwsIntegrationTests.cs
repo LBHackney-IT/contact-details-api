@@ -35,6 +35,7 @@ namespace ContactDetailsApi.Tests
         public AwsIntegrationTests()
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
+            EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
 
