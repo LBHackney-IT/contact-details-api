@@ -9,14 +9,13 @@ using FluentAssertions;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
     [Collection("LogCall collection")]
-    public class GetContactDetailsByTargetIdUseCaseTests : LogCallAspectFixture
+    public class GetContactDetailsByTargetIdUseCaseTests
     {
         private readonly Mock<IContactDetailsGateway> _mockGateway;
         private readonly GetContactDetailsByTargetIdUseCase _classUnderTest;

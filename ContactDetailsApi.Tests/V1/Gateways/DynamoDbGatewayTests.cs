@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;

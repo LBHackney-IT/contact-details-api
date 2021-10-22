@@ -23,7 +23,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         public GetContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new GetContactDetailsSteps(_dbFixture.Client);
         }
 

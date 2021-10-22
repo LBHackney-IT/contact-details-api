@@ -1,11 +1,12 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
-using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.UseCase.Interfaces;
+using FluentValidation;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -70,11 +71,18 @@ namespace ContactDetailsApi.V2.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> CreateContact([FromBody] ContactDetailsRequestObject contactRequest)
         {
-            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+            try
+            {
+                var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
+                var result = await _createContactUseCase.ExecuteAsync(contactRequest, token).ConfigureAwait(false);
 
-            return Created("api/v2/contactDetails", result);
+                return Created("api/v2/contactDetails", result);
+            }
+            catch (ValidationException e)
+            {
+                return BadRequest(e.ConstructResponse());
+            }
         }
     }
 }
