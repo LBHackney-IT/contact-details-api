@@ -203,6 +203,12 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             errorProperties.Should().Contain("SourceServiceArea");
         }
 
+        public async Task ThenTheResponseIncludesValidationErrorsForTooManyContacts()
+        {
+            var errorProperties = await GetResponseErrorProperties().ConfigureAwait(false);
+            errorProperties.Should().Contain("ExistingContacts");
+        }
+
         public void ThenBadRequestIsReturned()
         {
             _lastResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);

@@ -1,12 +1,13 @@
 using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
-using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Controllers;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentAssertions;
+using FluentValidation;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
+using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
@@ -90,6 +91,23 @@ namespace ContactDetailsApi.Tests.V2.Controller
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task CreateContactValidationExceptionReturnsBadResult()
+        {
+            // Arrange
+            var contactRequest = _fixture.Create<ContactDetailsRequestObject>();
+            var exception = new ValidationException("Test Exception");
+
+            _mockCreateContactUseCase.Setup(x => x.ExecuteAsync(contactRequest, It.IsAny<Token>())).ThrowsAsync(exception);
+
+            // Act
+            var response = await _classUnderTest.CreateContact(contactRequest).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(BadRequestObjectResult));
+            (response as BadRequestObjectResult).Value.Should().BeEquivalentTo(exception.ConstructResponse());
         }
 
         [Fact]

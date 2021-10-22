@@ -4,6 +4,7 @@ using ContactDetailsApi.V1.Boundary.Request.Validation;
 using System;
 using TestStack.BDDfy;
 using Xunit;
+using ContactType = ContactDetailsApi.V1.Domain.ContactType;
 
 namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
 {
@@ -21,7 +22,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         public CreateContactTests(AwsIntegrationTests<Startup> dbFixture)
         {
             _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new CreateContactSteps(_dbFixture.Client);
         }
 
@@ -51,6 +52,19 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
                 .Then(t => _steps.ThenTheContactDetailsAreSavedAndReturned(_contactDetailsFixture))
                 .Then(t => _steps.ThenTheContactDetailsCreatedEventIsRaised(_dbFixture.SnsVerifer))
+                .BDDfy();
+        }
+
+        [Theory]
+        [InlineData(ContactType.email)]
+        [InlineData(ContactType.phone)]
+        public void ServiceReturnsBadRequestWithTooManyExistingContactDetails(ContactType newType)
+        {
+            this.Given(g => _contactDetailsFixture.GivenANewContactRequest(newType))
+                .And(h => _contactDetailsFixture.GivenMaxContactDetailsAlreadyExist(_contactDetailsFixture.ContactRequestObject.TargetId))
+                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
+                .Then(t => _steps.ThenBadRequestIsReturned())
+                .And(t => _steps.ThenTheResponseIncludesValidationErrorsForTooManyContacts())
                 .BDDfy();
         }
 

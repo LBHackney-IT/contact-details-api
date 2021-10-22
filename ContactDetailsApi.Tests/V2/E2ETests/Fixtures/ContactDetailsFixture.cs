@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
-using Amazon.SimpleNotificationService.Model;
 using AutoFixture;
 using AutoFixture.Dsl;
 using ContactDetailsApi.V1.Domain;
@@ -22,16 +21,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         public List<ContactDetailsEntity> Contacts { get; private set; } = new List<ContactDetailsEntity>();
         public ContactDetailsRequestObject ContactRequestObject { get; private set; } = new ContactDetailsRequestObject();
 
-        private readonly IAmazonSimpleNotificationService _amazonSimpleNotificationService;
+        private const int MAX_EMAIL_CONTACTS = 5;
+        private const int MAX_PHONE_CONTACTS = 5;
 
         public Guid TargetId { get; private set; }
 
         public string InvalidTargetId { get; private set; }
 
-        public ContactDetailsFixture(IDynamoDBContext dbContext, IAmazonSimpleNotificationService amazonSimpleNotificationService)
+        public ContactDetailsFixture(IDynamoDBContext dbContext)
         {
             _dbContext = dbContext;
-            _amazonSimpleNotificationService = amazonSimpleNotificationService;
         }
 
         public void Dispose()
@@ -63,21 +62,55 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .With(x => x.TargetId, TargetId).CreateMany(count);
         }
 
-        private ContactDetailsRequestObject CreateContactRestObject()
+        private IEnumerable<ContactDetailsEntity> CreateContactsForType(ContactType type, Guid targetId, int count, bool isActive = true)
         {
-            return SetupContactCreationFixture().Create();
+            return _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.CreatedBy, () => _fixture.Create<CreatedBy>())
+                .With(x => x.ContactInformation, CreateContactInformation(type))
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, isActive)
+                .With(x => x.TargetType, TargetType.person)
+                .With(x => x.TargetId, targetId).CreateMany(count);
         }
 
-        private IPostprocessComposer<ContactDetailsRequestObject> SetupContactCreationFixture()
+        private ContactDetailsRequestObject CreateContactRestObject(ContactType type = ContactType.email)
         {
+            return SetupContactCreationFixture(type).Create();
+        }
+
+        private ContactInformation CreateContactInformation(ContactType type)
+        {
+            string value;
+            switch (type)
+            {
+                case ContactType.email: value = "somone-else@somewhere.com"; break;
+                case ContactType.phone: value = "02111231234"; break;
+                default: value = "some address"; break;
+            }
+            return _fixture.Build<ContactInformation>()
+                           .With(y => y.ContactType, type)
+                           .With(y => y.Value, value)
+                           .Create();
+        }
+
+        private IPostprocessComposer<ContactDetailsRequestObject> SetupContactCreationFixture(ContactType type = ContactType.email)
+        {
+            var contactInfo = CreateContactInformation(type);
             return _fixture.Build<ContactDetailsRequestObject>()
-                .With(x => x.ContactInformation, () => _fixture.Build<ContactInformation>()
-                    .With(y => y.ContactType, ContactType.email)
-                    .With(y => y.Value, "somone-else@somewhere.com")
-                    .Create())
+                .With(x => x.ContactInformation, contactInfo)
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.TargetType, TargetType.person)
                 .With(x => x.TargetId, Guid.NewGuid);
+        }
+
+        public async Task GivenMaxContactDetailsAlreadyExist(Guid targetId)
+        {
+            Contacts.Clear();
+            Contacts.AddRange(CreateContactsForType(ContactType.email, targetId, MAX_EMAIL_CONTACTS));
+            Contacts.AddRange(CreateContactsForType(ContactType.phone, targetId, MAX_PHONE_CONTACTS));
+
+            foreach (var contact in Contacts)
+                await _dbContext.SaveAsync(contact).ConfigureAwait(false);
         }
 
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)
@@ -160,6 +193,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         {
             ContactRequestObject = CreateContactRestObject();
         }
+        public void GivenANewContactRequest(ContactType type)
+        {
+            ContactRequestObject = CreateContactRestObject(type);
+        }
 
         public void GivenAnInvalidNewContactRequest()
         {
@@ -204,21 +241,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ContactRequestObject = CreateContactRestObject();
             ContactRequestObject.ContactInformation.ContactType = ContactType.email;
             ContactRequestObject.ContactInformation.Value = "Something wrong";
-        }
-
-        private void CreateSnsTopic()
-        {
-            var snsAttrs = new Dictionary<string, string>();
-            snsAttrs.Add("fifo_topic", "true");
-            snsAttrs.Add("content_based_deduplication", "true");
-
-            var response = _amazonSimpleNotificationService.CreateTopicAsync(new CreateTopicRequest
-            {
-                Name = "contactdetails",
-                Attributes = snsAttrs
-            }).Result;
-
-            Environment.SetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN", response.TopicArn);
         }
     }
 }

@@ -17,7 +17,7 @@ using Xunit;
 namespace ContactDetailsApi.Tests.V1.UseCase
 {
     [Collection("LogCall collection")]
-    public class DeleteContactDetailsByTargetIdUseCaseTests : LogCallAspectFixture
+    public class DeleteContactDetailsByTargetIdUseCaseTests
     {
         private readonly Mock<IContactDetailsGateway> _mockGateway;
         private readonly Mock<ISnsFactory> _mockSnsFactory;

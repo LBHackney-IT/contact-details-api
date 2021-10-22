@@ -19,7 +19,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AutoFixture" Version="4.11.0" />
+    <PackageReference Include="AutoFixture" Version="4.17.0" />
     <PackageReference Include="AWSSDK.SimpleNotificationService" Version="3.7.2.7" />
     <PackageReference Include="AWSSDK.SQS" Version="3.7.1.13" />
     <PackageReference Include="coverlet.msbuild" Version="3.0.3">
@@ -29,6 +29,7 @@
     <PackageReference Include="FluentAssertions" Version="5.10.3" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.51.0" />
     <PackageReference Include="Hackney.Core.Sns" Version="1.52.0" />
+    <PackageReference Include="Hackney.Core.Testing.Shared" Version="1.49.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="3.1.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.0" />
