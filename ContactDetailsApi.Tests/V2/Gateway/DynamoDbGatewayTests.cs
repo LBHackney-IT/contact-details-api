@@ -5,6 +5,7 @@ using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;

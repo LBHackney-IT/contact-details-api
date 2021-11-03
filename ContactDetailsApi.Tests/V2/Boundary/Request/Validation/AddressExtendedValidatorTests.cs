@@ -177,10 +177,7 @@ namespace ContactDetailsApi.Tests.V2.Boundary.Request.Validation
 
         [Theory]
         [InlineData("")]
-        [InlineData(" ")]
         [InlineData(null)]
-        [InlineData("hd7   5uz")]
-        [InlineData("adasd")]
         public void ShouldErrorPostCodeWhenAddressTypeIsAddress(string postCode)
         {
             // Arrange
