@@ -2,6 +2,7 @@ using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Linq;
@@ -59,8 +60,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             _lastResponse.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
         }
 
-        public void ThenTheContactDetailsDeletedEventIsRaised(ContactDetailsFixture contactDetailsFixture,
-                                                                    SnsEventVerifier<ContactDetailsSns> snsVerifer)
+        public async Task ThenTheContactDetailsDeletedEventIsRaised(ContactDetailsFixture contactDetailsFixture,
+                                                              ISnsFixture snsFixture)
         {
             var deletedRecord = contactDetailsFixture.Contacts.First();
 
@@ -85,7 +86,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(EventConstants.V1VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<ContactDetailsSns>();
+            (await snsVerifer.VerifySnsEventRaised<ContactDetailsSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
         }
     }
 }

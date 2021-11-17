@@ -1,5 +1,7 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V1.E2ETests.Steps;
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Core.Testing.Sns;
 using System;
 using System.Linq;
 using TestStack.BDDfy;
@@ -11,18 +13,20 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "to be able to delete contact details",
         SoThat = "I am aware of the the Person’s most up to date contact information")]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class DeleteContactDetailsByTargetIdTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
+        private readonly IDynamoDbFixture _dbFixture;
+        private readonly ISnsFixture _snsFixture;
         private readonly ContactDetailsFixture _contactDetailsFixture;
         private readonly DeleteContactDetailsSteps _steps;
 
-        public DeleteContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
+        public DeleteContactDetailsByTargetIdTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new DeleteContactDetailsSteps(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _snsFixture = appFactory.SnsFixture;
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _snsFixture.SimpleNotificationService);
+            _steps = new DeleteContactDetailsSteps(appFactory.Client);
         }
 
         public void Dispose()
@@ -50,7 +54,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
             this.Given(g => _contactDetailsFixture.GivenContactDetailsAlreadyExist(1, 0))
                 .When(w => _steps.WhenTheDeleteContactDetailsApiIsCalled(_contactDetailsFixture.TargetId.ToString(), _contactDetailsFixture.Contacts.First().Id.ToString()))
                 .Then(t => _steps.ThenTheContactDetailsAreDeleted(_contactDetailsFixture))
-                .Then(t => _steps.ThenTheContactDetailsDeletedEventIsRaised(_contactDetailsFixture, _dbFixture.SnsVerifer))
+                .Then(t => _steps.ThenTheContactDetailsDeletedEventIsRaised(_contactDetailsFixture, _snsFixture))
                 .BDDfy();
         }
 

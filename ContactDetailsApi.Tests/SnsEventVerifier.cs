@@ -4,16 +4,22 @@ using Amazon.SQS.Model;
 using System;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Threading.Tasks;
 
-namespace ContactDetailsApi.Tests
+namespace Hackney.Core.Testing.Sns
 {
-    // TODO - move somewhere common?
+    public interface ISnsEventVerifier : IDisposable
+    {
+        Exception LastException { get; }
+
+        Task<bool> VerifySnsEventRaised<T>(Action<T> verifyFunction) where T : class;
+        Task PurgeQueueMessages();
+    }
 
     /// <summary>
     /// Helper class used to verify that the correct Sns event gets raised during an E2E test
     /// </summary>
-    /// <typeparam name="T">The event class used to create the event.</typeparam>
-    public class SnsEventVerifier<T> : IDisposable where T : class
+    public class SnsEventVerifier : ISnsEventVerifier
     {
         private readonly JsonSerializerOptions _jsonOptions;
 
@@ -79,16 +85,26 @@ namespace ContactDetailsApi.Tests
             }
         }
 
+        public async Task PurgeQueueMessages()
+        {
+            var request = new PurgeQueueRequest()
+            {
+                QueueUrl = _queueUrl
+            };
+            await _amazonSQS.PurgeQueueAsync(request);
+        }
+
         /// <summary>
         /// Verifies that the an expected event has been raised.
         /// </summary>
+        /// <typeparam name="T">The event class used to create the event.</typeparam>
         /// <param name="verifyFunction">A function that will receive a copy of each event raised.
         /// This function should attempt to verify that the contents of the message match what is expected.
         /// Throw an exception should then contents not match.
         /// </param>
         /// <returns>true if a message in the temporary queue satisfies the verification function.
         /// false if no message in the temporary queue satisfies the verification function</returns>
-        public bool VerifySnsEventRaised(Action<T> verifyFunction)
+        public async Task<bool> VerifySnsEventRaised<T>(Action<T> verifyFunction) where T : class
         {
             bool eventFound = false;
             var request = new ReceiveMessageRequest(_queueUrl)
@@ -96,7 +112,7 @@ namespace ContactDetailsApi.Tests
                 MaxNumberOfMessages = 10,
                 WaitTimeSeconds = 2
             };
-            var response = _amazonSQS.ReceiveMessageAsync(request).GetAwaiter().GetResult();
+            var response = await _amazonSQS.ReceiveMessageAsync(request);
             foreach (var msg in response.Messages)
             {
                 eventFound = IsExpectedMessage(msg, verifyFunction);
@@ -107,7 +123,7 @@ namespace ContactDetailsApi.Tests
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types")]
-        private bool IsExpectedMessage(Message msg, Action<T> verifyFunction)
+        private bool IsExpectedMessage<T>(Message msg, Action<T> verifyFunction) where T : class
         {
             // Here we are assuming the message is not in raw format
             // (which is the case when using SubscribeQueueAsync() in the constructor above)
