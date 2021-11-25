@@ -50,9 +50,11 @@ namespace ContactDetailsApi.Tests
             if (disposing && !_disposed)
             {
                 if (null != DynamoDbFixture)
-                    (DynamoDbFixture as DynamoDbFixture).Dispose();
+                    DynamoDbFixture.Dispose();
                 if (null != SnsFixture)
                     SnsFixture.Dispose();
+                if (null != Client)
+                    Client.Dispose();
 
                 base.Dispose(true);
 
