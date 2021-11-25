@@ -1,5 +1,6 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V1.E2ETests.Steps;
+using Hackney.Core.Testing.DynamoDb;
 using System;
 using TestStack.BDDfy;
 using Xunit;
@@ -10,18 +11,18 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         AsA = "Internal Hackney user (such as a Housing Officer or Area housing Manager)",
         IWant = "to be able to view all relevant details about a person in one place ",
         SoThat = "I am aware of the the Person’s most up to date information and can take appropriate action")]
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class GetContactDetailsByTargetIdTests : IDisposable
     {
-        private readonly AwsIntegrationTests<Startup> _dbFixture;
+        private readonly IDynamoDbFixture _dbFixture;
         private readonly ContactDetailsFixture _contactDetailsFixture;
         private readonly GetContactDetailsSteps _steps;
 
-        public GetContactDetailsByTargetIdTests(AwsIntegrationTests<Startup> dbFixture)
+        public GetContactDetailsByTargetIdTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _dbFixture = dbFixture;
-            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, _dbFixture.SimpleNotificationService);
-            _steps = new GetContactDetailsSteps(_dbFixture.Client);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext, appFactory.SnsFixture.SimpleNotificationService);
+            _steps = new GetContactDetailsSteps(appFactory.Client);
         }
 
         public void Dispose()

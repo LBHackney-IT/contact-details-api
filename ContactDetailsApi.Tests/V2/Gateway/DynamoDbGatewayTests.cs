@@ -1,10 +1,10 @@
-using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -16,20 +16,20 @@ using Xunit;
 
 namespace ContactDetailsApi.Tests.V2.Gateway
 {
-    [Collection("Aws collection")]
+    [Collection("AppTest collection")]
     public class DynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<DynamoDbGateway>> _logger;
-        private readonly IDynamoDBContext _dynamoDb;
+        private readonly IDynamoDbFixture _dbFixture;
         private readonly DynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
 
-        public DynamoDbGatewayTests(AwsIntegrationTests<Startup> dbTestFixture)
+        public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _logger = new Mock<ILogger<DynamoDbGateway>>();
-            _dynamoDb = dbTestFixture.DynamoDbContext;
-            _classUnderTest = new DynamoDbGateway(_dynamoDb, _logger.Object);
+            _dbFixture = appFactory.DynamoDbFixture;
+            _classUnderTest = new DynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object);
         }
 
         public void Dispose()
@@ -52,8 +52,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
         {
-            await _dynamoDb.SaveAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
+            await _dbFixture.SaveEntityAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
         }
 
         [Fact]
@@ -71,13 +70,13 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Assert
             result.Should().BeEquivalentTo(entity);
 
-            var databaseResponse = await _dynamoDb.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
             result.Should().BeEquivalentTo(databaseResponse, config => config.Excluding(y => y.LastModified));
             databaseResponse.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
 
-            _cleanup.Add(async () => await _dynamoDb.DeleteAsync(entity).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {entity.TargetId} and id {entity.Id}", Times.Once());
         }
 
@@ -187,7 +186,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().NotBe(contactInformation.Value);
 
             result.Should().BeEquivalentTo(entity);
-
         }
     }
 }

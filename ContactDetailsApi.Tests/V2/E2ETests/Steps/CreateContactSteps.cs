@@ -7,6 +7,7 @@ using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using FluentAssertions;
 using Hackney.Core.JWT;
+using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -19,7 +20,6 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using JsonSerializer = System.Text.Json.JsonSerializer;
@@ -48,7 +48,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             };
         }
 
-        public async Task ThenTheContactDetailsCreatedEventIsRaised(SnsEventVerifier<ContactDetailsSns> snsVerifer)
+        public async Task ThenTheContactDetailsCreatedEventIsRaised(ISnsFixture snsFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
 
@@ -73,7 +73,8 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
                 actual.Version.Should().Be(EventConstants.V1VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<ContactDetailsSns>();
+            (await snsVerifer.VerifySnsEventRaised<ContactDetailsSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
         }
 
         public async Task WhenTheCreateContactEndpointIsCalled(ContactDetailsRequestObject requestObject)
