@@ -246,12 +246,12 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             return apiResult;
         }
 
-        private static Token GetToken(string jwt)
-        {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(jwt);
-            var decodedPayload = Base64UrlEncoder.Decode(jwtToken.EncodedPayload);
-            return JsonConvert.DeserializeObject<Token>(decodedPayload);
-        }
+        // private static Token GetToken(string jwt)
+        // {
+        //     var handler = new JwtSecurityTokenHandler();
+        //     var jwtToken = handler.ReadJwtToken(jwt);
+        //     var decodedPayload = Base64UrlEncoder.Decode(jwtToken.EncodedPayload);
+        //     return JsonConvert.DeserializeObject<Token>(decodedPayload);
+        // }
     }
 }
