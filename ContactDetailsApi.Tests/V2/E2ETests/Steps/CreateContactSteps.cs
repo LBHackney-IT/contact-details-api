@@ -87,7 +87,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
             message.Content = new StringContent(JsonConvert.SerializeObject(requestObject), Encoding.UTF8, "application/json");
             message.Method = HttpMethod.Post;
-            // message.Headers.Add("Authorization", Jwt);
+            message.Headers.Add("Authorization", Jwt);
 
             _httpClient.DefaultRequestHeaders
                 .Accept
