@@ -90,7 +90,9 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             };
 
             var snsVerifer = snsFixture.GetSnsEventVerifier<ContactDetailsSns>();
-            (await snsVerifer.VerifySnsEventRaised<ContactDetailsSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         public async Task ThenTheContactDetailsAreSavedAndReturned(ContactDetailsFixture fixture)
