@@ -74,7 +74,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             };
 
             var snsVerifer = snsFixture.GetSnsEventVerifier<ContactDetailsSns>();
-            // (await snsVerifer.VerifySnsEventRaised<ContactDetailsSns>(verifyFunc)).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         public async Task WhenTheCreateContactEndpointIsCalled(ContactDetailsRequestObject requestObject)
