@@ -6,6 +6,7 @@ using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
+using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
@@ -63,7 +64,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             _lastResponse = await _httpClient.SendAsync(message).ConfigureAwait(false);
         }
 
-        public async Task ThenTheContactDetailsCreatedEventIsRaised(SnsEventVerifier<ContactDetailsSns> snsVerifer)
+        public async Task ThenTheContactDetailsCreatedEventIsRaised(ISnsFixture snsFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
 
@@ -88,7 +89,10 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                 actual.Version.Should().Be(EventConstants.V1VERSION);
             };
 
-            snsVerifer.VerifySnsEventRaised(verifyFunc).Should().BeTrue(snsVerifer.LastException?.Message);
+            var snsVerifer = snsFixture.GetSnsEventVerifier<ContactDetailsSns>();
+            var snsResult = await snsVerifer.VerifySnsEventRaised(verifyFunc);
+            if (!snsResult && snsVerifer.LastException != null)
+                throw snsVerifer.LastException;
         }
 
         public async Task ThenTheContactDetailsAreSavedAndReturned(ContactDetailsFixture fixture)
