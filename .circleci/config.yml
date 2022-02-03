@@ -128,7 +128,7 @@ commands:
           name: Deploy lambda
           command: |
             cd ./ContactDetailsApi/
-            sls deploy --stage <<parameters.stage>> --account <<parameters.aws-account>> --conceal
+            sls deploy --stage <<parameters.stage>> --conceal
 
 jobs:
   check-code-formatting:
