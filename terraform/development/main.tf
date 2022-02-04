@@ -64,3 +64,15 @@ module "contact_details_api_cloudwatch_dashboard" {
   dynamodb_table_name = aws_dynamodb_table.contactdetailsapi_dynamodb_table.name
 }
 
+data "aws_ssm_parameter" "cloudwatch_topic_arn" {
+  name = "/housing-tl/${var.environment_name}/cloudwatch-alarms-topic-arn"
+}
+
+module "api-alarm" {
+  source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/api-alarm"
+  environment_name = var.environment_name
+  api_name         = "contact-details-api"
+  alarm_period     = "300"
+  error_threshold  = "1"
+  sns_topic_arn    = data.aws_ssm_parameter.cloudwatch_topic_arn.value
+}
