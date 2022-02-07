@@ -10,6 +10,9 @@ provider:
   stage: ${opt:stage}
   region: eu-west-2
 
+plugins:
+  - serverless-associate-waf
+
 package:
   artifact: ./bin/release/netcoreapp3.1/contact-details-api.zip
 
@@ -140,6 +143,9 @@ resources:
                           - Ref: 'AWS::AccountId'
                           - 'table/ContactDetails'
 custom:
+  associateWaf:
+    name: ReferenceApiWafAcl
+    version: V2  
   vpcId:
     development: vpc-0d15f152935c8716f
     staging: vpc-064521a7a4109ba31
