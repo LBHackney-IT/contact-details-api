@@ -12,6 +12,7 @@ provider:
 
 plugins:
   - serverless-associate-waf
+  - '@serverless/safeguards-plugin'
 
 package:
   artifact: ./bin/release/netcoreapp3.1/contact-details-api.zip
@@ -143,9 +144,13 @@ resources:
                           - Ref: 'AWS::AccountId'
                           - 'table/ContactDetails'
 custom:
+  safeguards:
+    - title: Require authorizer
+      safeguard: require-authorizer
+      path: ./policies
   associateWaf:
     name: Platform_APIs_Web_ACL
-    version: V2  
+    version: V2
   vpcId:
     development: vpc-0d15f152935c8716f
     staging: vpc-064521a7a4109ba31
