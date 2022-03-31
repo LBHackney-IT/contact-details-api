@@ -33,6 +33,8 @@ RUN dotnet restore ./ContactDetailsApi.Tests/ContactDetailsApi.Tests.csproj
 # Copy everything else and build
 COPY . .
 
+RUN dotnet build -c Release -o out ContactDetailsApi/ContactDetailsApi.csproj
 RUN dotnet build -c debug -o out ContactDetailsApi.Tests/ContactDetailsApi.Tests.csproj
 
 CMD dotnet test
+RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
