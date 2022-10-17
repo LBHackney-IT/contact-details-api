@@ -1,7 +1,7 @@
 service: contact-details-api
 provider:
   name: aws
-  runtime: dotnet6.0
+  runtime: dotnet6
   memorySize: 2048
   tracing:
     lambda: true
