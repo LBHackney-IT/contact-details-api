@@ -8,7 +8,7 @@ Swagger Hub - https://app.swaggerhub.com/apis/Hackney/contactDetailsApi/1.0.0
 
 ## Stack
 
-- .NET Core v.3.1 as a web framework.
+- .NET Core v.6.0 as a web framework.
 - xUnit as a test framework.
 - DynamoDb as a datastore.
 

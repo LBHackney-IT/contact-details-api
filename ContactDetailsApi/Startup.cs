@@ -57,8 +57,7 @@ namespace ContactDetailsApi
             services.AddCors();
 
             services
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                .AddMvc();
 
             services.AddApiVersioning(o =>
             {
