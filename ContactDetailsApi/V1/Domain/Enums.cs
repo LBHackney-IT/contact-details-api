@@ -33,6 +33,7 @@ namespace ContactDetailsApi.V1.Domain
         carer,
         wife,
         husband,
+        spouse,
         son,
         daughter,
         relative,
