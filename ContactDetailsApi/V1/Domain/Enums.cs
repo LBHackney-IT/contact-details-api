@@ -27,6 +27,18 @@ namespace ContactDetailsApi.V1.Domain
         home,
         work,
         other,
-        landline
+        landline,
+        mainNumber,
+        emergencyContact,
+        carer,
+        wife,
+        husband,
+        spouse,
+        child,
+        sibling,
+        relative,
+        neighbour,
+        doctor,
+        socialWorker
     }
 }

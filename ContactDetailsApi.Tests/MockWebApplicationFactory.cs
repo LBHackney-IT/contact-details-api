@@ -86,7 +86,7 @@ namespace ContactDetailsApi.Tests
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-                SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetailscreated", "CONTACT_DETAILS_SNS_ARN");
+                SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetails.fifo", "CONTACT_DETAILS_SNS_ARN");
             });
         }
     }
