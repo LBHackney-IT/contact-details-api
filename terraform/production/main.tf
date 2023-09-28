@@ -51,6 +51,9 @@ resource "aws_sns_topic" "contactdetails_topic" {
   sqs_success_feedback_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LBH_SNS_DELIVERY_LOGGING_ROLE"
   sqs_success_feedback_sample_rate = "100"
   sqs_failure_feedback_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LBH_SNS_DELIVERY_LOGGING_ROLE"
+  sqs_success_feedback_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LBH_SNS_DELIVERY_LOGGING_ROLE"
+  sqs_success_feedback_sample_rate = "100"
+  sqs_failure_feedback_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LBH_SNS_DELIVERY_LOGGING_ROLE"
 }
 
 resource "aws_ssm_parameter" "contact_details_sns_arn" {
@@ -79,12 +82,13 @@ module "api-alarm" {
   error_threshold  = "1"
   sns_topic_arn    = data.aws_ssm_parameter.cloudwatch_topic_arn.value
 }
-    
-module "sns-delivery-failure-alarm" {
-  source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/sns-delivery-metric-and-alarm"
-  environment_name = var.environment_name
-  region           = data.aws_region.current.name
-  account_id       = data.aws_caller_identity.current.account_id
-  sns_topic_name   = "contactdetails.fifo"
-  sns_topic_arn_for_notifications = data.aws_ssm_parameter.cloudwatch_topic_arn.value
-}
+
+# NOT WORKING NEEDS TO BE INVESTIGATED
+# module "sns-delivery-failure-alarm" {
+#   source           = "github.com/LBHackney-IT/aws-hackney-common-terraform.git//modules/cloudwatch/sns-delivery-metric-and-alarm"
+#   environment_name = var.environment_name
+#   region           = data.aws_region.current.name
+#   account_id       = data.aws_caller_identity.current.account_id
+#   sns_topic_name   = "contactdetails.fifo"
+#   sns_topic_arn_for_notifications = data.aws_ssm_parameter.cloudwatch_topic_arn.value
+# }
