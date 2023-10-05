@@ -17,7 +17,7 @@ using Xunit;
 namespace ContactDetailsApi.Tests.V2.Gateway
 {
     [Collection("AppTest collection")]
-    public class DynamoDbGatewayTests : IDisposable
+    public class ContactDetailsDynamoDbGatewayTests : IDisposable
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<ContactDetailsDynamoDbGateway>> _logger;
@@ -25,7 +25,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         private readonly ContactDetailsDynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
 
-        public DynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
+        public ContactDetailsDynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
             _dbFixture = appFactory.DynamoDbFixture;
