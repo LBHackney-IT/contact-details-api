@@ -3,7 +3,6 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Boundary.Response;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
-using ContactDetailsApi.V1.Gateways;
 using ContactDetailsApi.V1.UseCase;
 using FluentAssertions;
 using Moq;
@@ -13,6 +12,8 @@ using ContactDetailsApi.V1.Domain.Sns;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using Xunit;
+using ContactDetailsApi.V1.Gateways.Interfaces;
+using ContactDetailsApi.V1.Factories.Interfaces;
 
 namespace ContactDetailsApi.Tests.V1.UseCase
 {

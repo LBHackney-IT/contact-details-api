@@ -1,8 +1,12 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V1.Boundary.Request.Validation;
+using ContactDetailsApi.V1.Factories.Interfaces;
+using ContactDetailsApi.V1.Gateways.Interfaces;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
+using ContactDetailsApi.V2.Factories.Interfaces;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -150,8 +154,8 @@ namespace ContactDetailsApi
 
         private static void RegisterGateways(IServiceCollection services)
         {
-            services.AddScoped<V1.Gateways.IContactDetailsGateway, V1.Gateways.DynamoDbGateway>();
-            services.AddScoped<V2.Gateways.IContactDetailsGateway, V2.Gateways.DynamoDbGateway>();
+            services.AddScoped<V1.Gateways.Interfaces.IContactDetailsGateway, V1.Gateways.ContactDetailsDynamoDbGateway>();
+            services.AddScoped<V2.Gateways.Interfaces.IContactDetailsGateway, V2.Gateways.ContactDetailsDynamoDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
@@ -167,8 +171,8 @@ namespace ContactDetailsApi
 
         private static void RegisterFactories(IServiceCollection services)
         {
-            services.AddScoped<V1.Factories.ISnsFactory, V1.Factories.ContactDetailsSnsFactory>();
-            services.AddScoped<V2.Factories.ISnsFactory, V2.Factories.ContactDetailsSnsFactory>();
+            services.AddScoped<V1.Factories.Interfaces.ISnsFactory, V1.Factories.ContactDetailsSnsFactory>();
+            services.AddScoped<V2.Factories.Interfaces.ISnsFactory, V2.Factories.ContactDetailsSnsFactory>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

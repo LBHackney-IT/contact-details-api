@@ -3,6 +3,7 @@ using Amazon.DynamoDBv2.DocumentModel;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Factories;
+using ContactDetailsApi.V1.Gateways.Interfaces;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
@@ -12,12 +13,12 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V1.Gateways
 {
-    public class DynamoDbGateway : IContactDetailsGateway
+    public class ContactDetailsDynamoDbGateway : IContactDetailsGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
-        private readonly ILogger<DynamoDbGateway> _logger;
+        private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
 
-        public DynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<DynamoDbGateway> logger)
+        public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger)
         {
             _dynamoDbContext = dynamoDbContext;
             _logger = logger;

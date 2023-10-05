@@ -1,7 +1,7 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Factories;
-using ContactDetailsApi.V2.Gateways;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using Hackney.Core.Logging;
 using System;

@@ -1,8 +1,8 @@
+using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Domain.Sns;
-using ContactDetailsApi.V2.Domain;
 using Hackney.Core.JWT;
 
-namespace ContactDetailsApi.V2.Factories
+namespace ContactDetailsApi.V1.Factories.Interfaces
 {
     public interface ISnsFactory
     {

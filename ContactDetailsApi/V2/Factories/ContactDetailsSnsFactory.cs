@@ -1,6 +1,7 @@
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Factories.Interfaces;
 using Hackney.Core.JWT;
 using System;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
