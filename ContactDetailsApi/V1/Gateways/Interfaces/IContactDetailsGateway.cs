@@ -4,7 +4,7 @@ using ContactDetailsApi.V1.Infrastructure;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ContactDetailsApi.V1.Gateways
+namespace ContactDetailsApi.V1.Gateways.Interfaces
 {
     public interface IContactDetailsGateway
     {
