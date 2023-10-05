@@ -1,27 +1,42 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
+using ContactDetailsApi.V2.Infrastructure.Interfaces;
+using ContactDetailsApi.V2.UseCase;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.Gateways
 {
+
+    public class EditContactDetailsDatabase
+    {
+        public ContactInformation ContactInformation { get; set; }
+        public DateTime? LastModified { get; set; }
+    }
+
     public class ContactDetailsDynamoDbGateway : IContactDetailsGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
+        private readonly IEntityUpdater _updater;
 
-        public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger)
+        public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger, IEntityUpdater updater)
         {
             _dynamoDbContext = dynamoDbContext;
             _logger = logger;
+            _updater = updater;
         }
 
         [LogCall]
@@ -49,16 +64,47 @@ namespace ContactDetailsApi.V2.Gateways
             return contactDetailsEntities.ToDomain();
         }
 
+        [LogCall]
+        public async Task<EditContactDetailsDomain> EditContactDetails(Guid contactDetailsId, EditContactDetailsRequest request, string requestBody, int? ifMatch)
+        {
+            _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {ContactDetailsId}", contactDetailsId);
+
+            var existingContactDetails = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(contactDetailsId).ConfigureAwait(false);
+            if (existingContactDetails == null) return null;
+
+            if (ifMatch != existingContactDetails.VersionNumber)
+                throw new VersionNumberConflictException(ifMatch, existingContactDetails.VersionNumber);
+
+            var updaterResponse = _updater.UpdateEntity<ContactDetailsEntity, EditContactDetailsDatabase>(
+                existingContactDetails,
+                requestBody,
+                request.ToDatabase()
+            );
+
+
+            if (updaterResponse.NewValues.Any())
+            {
+                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {contactDetailsId}");
+                await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(updaterResponse.UpdatedEntity).ConfigureAwait(false);
+            }
+
+            return new EditContactDetailsDomain
+            {
+                UpdateResult = updaterResponse,
+                ExistingEntity = existingContactDetails
+            };
+        }
+
         private static DynamoDBOperationConfig CreateConfigForOnlyActiveContactDetails()
         {
             var onlyActiveCondition = new ScanCondition(nameof(ContactDetailsEntity.IsActive), ScanOperator.Equal, true);
 
-            List<ScanCondition> scanConditions = new List<ScanCondition>
+            var scanConditions = new List<ScanCondition>
             {
                 onlyActiveCondition
             };
 
-            return new DynamoDBOperationConfig() { QueryFilter = scanConditions };
+            return new DynamoDBOperationConfig { QueryFilter = scanConditions };
         }
 
         [LogCall]

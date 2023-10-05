@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase
 {
+
     public class CreateContactUseCase : ICreateContactUseCase
     {
         private readonly IContactDetailsGateway _gateway;
@@ -38,7 +39,7 @@ namespace ContactDetailsApi.V2.UseCase
 
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, EventConstants.CREATED);
+            var createContactDetailsSnsMessage = _snsFactory.CreateEvent(contact, token);
 
             await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 

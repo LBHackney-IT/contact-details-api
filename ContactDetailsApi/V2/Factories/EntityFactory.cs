@@ -1,6 +1,7 @@
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using Hackney.Core.JWT;
 using System;
@@ -50,6 +51,16 @@ namespace ContactDetailsApi.V2.Factories
                 RecordValidUntil = entity.RecordValidUntil
             };
         }
+
+        public static EditContactDetailsDatabase ToDatabase(this EditContactDetailsRequest request)
+        {
+            return new EditContactDetailsDatabase
+            {
+                ContactInformation = request.ContactInformation,
+                LastModified = DateTime.UtcNow
+            };
+        }
+
 
         public static ContactDetailsEntity ToDatabase(this ContactDetails domain)
         {

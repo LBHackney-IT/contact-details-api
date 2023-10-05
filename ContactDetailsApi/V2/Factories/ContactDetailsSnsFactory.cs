@@ -4,27 +4,22 @@ using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using Hackney.Core.JWT;
 using System;
+using System.Collections.Generic;
+using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
+using EventData = ContactDetailsApi.V1.Domain.Sns.EventData;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
 
 namespace ContactDetailsApi.V2.Factories
 {
     public class ContactDetailsSnsFactory : ISnsFactory
     {
-        public ContactDetailsSns Create(ContactDetails contactDetails, Token token, string eventType)
-        {
-            var contactDetailsSns = CreateContactDetailsSns(contactDetails, token, eventType);
-            PopulateEventOldAndNewData(contactDetails, eventType, contactDetailsSns);
-
-            return contactDetailsSns;
-        }
-
-        private static ContactDetailsSns CreateContactDetailsSns(ContactDetails contactDetails, Token token, string eventType)
+        private static ContactDetailsSns CreateContactDetailsSns(Guid entityId, Token token, string eventType)
         {
             return new ContactDetailsSns
             {
                 CorrelationId = Guid.NewGuid().ToString(),
                 DateTime = DateTime.UtcNow,
-                EntityId = contactDetails.TargetId,
+                EntityId = entityId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
                 Version = EventConstants.V1VERSION,
@@ -32,31 +27,6 @@ namespace ContactDetailsApi.V2.Factories
                 SourceSystem = EventConstants.SOURCESYSTEM,
                 User = new User { Name = token.Name, Email = token.Email }
             };
-        }
-
-        private static void PopulateEventOldAndNewData(ContactDetails contactDetails, string eventType,
-            ContactDetailsSns contactDetailsSns)
-        {
-            switch (eventType)
-            {
-                case EventConstants.CREATED:
-                    contactDetailsSns.EventData = new EventData
-                    {
-                        NewData = ReturnDataItem(contactDetails),
-                        OldData = new DataItem()
-                    };
-                    break;
-                case EventConstants.DELETED:
-                    contactDetailsSns.EventData = new EventData
-                    {
-                        OldData = ReturnDataItem(contactDetails),
-                        NewData = new DataItem()
-
-                    };
-                    break;
-                default:
-                    throw new NotImplementedException($"Event {eventType} not recognized");
-            }
         }
 
         private static DataItem ReturnDataItem(ContactDetails contactDetails)
@@ -68,6 +38,32 @@ namespace ContactDetailsApi.V2.Factories
                 ContactType = (int) contactDetails.ContactInformation.ContactType,
                 Description = contactDetails.ContactInformation.Description
             };
+        }
+
+        public ContactDetailsSns CreateEvent(ContactDetails newData, Token token)
+        {
+            var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.CREATED);
+
+            contactDetailsSns.EventData = new EventData
+            {
+                NewData = ReturnDataItem(newData),
+                OldData = new DataItem()
+            };
+
+            return contactDetailsSns;
+        }
+
+        public ContactDetailsSns EditEvent(ContactDetails newData, ContactDetails oldData, Token token)
+        {
+            var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.EDITED);
+
+            contactDetailsSns.EventData = new EventData
+            {
+                NewData = ReturnDataItem(newData),
+                OldData = ReturnDataItem(oldData)
+            };
+
+            return contactDetailsSns;
         }
     }
 }

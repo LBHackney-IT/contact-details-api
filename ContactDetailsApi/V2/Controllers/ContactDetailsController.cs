@@ -1,18 +1,24 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
+using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentValidation;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContactDetailsRequestObject = ContactDetailsApi.V2.Boundary.Request.ContactDetailsRequestObject;
+using HeaderConstants = ContactDetailsApi.V2.Infrastructure.HeaderConstants;
 
 namespace ContactDetailsApi.V2.Controllers
 {
@@ -24,6 +30,7 @@ namespace ContactDetailsApi.V2.Controllers
     {
         private readonly ICreateContactUseCase _createContactUseCase;
         private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
+        private readonly IEditContactUseCase _editContactDetailsUseCase;
         private readonly IHttpContextWrapper _httpContextWrapper;
         private readonly ITokenFactory _tokenFactory;
 
@@ -31,12 +38,14 @@ namespace ContactDetailsApi.V2.Controllers
             ICreateContactUseCase createContactUseCase,
             IGetContactDetailsByTargetIdUseCase getContactDetailsByTargetIdUseCase,
             IHttpContextWrapper httpContextWrapper,
-            ITokenFactory tokenFactory)
+            ITokenFactory tokenFactory,
+            IEditContactUseCase editContactDetailsUseCase)
         {
             _createContactUseCase = createContactUseCase;
             _getContactDetailsByTargetIdUseCase = getContactDetailsByTargetIdUseCase;
             _httpContextWrapper = httpContextWrapper;
             _tokenFactory = tokenFactory;
+            _editContactDetailsUseCase = editContactDetailsUseCase;
         }
 
         /// <summary>
@@ -83,6 +92,57 @@ namespace ContactDetailsApi.V2.Controllers
             {
                 return BadRequest(e.ConstructResponse());
             }
+        }
+
+        [HttpPatch]
+        [Route("{id}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> PatchContact([FromRoute] Guid id, [FromBody] EditContactDetailsRequest request)
+        {
+            var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+            var ifMatch = GetIfMatchFromHeader();
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+
+            try
+            {
+                var result = await _editContactDetailsUseCase.ExecuteAsync(id, request, bodyText, token, ifMatch).ConfigureAwait(false);
+
+                if (result == null) return NotFound();
+
+                return NoContent();
+            }
+            catch (VersionNumberConflictException vncErr)
+            {
+                return Conflict(vncErr.Message);
+            }
+        }
+
+        private int? GetIfMatchFromHeader()
+        {
+            var header = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+
+            int numericValue;
+
+            if (header == null)
+                return null;
+
+            if (header.GetType() == typeof(string))
+            {
+                if (int.TryParse(header, out numericValue))
+                    return numericValue;
+            }
+
+            _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+
+            if (entityTagHeaderValue == null)
+                return null;
+
+            var version = entityTagHeaderValue.Tag.Replace("\"", string.Empty);
+
+            if (int.TryParse(version, out numericValue))
+                return numericValue;
+
+            return null;
         }
     }
 }

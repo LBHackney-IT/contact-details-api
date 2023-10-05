@@ -3,6 +3,7 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
+using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
@@ -21,6 +22,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<ContactDetailsDynamoDbGateway>> _logger;
+        private readonly Mock<IEntityUpdater> _updater;
         private readonly IDynamoDbFixture _dbFixture;
         private readonly ContactDetailsDynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
@@ -28,8 +30,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public ContactDetailsDynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
+            _updater = new Mock<IEntityUpdater>();
+
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object);
+            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object);
         }
 
         public void Dispose()

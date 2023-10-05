@@ -25,6 +25,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         private readonly ContactDetailsController _classUnderTest;
         private readonly Mock<ICreateContactUseCase> _mockCreateContactUseCase;
         private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
+        private readonly Mock<IEditContactUseCase> _mockEditContactUseCase;
         private readonly Mock<IHttpContextWrapper> _mockHttpContextWrapper;
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Fixture _fixture = new Fixture();
@@ -33,6 +34,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         {
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
+            _mockEditContactUseCase = new Mock<IEditContactUseCase>();
             _mockHttpContextWrapper = new Mock<IHttpContextWrapper>();
             _mockTokenFactory = new Mock<ITokenFactory>();
 
@@ -40,7 +42,8 @@ namespace ContactDetailsApi.Tests.V2.Controller
                 _mockCreateContactUseCase.Object,
                 _mockGetByIdUseCase.Object,
                 _mockHttpContextWrapper.Object,
-                _mockTokenFactory.Object);
+                _mockTokenFactory.Object,
+                _mockEditContactUseCase.Object);
         }
 
         [Fact]
