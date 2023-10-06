@@ -2,7 +2,7 @@ namespace ContactDetailsApi.V1.Domain.Sns
 {
     public class EventData
     {
-        public DataItem OldData { get; set; }
-        public DataItem NewData { get; set; }
+        public object OldData { get; set; }
+        public object NewData { get; set; }
     }
 }

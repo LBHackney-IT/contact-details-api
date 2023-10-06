@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
 using EventData = ContactDetailsApi.V1.Domain.Sns.EventData;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
+using EventConstants = ContactDetailsApi.V2.Infrastructure.EventConstants;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -22,7 +23,7 @@ namespace ContactDetailsApi.V2.Factories
                 EntityId = entityId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
-                Version = EventConstants.V1VERSION,
+                Version = EventConstants.V2VERSION,
                 SourceDomain = EventConstants.SOURCEDOMAIN,
                 SourceSystem = EventConstants.SOURCESYSTEM,
                 User = new User { Name = token.Name, Email = token.Email }
@@ -61,6 +62,19 @@ namespace ContactDetailsApi.V2.Factories
             {
                 NewData = ReturnDataItem(newData),
                 OldData = ReturnDataItem(oldData)
+            };
+
+            return contactDetailsSns;
+        }
+
+        public ContactDetailsSns EditEvent(Infrastructure.UpdateEntityResult<Infrastructure.ContactDetailsEntity> updateResult, Token token)
+        {
+            var contactDetailsSns = CreateContactDetailsSns(updateResult.UpdatedEntity.Id, token, EventConstants.EDITED);
+
+            contactDetailsSns.EventData = new EventData
+            {
+                NewData = updateResult.NewValues,
+                OldData = updateResult.OldValues
             };
 
             return contactDetailsSns;

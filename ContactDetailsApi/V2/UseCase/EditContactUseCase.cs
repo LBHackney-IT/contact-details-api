@@ -4,10 +4,12 @@ using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using ContactDetailsApi.V2.Gateways.Interfaces;
+using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using Hackney.Core.JWT;
 using Hackney.Core.Sns;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase
@@ -31,14 +33,14 @@ namespace ContactDetailsApi.V2.UseCase
             var result = await _gateway.EditContactDetails(contactDetailsId, request, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
-            //if (result.UpdateResult?.NewValues.Any())
-            //{
-            //    var assetSnsMessage = _snsFactory.EditEvent(result.UpdatedEntity, result.OldValues, token, EventConstants.EDITED);
-            //    var assetTopicArn = Environment.GetEnvironmentVariable("ASSET_SNS_ARN");
-            //    await _snsGateway.Publish(assetSnsMessage, assetTopicArn).ConfigureAwait(false);
-            //}
+            if (result.NewValues.Any() == true)
+            {
+                var assetSnsMessage = _snsFactory.EditEvent(result, token);
+                var assetTopicArn = Environment.GetEnvironmentVariable("ASSET_SNS_ARN");
+                await _snsGateway.Publish(assetSnsMessage, assetTopicArn).ConfigureAwait(false);
+            }
 
-            return result.UpdateResult.UpdatedEntity.ToDomain().ToResponse();
+            return result.UpdatedEntity.ToDomain().ToResponse();
         }
     }
 }

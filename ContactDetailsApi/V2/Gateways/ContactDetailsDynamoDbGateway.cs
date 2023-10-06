@@ -65,7 +65,7 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<EditContactDetailsDomain> EditContactDetails(Guid contactDetailsId, EditContactDetailsRequest request, string requestBody, int? ifMatch)
+        public async Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(Guid contactDetailsId, EditContactDetailsRequest request, string requestBody, int? ifMatch)
         {
             _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {ContactDetailsId}", contactDetailsId);
 
@@ -81,18 +81,13 @@ namespace ContactDetailsApi.V2.Gateways
                 request.ToDatabase()
             );
 
-
             if (updaterResponse.NewValues.Any())
             {
                 _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {contactDetailsId}");
                 await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(updaterResponse.UpdatedEntity).ConfigureAwait(false);
             }
 
-            return new EditContactDetailsDomain
-            {
-                UpdateResult = updaterResponse,
-                ExistingEntity = existingContactDetails
-            };
+            return updaterResponse;
         }
 
         private static DynamoDBOperationConfig CreateConfigForOnlyActiveContactDetails()

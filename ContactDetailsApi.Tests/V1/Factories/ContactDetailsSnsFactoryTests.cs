@@ -1,4 +1,5 @@
 using ContactDetailsApi.V1.Domain;
+using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
@@ -42,11 +43,11 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var result = _sut.Create(contactDetails, new Token(), eventType);
 
             // assert
-            result.EventData.OldData.Value.Should().BeNull();
-            result.EventData.NewData.Id.Should().Be(contactDetails.Id);
-            result.EventData.NewData.Value.Should().Be(contactDetails.ContactInformation.Value);
-            result.EventData.NewData.ContactType.Should().Be((int) contactDetails.ContactInformation.ContactType);
-            result.EventData.NewData.Description.Should().Be(contactDetails.ContactInformation.Description);
+            ((DataItem)result.EventData.OldData).Value.Should().BeNull();
+            ((DataItem) result.EventData.NewData).Id.Should().Be(contactDetails.Id);
+            ((DataItem) result.EventData.NewData).Value.Should().Be(contactDetails.ContactInformation.Value);
+            ((DataItem) result.EventData.NewData).ContactType.Should().Be((int) contactDetails.ContactInformation.ContactType);
+            ((DataItem) result.EventData.NewData).Description.Should().Be(contactDetails.ContactInformation.Description);
         }
 
         [Fact]
@@ -60,11 +61,11 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var result = _sut.Create(contactDetails, new Token(), eventType);
 
             // assert
-            result.EventData.NewData.Value.Should().BeNull();
-            result.EventData.OldData.Id.Should().Be(contactDetails.Id);
-            result.EventData.OldData.Value.Should().Be(contactDetails.ContactInformation.Value);
-            result.EventData.OldData.ContactType.Should().Be((int) contactDetails.ContactInformation.ContactType);
-            result.EventData.OldData.Description.Should().Be(contactDetails.ContactInformation.Description);
+            ((DataItem) result.EventData.NewData).Value.Should().BeNull();
+            ((DataItem) result.EventData.OldData).Id.Should().Be(contactDetails.Id);
+            ((DataItem) result.EventData.OldData).Value.Should().Be(contactDetails.ContactInformation.Value);
+            ((DataItem) result.EventData.OldData).ContactType.Should().Be((int) contactDetails.ContactInformation.ContactType);
+            ((DataItem) result.EventData.OldData).Description.Should().Be(contactDetails.ContactInformation.Description);
         }
 
         private static ContactDetails CreateContactDetails()
