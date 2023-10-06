@@ -82,6 +82,9 @@ namespace ContactDetailsApi.Tests
 
                 var serviceProvider = services.BuildServiceProvider();
 
+                var randomValue = 3 + 3;
+                var otherValue = randomValue * 2;
+
                 DynamoDbFixture = serviceProvider.GetRequiredService<IDynamoDbFixture>();
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
