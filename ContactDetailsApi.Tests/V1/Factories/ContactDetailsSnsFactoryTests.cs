@@ -43,7 +43,7 @@ namespace ContactDetailsApi.Tests.V1.Factories
             var result = _sut.Create(contactDetails, new Token(), eventType);
 
             // assert
-            ((DataItem)result.EventData.OldData).Value.Should().BeNull();
+            ((DataItem) result.EventData.OldData).Value.Should().BeNull();
             ((DataItem) result.EventData.NewData).Id.Should().Be(contactDetails.Id);
             ((DataItem) result.EventData.NewData).Value.Should().Be(contactDetails.ContactInformation.Value);
             ((DataItem) result.EventData.NewData).ContactType.Should().Be((int) contactDetails.ContactInformation.ContactType);
