@@ -1,7 +1,6 @@
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
-using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using Hackney.Core.JWT;
 using System;

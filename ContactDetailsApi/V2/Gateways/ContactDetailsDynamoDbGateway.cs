@@ -19,13 +19,6 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.Gateways
 {
-
-    public class EditContactDetailsDatabase
-    {
-        public ContactInformation ContactInformation { get; set; }
-        public DateTime? LastModified { get; set; }
-    }
-
     public class ContactDetailsDynamoDbGateway : IContactDetailsGateway
     {
         private readonly IDynamoDBContext _dynamoDbContext;
