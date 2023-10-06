@@ -1,7 +1,9 @@
 using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Controllers;
+using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentAssertions;
 using FluentValidation;
@@ -9,10 +11,15 @@ using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Headers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Controllers;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using ContactDetailsRequestObject = ContactDetailsApi.V2.Boundary.Request.ContactDetailsRequestObject;
@@ -30,6 +37,14 @@ namespace ContactDetailsApi.Tests.V2.Controller
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Fixture _fixture = new Fixture();
 
+        private readonly Mock<HttpRequest> _mockHttpRequest;
+        private readonly HeaderDictionary _requestHeaders;
+        private readonly Mock<HttpResponse> _mockHttpResponse;
+        private readonly HeaderDictionary _responseHeaders;
+
+        private const string RequestBodyText = "Some request body text";
+        private readonly MemoryStream _requestStream;
+
         public ContactDetailsControllerTests()
         {
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
@@ -38,12 +53,37 @@ namespace ContactDetailsApi.Tests.V2.Controller
             _mockHttpContextWrapper = new Mock<IHttpContextWrapper>();
             _mockTokenFactory = new Mock<ITokenFactory>();
 
+            _mockHttpRequest = new Mock<HttpRequest>();
+            _mockHttpResponse = new Mock<HttpResponse>();
+
             _classUnderTest = new ContactDetailsController(
                 _mockCreateContactUseCase.Object,
                 _mockGetByIdUseCase.Object,
                 _mockHttpContextWrapper.Object,
                 _mockTokenFactory.Object,
                 _mockEditContactUseCase.Object);
+
+
+            // changes to allow reading of raw request body
+            _requestStream = new MemoryStream(Encoding.Default.GetBytes(RequestBodyText));
+            _mockHttpRequest.SetupGet(x => x.Body).Returns(_requestStream);
+
+
+            _requestHeaders = new HeaderDictionary();
+            _mockHttpRequest.SetupGet(x => x.Headers).Returns(_requestHeaders);
+            _mockHttpContextWrapper
+                .Setup(x => x.GetContextRequestHeaders(It.IsAny<HttpContext>()))
+            .Returns(_requestHeaders);
+
+            _responseHeaders = new HeaderDictionary();
+            _mockHttpResponse.SetupGet(x => x.Headers).Returns(_responseHeaders);
+
+            var mockHttpContext = new Mock<HttpContext>();
+            mockHttpContext.SetupGet(x => x.Request).Returns(_mockHttpRequest.Object);
+            mockHttpContext.SetupGet(x => x.Response).Returns(_mockHttpResponse.Object);
+
+            var controllerContext = new ControllerContext(new ActionContext(mockHttpContext.Object, new RouteData(), new ControllerActionDescriptor()));
+            _classUnderTest.ControllerContext = controllerContext;
         }
 
         [Fact]
@@ -171,6 +211,60 @@ namespace ContactDetailsApi.Tests.V2.Controller
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
+        }
+
+        [Fact]
+        public async Task PatchContact_WhenNoneFound_ReturnsNotFoundResponse()
+        {
+            var id = Guid.NewGuid();
+            var request = _fixture.Create<EditContactDetailsRequest>();
+
+            _mockEditContactUseCase
+                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .ReturnsAsync((ContactDetailsResponseObject) null);
+
+            // Act
+            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(NotFoundObjectResult));
+        }
+
+        [Fact]
+        public async Task PatchContact_WhenConflictExceptionThrown_ReturnsConflictResponse()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var request = _fixture.Create<EditContactDetailsRequest>();
+
+            _mockEditContactUseCase
+                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .ThrowsAsync(new VersionNumberConflictException(null, null));
+
+            // Act
+            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(ConflictObjectResult));
+        }
+
+        [Fact]
+        public async Task PatchContact_WhenUpdated_ReturnsNoContent()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var request = _fixture.Create<EditContactDetailsRequest>();
+            var useCaseResponse = new ContactDetailsResponseObject();
+
+            _mockEditContactUseCase
+                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .ReturnsAsync(useCaseResponse);
+
+            // Act
+            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+
+            // Assert
+            response.Should().BeOfType(typeof(NoContentResult));
         }
     }
 }

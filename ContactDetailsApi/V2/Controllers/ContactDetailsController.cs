@@ -107,7 +107,7 @@ namespace ContactDetailsApi.V2.Controllers
             {
                 var result = await _editContactDetailsUseCase.ExecuteAsync(id, request, bodyText, token, ifMatch).ConfigureAwait(false);
 
-                if (result == null) return NotFound();
+                if (result == null) return NotFound(id);
 
                 return NoContent();
             }
