@@ -1,6 +1,11 @@
+using Amazon.DynamoDBv2.Model;
+using Amazon.Runtime.Internal.Transform;
 using AutoFixture;
+using Bogus.Extensions;
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
@@ -56,7 +61,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
         {
-            await _dbFixture.SaveEntityAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
+            await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
         [Fact]
@@ -190,6 +195,143 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().NotBe(contactInformation.Value);
 
             result.Should().BeEquivalentTo(entity);
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenContactDoesntExist_ReturnsNull()
+        {
+            // Arrange
+            var id = Guid.NewGuid();
+            var request = new EditContactDetailsRequest { };
+            var requestBody = string.Empty;
+            int? ifMatch = 1;
+
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(id, request, requestBody, ifMatch).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenVersionConflict_ThrowsException()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .With(x => x.VersionNumber, 3)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var id = entity.Id;
+            var request = new EditContactDetailsRequest { };
+            var requestBody = string.Empty;
+            int? ifMatch = entity.VersionNumber - 1;
+
+            // Act
+            Func<Task> func = async () => await _classUnderTest.EditContactDetails(entity.Id, request, requestBody, ifMatch).ConfigureAwait(false);
+
+            // Assert
+            await func.Should().ThrowAsync<VersionNumberConflictException>();
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenNoChanges_DoesntUpdateDatabase()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var id = entity.Id;
+            var request = new EditContactDetailsRequest
+            {
+                ContactInformation = contactInformation
+            };
+            var requestBody = string.Empty;
+            int? ifMatch = entity.VersionNumber - 1;
+
+            var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
+            {
+                NewValues = new Dictionary<string, object> { }
+            };
+
+            _updater
+                .Setup(x => x.UpdateEntity(It.IsAny<ContactDetailsEntity>(), It.IsAny<string>(), It.IsAny<EditContactDetailsDatabase>()))
+                .Returns(updaterResponse);
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(entity.Id, request, requestBody, ifMatch).ConfigureAwait(false);
+
+            // Assert
+
+            // should not throw null exception, since updaterResponse is null
+
+            // ===========
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenChanges_SavesChangesToDatabase()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var id = entity.Id;
+            var request = new EditContactDetailsRequest
+            {
+                ContactInformation = contactInformation
+            };
+
+            var requestBody = string.Empty;
+            int? ifMatch = entity.VersionNumber - 1;
+
+            var newDescription = "Some new description";
+            entity.ContactInformation.Description = newDescription;
+
+            var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
+            {
+                NewValues = new Dictionary<string, object>
+                {
+                    { "Description", newDescription }
+                }
+            };
+
+            _updater
+                .Setup(x => x.UpdateEntity(It.IsAny<ContactDetailsEntity>(), It.IsAny<string>(), It.IsAny<EditContactDetailsDatabase>()))
+                .Returns(updaterResponse);
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(entity.Id, request, requestBody, ifMatch).ConfigureAwait(false);
+
+            // Assert
+
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
+
+            // confirm entity not updated
+            databaseResponse.ContactInformation.Description.Should().Be(newDescription);
         }
     }
 }

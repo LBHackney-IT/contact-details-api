@@ -1,6 +1,5 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
@@ -9,7 +8,6 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
-using ContactDetailsApi.V2.UseCase;
 using Hackney.Core.Logging;
 using Microsoft.Extensions.Logging;
 using System;
@@ -68,7 +66,7 @@ namespace ContactDetailsApi.V2.Gateways
             if (ifMatch != existingContactDetails.VersionNumber)
                 throw new VersionNumberConflictException(ifMatch, existingContactDetails.VersionNumber);
 
-            var updaterResponse = _updater.UpdateEntity<ContactDetailsEntity, EditContactDetailsDatabase>(
+            var updaterResponse = _updater.UpdateEntity(
                 existingContactDetails,
                 requestBody,
                 request.ToDatabase()
@@ -76,8 +74,8 @@ namespace ContactDetailsApi.V2.Gateways
 
             if (updaterResponse.NewValues.Any())
             {
-                _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync to update id {contactDetailsId}");
-                await _dynamoDbContext.SaveAsync<ContactDetailsEntity>(updaterResponse.UpdatedEntity).ConfigureAwait(false);
+                _logger.LogDebug("Calling IDynamoDBContext.SaveAsync to update {ContactDetailsId}", contactDetailsId);
+                await _dynamoDbContext.SaveAsync(updaterResponse.UpdatedEntity).ConfigureAwait(false);
             }
 
             return updaterResponse;

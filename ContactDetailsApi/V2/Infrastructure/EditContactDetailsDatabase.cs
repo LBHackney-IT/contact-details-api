@@ -1,4 +1,4 @@
-﻿using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Domain;
 using System;
 
 namespace ContactDetailsApi.V2.Infrastructure
