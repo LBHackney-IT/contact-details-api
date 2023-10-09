@@ -269,7 +269,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
-           // var id = entity.TargetId;
+            // var id = entity.TargetId;
             var request = new EditContactDetailsRequest
             {
                 ContactInformation = contactInformation
@@ -291,7 +291,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                     {
                         Description = newDescription
                     }
-                    
+
                 }
             };
 
@@ -346,7 +346,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             int? ifMatch = 1;
 
             var newDescription = "Some new description";
-           // entity.ContactInformation.Description = newDescription;
+            // entity.ContactInformation.Description = newDescription;
 
             var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
             {
