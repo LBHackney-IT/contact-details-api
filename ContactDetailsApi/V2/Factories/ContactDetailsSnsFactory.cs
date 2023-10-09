@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
 using EventData = ContactDetailsApi.V1.Domain.Sns.EventData;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
-using EventConstants = ContactDetailsApi.V2.Infrastructure.EventConstants;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -23,7 +22,7 @@ namespace ContactDetailsApi.V2.Factories
                 EntityId = entityId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
-                Version = EventConstants.V2VERSION,
+                Version = EventConstants.V1VERSION,
                 SourceDomain = EventConstants.SOURCEDOMAIN,
                 SourceSystem = EventConstants.SOURCESYSTEM,
                 User = new User { Name = token.Name, Email = token.Email }
