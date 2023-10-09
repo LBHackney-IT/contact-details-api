@@ -32,7 +32,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         private readonly ContactDetailsController _classUnderTest;
         private readonly Mock<ICreateContactUseCase> _mockCreateContactUseCase;
         private readonly Mock<IGetContactDetailsByTargetIdUseCase> _mockGetByIdUseCase;
-        private readonly Mock<IEditContactUseCase> _mockEditContactUseCase;
+        private readonly Mock<IEditContactDetailsUseCase> _mockEditContactUseCase;
         private readonly Mock<IHttpContextWrapper> _mockHttpContextWrapper;
         private readonly Mock<ITokenFactory> _mockTokenFactory;
         private readonly Fixture _fixture = new Fixture();
@@ -49,7 +49,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         {
             _mockCreateContactUseCase = new Mock<ICreateContactUseCase>();
             _mockGetByIdUseCase = new Mock<IGetContactDetailsByTargetIdUseCase>();
-            _mockEditContactUseCase = new Mock<IEditContactUseCase>();
+            _mockEditContactUseCase = new Mock<IEditContactDetailsUseCase>();
             _mockHttpContextWrapper = new Mock<IHttpContextWrapper>();
             _mockTokenFactory = new Mock<ITokenFactory>();
 
@@ -216,15 +216,20 @@ namespace ContactDetailsApi.Tests.V2.Controller
         [Fact]
         public async Task PatchContact_WhenNoneFound_ReturnsNotFoundResponse()
         {
-            var id = Guid.NewGuid();
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
             var request = _fixture.Create<EditContactDetailsRequest>();
 
             _mockEditContactUseCase
-                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .ReturnsAsync((ContactDetailsResponseObject) null);
 
             // Act
-            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+            var response = await _classUnderTest.PatchContact(query, request).ConfigureAwait(false);
 
             // Assert
             response.Should().BeOfType(typeof(NotFoundObjectResult));
@@ -234,15 +239,20 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task PatchContact_WhenConflictExceptionThrown_ReturnsConflictResponse()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
             var request = _fixture.Create<EditContactDetailsRequest>();
 
             _mockEditContactUseCase
-                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .ThrowsAsync(new VersionNumberConflictException(null, null));
 
             // Act
-            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+            var response = await _classUnderTest.PatchContact(query, request).ConfigureAwait(false);
 
             // Assert
             response.Should().BeOfType(typeof(ConflictObjectResult));
@@ -252,16 +262,21 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task PatchContact_WhenUpdated_ReturnsNoContent()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
             var request = _fixture.Create<EditContactDetailsRequest>();
             var useCaseResponse = new ContactDetailsResponseObject();
 
             _mockEditContactUseCase
-                .Setup(x => x.ExecuteAsync(It.IsAny<Guid>(), It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
+                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act
-            var response = await _classUnderTest.PatchContact(id, request).ConfigureAwait(false);
+            var response = await _classUnderTest.PatchContact(query, request).ConfigureAwait(false);
 
             // Assert
             response.Should().BeOfType(typeof(NoContentResult));

@@ -30,7 +30,7 @@ namespace ContactDetailsApi.V2.Controllers
     {
         private readonly ICreateContactUseCase _createContactUseCase;
         private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
-        private readonly IEditContactUseCase _editContactDetailsUseCase;
+        private readonly IEditContactDetailsUseCase _editContactDetailsUseCase;
         private readonly IHttpContextWrapper _httpContextWrapper;
         private readonly ITokenFactory _tokenFactory;
 
@@ -39,7 +39,7 @@ namespace ContactDetailsApi.V2.Controllers
             IGetContactDetailsByTargetIdUseCase getContactDetailsByTargetIdUseCase,
             IHttpContextWrapper httpContextWrapper,
             ITokenFactory tokenFactory,
-            IEditContactUseCase editContactDetailsUseCase)
+            IEditContactDetailsUseCase editContactDetailsUseCase)
         {
             _createContactUseCase = createContactUseCase;
             _getContactDetailsByTargetIdUseCase = getContactDetailsByTargetIdUseCase;
@@ -95,9 +95,9 @@ namespace ContactDetailsApi.V2.Controllers
         }
 
         [HttpPatch]
-        [Route("{id}")]
+        [Route("{personId}/update/{contactDetailId}")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> PatchContact([FromRoute] Guid id, [FromBody] EditContactDetailsRequest request)
+        public async Task<IActionResult> PatchContact([FromRoute] EditContactDetailsQuery query, [FromBody] EditContactDetailsRequest request)
         {
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
             var ifMatch = GetIfMatchFromHeader();
@@ -105,9 +105,9 @@ namespace ContactDetailsApi.V2.Controllers
 
             try
             {
-                var result = await _editContactDetailsUseCase.ExecuteAsync(id, request, bodyText, token, ifMatch).ConfigureAwait(false);
+                var result = await _editContactDetailsUseCase.ExecuteAsync(query, request, bodyText, token, ifMatch).ConfigureAwait(false);
 
-                if (result == null) return NotFound(id);
+                if (result == null) return NotFound(query);
 
                 return NoContent();
             }

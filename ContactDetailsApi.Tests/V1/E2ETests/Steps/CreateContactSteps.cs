@@ -74,11 +74,12 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                 actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 1000);
                 actual.EntityId.Should().Be(apiResult.TargetId);
 
-                ((DataItem) actual.EventData.NewData).ContactType.Should().Be((int) apiResult.ContactInformation.ContactType);
-                ((DataItem) actual.EventData.NewData).Description.Should().Be(apiResult.ContactInformation.Description);
-                ((DataItem) actual.EventData.NewData).Id.Should().Be(apiResult.Id);
-                ((DataItem) actual.EventData.NewData).Value.Should().Be(apiResult.ContactInformation.Value);
-                ((DataItem) actual.EventData.OldData).Should().BeEquivalentTo(new DataItem());
+                //EventData
+                actual.EventData.NewData.ContactType.Should().Be((int) apiResult.ContactInformation.ContactType);
+                actual.EventData.NewData.Description.Should().Be(apiResult.ContactInformation.Description);
+                actual.EventData.NewData.Id.Should().Be(apiResult.Id);
+                actual.EventData.NewData.Value.Should().Be(apiResult.ContactInformation.Value);
+                actual.EventData.OldData.Should().BeEquivalentTo(new DataItem());
 
                 actual.EventType.Should().Be(EventConstants.CREATED);
                 actual.Id.Should().NotBeEmpty();

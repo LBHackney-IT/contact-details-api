@@ -20,7 +20,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 {
     public class EditContactUseCaseTests
     {
-        private readonly EditContactUseCase _classUnderTest;
+        private readonly EditContactDetailsUseCase _classUnderTest;
         private readonly Mock<IContactDetailsGateway> _contactDetailsGatewayMock;
         private readonly Mock<ISnsGateway> _snsGatewayMock;
         private readonly Mock<ISnsFactory> _snsFactoryMock;
@@ -33,7 +33,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             _snsGatewayMock = new Mock<ISnsGateway>();
             _snsFactoryMock = new Mock<ISnsFactory>();
 
-            _classUnderTest = new EditContactUseCase(
+            _classUnderTest = new EditContactDetailsUseCase(
                 _contactDetailsGatewayMock.Object,
                 _snsGatewayMock.Object,
                 _snsFactoryMock.Object
@@ -44,7 +44,12 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task WhenNoChanges_DoesntPublishSnsEvent()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
             var request = new EditContactDetailsRequest();
             var requestBody = string.Empty;
             var token = new Token();
@@ -57,11 +62,11 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             };
 
             _contactDetailsGatewayMock
-                .Setup(x => x.EditContactDetails(id, request, requestBody, ifMatch))
+                .Setup(x => x.EditContactDetails(query, request, requestBody, ifMatch))
                 .ReturnsAsync(gatewayResponse);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(id, request, requestBody, token, ifMatch);
+            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token, ifMatch);
 
             // Assert
             response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());
@@ -74,7 +79,12 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task WhenChanges_PublishesSnsEvent()
         {
             // Arrange
-            var id = Guid.NewGuid();
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
             var request = new EditContactDetailsRequest();
             var requestBody = string.Empty;
             var token = new Token();
@@ -93,8 +103,9 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             var snsFactoryResponse = _fixture.Create<ContactDetailsSns>();
 
+
             _contactDetailsGatewayMock
-                .Setup(x => x.EditContactDetails(id, request, requestBody, ifMatch))
+                .Setup(x => x.EditContactDetails(query, request, requestBody, ifMatch))
                 .ReturnsAsync(gatewayResponse);
 
             _snsFactoryMock
@@ -102,7 +113,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
                 .Returns(snsFactoryResponse);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(id, request, requestBody, token, ifMatch);
+            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token, ifMatch);
 
             // Assert
             response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());

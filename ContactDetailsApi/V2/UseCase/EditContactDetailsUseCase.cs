@@ -14,13 +14,13 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase
 {
-    public class EditContactUseCase : IEditContactUseCase
+    public class EditContactDetailsUseCase : IEditContactDetailsUseCase
     {
         private readonly IContactDetailsGateway _gateway;
         private readonly ISnsGateway _snsGateway;
         private readonly ISnsFactory _snsFactory;
 
-        public EditContactUseCase(IContactDetailsGateway gateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
+        public EditContactDetailsUseCase(IContactDetailsGateway gateway, ISnsGateway snsGateway, ISnsFactory snsFactory)
         {
             _gateway = gateway;
             _snsGateway = snsGateway;
@@ -28,9 +28,9 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         public async Task<ContactDetailsResponseObject> ExecuteAsync(
-            Guid contactDetailsId, EditContactDetailsRequest request, string requestBody, Token token, int? ifMatch)
+            EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody, Token token, int? ifMatch)
         {
-            var result = await _gateway.EditContactDetails(contactDetailsId, request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _gateway.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
             if (result.NewValues.Any() == true)

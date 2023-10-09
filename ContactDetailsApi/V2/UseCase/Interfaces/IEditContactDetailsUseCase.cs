@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase.Interfaces
 {
-    public interface IEditContactUseCase
+    public interface IEditContactDetailsUseCase
     {
-        Task<ContactDetailsResponseObject> ExecuteAsync(Guid contactDetailsId, EditContactDetailsRequest requestObject, string requestBody, Token token, int? ifMatch);
+        Task<ContactDetailsResponseObject> ExecuteAsync(EditContactDetailsQuery query, EditContactDetailsRequest requestObject, string requestBody, Token token, int? ifMatch);
     }
 }

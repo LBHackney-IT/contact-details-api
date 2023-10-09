@@ -56,15 +56,17 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(Guid contactDetailsId, EditContactDetailsRequest request, string requestBody, int? ifMatch)
+        public async Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody, int? ifMatch)
         {
-            _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {ContactDetailsId}", contactDetailsId);
+            _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {ContactId} {PersonId}", query.ContactDetailId, query.PersonId);
 
-            var existingContactDetails = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(contactDetailsId).ConfigureAwait(false);
+            // _dynamoDbContext.LoadAsync<ContactDetailsEntity>("hash", "rangeKey")
+
+            var existingContactDetails = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.PersonId, query.ContactDetailId).ConfigureAwait(false);
             if (existingContactDetails == null) return null;
 
-            if (ifMatch != existingContactDetails.VersionNumber)
-                throw new VersionNumberConflictException(ifMatch, existingContactDetails.VersionNumber);
+            //if (ifMatch != existingContactDetails.VersionNumber)
+            //    throw new VersionNumberConflictException(ifMatch, existingContactDetails.VersionNumber);
 
             var updaterResponse = _updater.UpdateEntity(
                 existingContactDetails,
@@ -74,7 +76,7 @@ namespace ContactDetailsApi.V2.Gateways
 
             if (updaterResponse.NewValues.Any())
             {
-                _logger.LogDebug("Calling IDynamoDBContext.SaveAsync to update {ContactDetailsId}", contactDetailsId);
+                _logger.LogDebug("Calling IDynamoDBContext.SaveAsync to update {ContactId} {PersonId}", query.ContactDetailId, query.PersonId);
                 await _dynamoDbContext.SaveAsync(updaterResponse.UpdatedEntity).ConfigureAwait(false);
             }
 

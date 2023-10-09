@@ -54,18 +54,18 @@ namespace ContactDetailsApi.V2.Factories
             return contactDetailsSns;
         }
 
-        public ContactDetailsSns EditEvent(ContactDetails newData, ContactDetails oldData, Token token)
-        {
-            var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.EDITED);
+        //public ContactDetailsSns EditEvent(ContactDetails newData, ContactDetails oldData, Token token)
+        //{
+        //    var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.EDITED);
 
-            contactDetailsSns.EventData = new EventData
-            {
-                NewData = ReturnDataItem(newData),
-                OldData = ReturnDataItem(oldData)
-            };
+        //    contactDetailsSns.EventData = new EventData
+        //    {
+        //        NewData = ReturnDataItem(newData),
+        //        OldData = ReturnDataItem(oldData)
+        //    };
 
-            return contactDetailsSns;
-        }
+        //    return contactDetailsSns;
+        //}
 
         public ContactDetailsSns EditEvent(Infrastructure.UpdateEntityResult<Infrastructure.ContactDetailsEntity> updateResult, Token token)
         {
@@ -73,8 +73,10 @@ namespace ContactDetailsApi.V2.Factories
 
             contactDetailsSns.EventData = new EventData
             {
-                NewData = updateResult.NewValues,
-                OldData = updateResult.OldValues
+                NewData = ReturnDataItem(updateResult.UpdatedEntity.ToDomain()),
+                OldData = new DataItem()
+                //NewData = updateResult.NewValues,
+                //OldData = updateResult.OldValues
             };
 
             return contactDetailsSns;
