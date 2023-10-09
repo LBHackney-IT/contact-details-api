@@ -71,11 +71,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                 actual.DateTime.Should().BeCloseTo(DateTime.UtcNow, 1000);
                 actual.EntityId.Should().Be(deletedRecord.TargetId);
 
-                ((DataItem) actual.EventData.OldData).ContactType.Should().Be((int) deletedRecord.ContactInformation.ContactType);
-                ((DataItem) actual.EventData.OldData).Description.Should().Be(deletedRecord.ContactInformation.Description);
-                ((DataItem) actual.EventData.OldData).Id.Should().Be(deletedRecord.Id);
-                ((DataItem) actual.EventData.OldData).Value.Should().Be(deletedRecord.ContactInformation.Value);
-                ((DataItem) actual.EventData.NewData).Should().BeEquivalentTo(new DataItem());
+                actual.EventData.OldData.ContactType.Should().Be((int) deletedRecord.ContactInformation.ContactType);
+                actual.EventData.OldData.Description.Should().Be(deletedRecord.ContactInformation.Description);
+                actual.EventData.OldData.Id.Should().Be(deletedRecord.Id);
+                actual.EventData.OldData.Value.Should().Be(deletedRecord.ContactInformation.Value);
+                actual.EventData.NewData.Should().BeEquivalentTo(new DataItem());
 
                 actual.EventType.Should().Be(EventConstants.DELETED);
                 actual.Id.Should().NotBeEmpty();

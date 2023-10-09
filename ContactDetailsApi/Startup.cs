@@ -7,6 +7,7 @@ using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using ContactDetailsApi.V2.Gateways.Interfaces;
+using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -167,6 +168,9 @@ namespace ContactDetailsApi
 
             services.AddScoped<V1.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V1.UseCase.GetContactDetailsByTargetIdUseCase>();
             services.AddScoped<V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V2.UseCase.GetContactDetailsByTargetIdUseCase>();
+
+            services.AddScoped<IEditContactDetailsUseCase, V2.UseCase.EditContactDetailsUseCase>();
+
         }
 
         private static void RegisterFactories(IServiceCollection services)
