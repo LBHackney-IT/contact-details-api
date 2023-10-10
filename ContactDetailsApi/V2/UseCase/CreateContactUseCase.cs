@@ -15,7 +15,6 @@ using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase
 {
-
     public class CreateContactUseCase : ICreateContactUseCase
     {
         private readonly IContactDetailsGateway _gateway;

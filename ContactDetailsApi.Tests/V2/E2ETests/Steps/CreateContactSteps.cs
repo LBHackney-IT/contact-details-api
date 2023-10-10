@@ -62,7 +62,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
                 actual.EventData.NewData.Description.Should().Be(apiResult.ContactInformation.Description);
                 actual.EventData.NewData.Id.Should().Be(apiResult.Id);
                 actual.EventData.NewData.Value.Should().Be(apiResult.ContactInformation.Value);
-                ((DataItem) actual.EventData.OldData).Should().BeEquivalentTo(new DataItem());
+                actual.EventData.OldData.Should().BeEquivalentTo(new DataItem());
 
                 actual.EventType.Should().Be(EventConstants.CREATED);
                 actual.Id.Should().NotBeEmpty();

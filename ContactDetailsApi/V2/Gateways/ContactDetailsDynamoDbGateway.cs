@@ -62,9 +62,6 @@ namespace ContactDetailsApi.V2.Gateways
             var existingContactDetails = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.PersonId, query.ContactDetailId).ConfigureAwait(false);
             if (existingContactDetails == null) return null;
 
-            //if (ifMatch != existingContactDetails.VersionNumber)
-            //    throw new VersionNumberConflictException(ifMatch, existingContactDetails.VersionNumber);
-
             var updaterResponse = _updater.UpdateEntity(
                 existingContactDetails,
                 requestBody,

@@ -4,9 +4,6 @@ using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using Hackney.Core.JWT;
 using System;
-using System.Collections.Generic;
-using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
-using EventData = ContactDetailsApi.V1.Domain.Sns.EventData;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
 
 namespace ContactDetailsApi.V2.Factories
