@@ -42,7 +42,7 @@ namespace ContactDetailsApi.V2.UseCase
                 var assetSnsMessage = _snsFactory.Create(result.UpdatedEntity.ToDomain(), token, EventConstants.EDITED);
                 var assetTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-                await _snsGateway.Publish(assetSnsMessage, assetTopicArn).ConfigureAwait(false);               
+                await _snsGateway.Publish(assetSnsMessage, assetTopicArn).ConfigureAwait(false);
             }
 
             return result.UpdatedEntity.ToDomain().ToResponse();

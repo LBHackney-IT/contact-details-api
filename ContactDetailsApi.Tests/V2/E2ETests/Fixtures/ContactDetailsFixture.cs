@@ -234,7 +234,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 PersonId = existingContact.TargetId
             };
 
-            
+
         }
 
         public void GivenANewContactRequest(ContactType type)
