@@ -1,13 +1,7 @@
-using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
-using Amazon.Runtime.Internal.Transform;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AutoFixture;
-using Bogus.Extensions;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
-using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
@@ -73,18 +67,24 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var entity = _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
+
                 .Create();
 
             // Act
             var result = await _classUnderTest.CreateContact(entity).ConfigureAwait(false);
 
             // Assert
-            result.Should().BeEquivalentTo(entity);
+            result.Should().BeEquivalentTo(entity, config => config);
 
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
-            result.Should().BeEquivalentTo(databaseResponse, config => config.Excluding(y => y.LastModified));
+
+            result.Should().BeEquivalentTo(databaseResponse, config =>
+                config.Excluding(y => y.LastModified)
+
+            );
+
             databaseResponse.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
@@ -131,10 +131,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Assert
             result.Should().HaveCount(1);
 
-            result.First().Should().BeEquivalentTo(entity, config =>
-            {
-                return config.Excluding(x => x.ContactInformation);
-            });
+            result.First().Should().BeEquivalentTo(entity, config => config.Excluding(x => x.ContactInformation));
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {entity.TargetId}", Times.Once());
         }
@@ -196,7 +193,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Assert
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().NotBe(contactInformation.Value);
 
-            result.Should().BeEquivalentTo(entity);
+            result.First().Should().BeEquivalentTo(entity, options => options);
         }
 
         [Fact]
@@ -205,7 +202,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Arrange
             var request = new EditContactDetailsRequest { };
             var requestBody = string.Empty;
-            int? ifMatch = 1;
 
             var query = new EditContactDetailsQuery
             {
@@ -214,44 +210,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
 
             // Assert
             result.Should().BeNull();
-        }
-
-        [Fact]
-        public async Task EditContactDetails_WhenVersionConflict_ThrowsException()
-        {
-            // Arrange
-            var contactInformation = _fixture.Create<ContactInformation>();
-
-            var entity = _fixture.Build<ContactDetailsEntity>()
-                .With(x => x.ContactInformation, contactInformation)
-                .With(x => x.RecordValidUntil, DateTime.UtcNow)
-                .With(x => x.IsActive, true)
-                .With(x => x.LastModified, DateTime.UtcNow)
-                //.With(x => x.VersionNumber, 3)
-                .Create();
-
-            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
-
-            var request = new EditContactDetailsRequest { };
-            var requestBody = string.Empty;
-            //int? ifMatch = entity.VersionNumber - 1;
-            int? ifMatch = 1;
-
-            var query = new EditContactDetailsQuery
-            {
-                PersonId = Guid.NewGuid(),
-                ContactDetailId = Guid.NewGuid()
-            };
-
-            // Act
-            Func<Task> func = async () => await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
-
-            // Assert
-            await func.Should().ThrowAsync<VersionNumberConflictException>();
         }
 
         [Fact]
@@ -269,14 +231,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
-            // var id = entity.TargetId;
             var request = new EditContactDetailsRequest
             {
                 ContactInformation = contactInformation
             };
             var requestBody = string.Empty;
-            int? ifMatch = 1;
-            //int? ifMatch = entity.VersionNumber - 1;
 
             var newDescription = _fixture.Create<string>();
 
@@ -306,18 +265,13 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
 
             // Assert
             result.Should().NotBeNull();
 
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
             databaseResponse.ContactInformation.Description.Should().NotBe(newDescription);
-
-
-            // should not throw null exception, since updaterResponse is null
-
-            // ===========
         }
 
         [Fact]
@@ -342,11 +296,9 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             var requestBody = string.Empty;
-            //int? ifMatch = entity.VersionNumber - 1;
-            int? ifMatch = 1;
 
             var newDescription = "Some new description";
-            // entity.ContactInformation.Description = newDescription;
+            entity.ContactInformation.Description = newDescription;
 
             var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
             {
@@ -354,16 +306,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 {
                     { "Description", newDescription }
                 },
-                UpdatedEntity = new ContactDetailsEntity
-                {
-                    Id = entity.Id,
-                    TargetId = entity.TargetId,
-                    ContactInformation = new ContactInformation
-                    {
-                        Description = newDescription
-                    }
-
-                }
+                UpdatedEntity = entity
             };
 
             _updater
@@ -377,7 +320,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
 
             // Assert
             result.Should().NotBeNull();

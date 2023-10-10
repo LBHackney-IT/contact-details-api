@@ -28,9 +28,12 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         public async Task<ContactDetailsResponseObject> ExecuteAsync(
-            EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody, Token token, int? ifMatch)
+            EditContactDetailsQuery query,
+            EditContactDetailsRequest request,
+            string requestBody,
+            Token token)
         {
-            var result = await _gateway.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
+            var result = await _gateway.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
             if (result == null) return null;
 
             if (result.NewValues.Any() == true)

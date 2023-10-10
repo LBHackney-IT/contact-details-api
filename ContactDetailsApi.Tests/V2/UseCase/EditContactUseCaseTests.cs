@@ -53,7 +53,6 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             var request = new EditContactDetailsRequest();
             var requestBody = string.Empty;
             var token = new Token();
-            int? ifMatch = 1;
 
             var gatewayResponse = new UpdateEntityResult<ContactDetailsEntity>
             {
@@ -62,11 +61,11 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             };
 
             _contactDetailsGatewayMock
-                .Setup(x => x.EditContactDetails(query, request, requestBody, ifMatch))
+                .Setup(x => x.EditContactDetails(query, request, requestBody))
                 .ReturnsAsync(gatewayResponse);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token, ifMatch);
+            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token);
 
             // Assert
             response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());
@@ -88,7 +87,6 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             var request = new EditContactDetailsRequest();
             var requestBody = string.Empty;
             var token = new Token();
-            int? ifMatch = 1;
 
             var newId = Guid.NewGuid();
 
@@ -105,7 +103,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
 
             _contactDetailsGatewayMock
-                .Setup(x => x.EditContactDetails(query, request, requestBody, ifMatch))
+                .Setup(x => x.EditContactDetails(query, request, requestBody))
                 .ReturnsAsync(gatewayResponse);
 
             _snsFactoryMock
@@ -113,7 +111,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
                 .Returns(snsFactoryResponse);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token, ifMatch);
+            var response = await _classUnderTest.ExecuteAsync(query, request, requestBody, token);
 
             // Assert
             response.Should().BeEquivalentTo(gatewayResponse.UpdatedEntity.ToDomain().ToResponse());

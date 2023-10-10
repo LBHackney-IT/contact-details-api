@@ -3,7 +3,6 @@ using Amazon.DynamoDBv2.DocumentModel;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
-using ContactDetailsApi.V2.Exceptions;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
@@ -56,11 +55,9 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody, int? ifMatch)
+        public async Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody)
         {
             _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {ContactId} {PersonId}", query.ContactDetailId, query.PersonId);
-
-            // _dynamoDbContext.LoadAsync<ContactDetailsEntity>("hash", "rangeKey")
 
             var existingContactDetails = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.PersonId, query.ContactDetailId).ConfigureAwait(false);
             if (existingContactDetails == null) return null;
