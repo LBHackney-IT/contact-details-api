@@ -71,6 +71,8 @@ namespace ContactDetailsApi.V2.Gateways
             if (updaterResponse.NewValues.Any())
             {
                 _logger.LogDebug("Calling IDynamoDBContext.SaveAsync to update {ContactId} {PersonId}", query.ContactDetailId, query.PersonId);
+
+                updaterResponse.UpdatedEntity.LastModified = DateTime.UtcNow;
                 await _dynamoDbContext.SaveAsync(updaterResponse.UpdatedEntity).ConfigureAwait(false);
             }
 

@@ -18,6 +18,7 @@ using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
@@ -208,6 +209,7 @@ namespace ContactDetailsApi
             }
 
             app.UseXRay("contact-details-api");
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();

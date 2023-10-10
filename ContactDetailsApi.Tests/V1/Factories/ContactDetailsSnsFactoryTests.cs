@@ -1,5 +1,4 @@
 using ContactDetailsApi.V1.Domain;
-using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
