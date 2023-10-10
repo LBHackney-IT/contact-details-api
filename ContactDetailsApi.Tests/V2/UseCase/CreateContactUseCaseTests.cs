@@ -142,7 +142,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             _ = await _classUnderTest.ExecuteAsync(request, _token).ConfigureAwait(false);
 
             // Assert
-            _mockSnsFactory.Verify(x => x.CreateEvent(It.IsAny<ContactDetails>(), _token));
+            _mockSnsFactory.Verify(x => x.Create(It.IsAny<ContactDetails>(), _token, It.IsAny<string>()));
             _mockSnsGateway.Verify(x => x.Publish(It.IsAny<ContactDetailsSns>(), It.IsAny<string>(), It.IsAny<string>()));
         }
 

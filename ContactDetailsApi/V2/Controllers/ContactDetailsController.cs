@@ -98,7 +98,6 @@ namespace ContactDetailsApi.V2.Controllers
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
             var result = await _editContactDetailsUseCase.ExecuteAsync(query, request, bodyText, token).ConfigureAwait(false);
-
             if (result == null) return NotFound(query);
 
             return NoContent();

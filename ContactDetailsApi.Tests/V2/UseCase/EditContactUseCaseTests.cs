@@ -2,7 +2,6 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using ContactDetailsApi.V2.UseCase;
 using Hackney.Core.Sns;
-using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System;
 using System.Threading.Tasks;
@@ -15,6 +14,7 @@ using AutoFixture;
 using FluentAssertions;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V1.Domain.Sns;
+using ContactDetailsApi.V2.Domain;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -107,7 +107,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
                 .ReturnsAsync(gatewayResponse);
 
             _snsFactoryMock
-                .Setup(x => x.EditEvent(gatewayResponse, token))
+                .Setup(x => x.Create(It.IsAny<ContactDetails>(), token, It.IsAny<string>()))
                 .Returns(snsFactoryResponse);
 
             // Act

@@ -13,13 +13,21 @@ namespace ContactDetailsApi.V2.Factories
 {
     public class ContactDetailsSnsFactory : ISnsFactory
     {
-        private static ContactDetailsSns CreateContactDetailsSns(Guid entityId, Token token, string eventType)
+        public ContactDetailsSns Create(ContactDetails contactDetails, Token token, string eventType)
+        {
+            var contactDetailsSns = CreateContactDetailsSns(contactDetails, token, eventType);
+            PopulateEventOldAndNewData(contactDetails, eventType, contactDetailsSns);
+
+            return contactDetailsSns;
+        }
+
+        private static ContactDetailsSns CreateContactDetailsSns(ContactDetails contactDetails, Token token, string eventType)
         {
             return new ContactDetailsSns
             {
                 CorrelationId = Guid.NewGuid().ToString(),
                 DateTime = DateTime.UtcNow,
-                EntityId = entityId,
+                EntityId = contactDetails.TargetId,
                 Id = Guid.NewGuid(),
                 EventType = eventType,
                 Version = EventConstants.V1VERSION,
@@ -27,6 +35,37 @@ namespace ContactDetailsApi.V2.Factories
                 SourceSystem = EventConstants.SOURCESYSTEM,
                 User = new User { Name = token.Name, Email = token.Email }
             };
+        }
+
+        private static void PopulateEventOldAndNewData(ContactDetails contactDetails, string eventType,
+           ContactDetailsSns contactDetailsSns)
+        {
+            switch (eventType)
+            {
+                case EventConstants.CREATED:
+                    contactDetailsSns.EventData = new EventData
+                    {
+                        NewData = ReturnDataItem(contactDetails),
+                        OldData = new DataItem()
+                    };
+                    break;
+                case EventConstants.EDITED:
+                    contactDetailsSns.EventData = new EventData
+                    {
+                        NewData = ReturnDataItem(contactDetails),
+                        OldData = new DataItem()
+                    };
+                    break;
+                case EventConstants.DELETED:
+                    contactDetailsSns.EventData = new EventData
+                    {
+                        NewData = new DataItem(),
+                        OldData = ReturnDataItem(contactDetails),
+                    };
+                    break;
+                default:
+                    throw new NotImplementedException($"Event {eventType} not recognized");
+            }
         }
 
         private static DataItem ReturnDataItem(ContactDetails contactDetails)
@@ -38,47 +77,6 @@ namespace ContactDetailsApi.V2.Factories
                 ContactType = (int) contactDetails.ContactInformation.ContactType,
                 Description = contactDetails.ContactInformation.Description
             };
-        }
-
-        public ContactDetailsSns CreateEvent(ContactDetails newData, Token token)
-        {
-            var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.CREATED);
-
-            contactDetailsSns.EventData = new EventData
-            {
-                NewData = ReturnDataItem(newData),
-                OldData = new DataItem()
-            };
-
-            return contactDetailsSns;
-        }
-
-        //public ContactDetailsSns EditEvent(ContactDetails newData, ContactDetails oldData, Token token)
-        //{
-        //    var contactDetailsSns = CreateContactDetailsSns(newData.TargetId, token, EventConstants.EDITED);
-
-        //    contactDetailsSns.EventData = new EventData
-        //    {
-        //        NewData = ReturnDataItem(newData),
-        //        OldData = ReturnDataItem(oldData)
-        //    };
-
-        //    return contactDetailsSns;
-        //}
-
-        public ContactDetailsSns EditEvent(Infrastructure.UpdateEntityResult<Infrastructure.ContactDetailsEntity> updateResult, Token token)
-        {
-            var contactDetailsSns = CreateContactDetailsSns(updateResult.UpdatedEntity.Id, token, EventConstants.EDITED);
-
-            contactDetailsSns.EventData = new EventData
-            {
-                NewData = ReturnDataItem(updateResult.UpdatedEntity.ToDomain()),
-                OldData = new DataItem()
-                //NewData = updateResult.NewValues,
-                //OldData = updateResult.OldValues
-            };
-
-            return contactDetailsSns;
         }
     }
 }

@@ -1,4 +1,5 @@
 using ContactDetailsApi.V1.Factories;
+using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Factories;
@@ -38,7 +39,7 @@ namespace ContactDetailsApi.V2.UseCase
 
             if (result.NewValues.Any() == true)
             {
-                var assetSnsMessage = _snsFactory.EditEvent(result, token);
+                var assetSnsMessage = _snsFactory.Create(result.UpdatedEntity.ToDomain(), token, EventConstants.EDITED);
                 var assetTopicArn = Environment.GetEnvironmentVariable("ASSET_SNS_ARN");
                 await _snsGateway.Publish(assetSnsMessage, assetTopicArn).ConfigureAwait(false);
             }

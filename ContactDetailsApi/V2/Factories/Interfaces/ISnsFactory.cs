@@ -7,7 +7,6 @@ namespace ContactDetailsApi.V2.Factories.Interfaces
 {
     public interface ISnsFactory
     {
-        ContactDetailsSns CreateEvent(ContactDetails newData, Token token);
-        ContactDetailsSns EditEvent(UpdateEntityResult<ContactDetailsEntity> updateResult, Token token);
+        ContactDetailsSns Create(ContactDetails contactDetails, Token token, string eventType);
     }
 }

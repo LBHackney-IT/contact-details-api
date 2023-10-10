@@ -39,7 +39,7 @@ namespace ContactDetailsApi.V2.UseCase
 
             var contactTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");
 
-            var createContactDetailsSnsMessage = _snsFactory.CreateEvent(contact, token);
+            var createContactDetailsSnsMessage = _snsFactory.Create(contact, token, EventConstants.CREATED);
 
             await _snsGateway.Publish(createContactDetailsSnsMessage, contactTopicArn).ConfigureAwait(false);
 
