@@ -26,7 +26,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
         public async Task WhenThePatchContactEndpointIsCalled(EditContactDetailsRequest request, EditContactDetailsQuery query)
         {
-            var route = $"api/v2/contactDetails/{query.PersonId}/update/{query.ContactDetailId}";
+            var route = $"api/v2/contactDetails/{query.ContactDetailId}/person/{query.PersonId}";
 
             var uri = new Uri(route, UriKind.Relative);
 

@@ -90,7 +90,7 @@ namespace ContactDetailsApi.V2.Controllers
         }
 
         [HttpPatch]
-        [Route("{personId}/update/{contactDetailId}")]
+        [Route("{contactDetailId}/person/{personId}")]
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> PatchContact([FromRoute] EditContactDetailsQuery query, [FromBody] EditContactDetailsRequest request)
         {
