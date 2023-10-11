@@ -35,7 +35,7 @@ namespace ContactDetailsApi.V2.Factories
         }
 
         private static void PopulateEventOldAndNewData(ContactDetails contactDetails, string eventType,
-            ContactDetailsSns contactDetailsSns)
+           ContactDetailsSns contactDetailsSns)
         {
             switch (eventType)
             {
@@ -46,12 +46,18 @@ namespace ContactDetailsApi.V2.Factories
                         OldData = new DataItem()
                     };
                     break;
+                case EventConstants.EDITED:
+                    contactDetailsSns.EventData = new EventData
+                    {
+                        NewData = ReturnDataItem(contactDetails),
+                        OldData = new DataItem()
+                    };
+                    break;
                 case EventConstants.DELETED:
                     contactDetailsSns.EventData = new EventData
                     {
+                        NewData = new DataItem(),
                         OldData = ReturnDataItem(contactDetails),
-                        NewData = new DataItem()
-
                     };
                     break;
                 default:

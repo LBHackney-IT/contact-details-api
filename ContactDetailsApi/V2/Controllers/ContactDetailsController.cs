@@ -1,5 +1,6 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentValidation;
@@ -24,6 +25,7 @@ namespace ContactDetailsApi.V2.Controllers
     {
         private readonly ICreateContactUseCase _createContactUseCase;
         private readonly IGetContactDetailsByTargetIdUseCase _getContactDetailsByTargetIdUseCase;
+        private readonly IEditContactDetailsUseCase _editContactDetailsUseCase;
         private readonly IHttpContextWrapper _httpContextWrapper;
         private readonly ITokenFactory _tokenFactory;
 
@@ -31,12 +33,14 @@ namespace ContactDetailsApi.V2.Controllers
             ICreateContactUseCase createContactUseCase,
             IGetContactDetailsByTargetIdUseCase getContactDetailsByTargetIdUseCase,
             IHttpContextWrapper httpContextWrapper,
-            ITokenFactory tokenFactory)
+            ITokenFactory tokenFactory,
+            IEditContactDetailsUseCase editContactDetailsUseCase)
         {
             _createContactUseCase = createContactUseCase;
             _getContactDetailsByTargetIdUseCase = getContactDetailsByTargetIdUseCase;
             _httpContextWrapper = httpContextWrapper;
             _tokenFactory = tokenFactory;
+            _editContactDetailsUseCase = editContactDetailsUseCase;
         }
 
         /// <summary>
@@ -83,6 +87,20 @@ namespace ContactDetailsApi.V2.Controllers
             {
                 return BadRequest(e.ConstructResponse());
             }
+        }
+
+        [HttpPatch]
+        [Route("{contactDetailId}/person/{personId}")]
+        [LogCall(LogLevel.Information)]
+        public async Task<IActionResult> PatchContact([FromRoute] EditContactDetailsQuery query, [FromBody] EditContactDetailsRequest request)
+        {
+            var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+            var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
+
+            var result = await _editContactDetailsUseCase.ExecuteAsync(query, request, bodyText, token).ConfigureAwait(false);
+            if (result == null) return NotFound(query);
+
+            return NoContent();
         }
     }
 }

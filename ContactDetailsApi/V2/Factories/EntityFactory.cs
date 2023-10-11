@@ -51,6 +51,16 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
+        public static EditContactDetailsDatabase ToDatabase(this EditContactDetailsRequest request)
+        {
+            return new EditContactDetailsDatabase
+            {
+                ContactInformation = request.ContactInformation,
+                LastModified = DateTime.UtcNow
+            };
+        }
+
+
         public static ContactDetailsEntity ToDatabase(this ContactDetails domain)
         {
             var entity = new ContactDetailsEntity

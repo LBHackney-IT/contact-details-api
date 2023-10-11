@@ -1,8 +1,10 @@
 using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Infrastructure;
+using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
@@ -21,6 +23,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
     {
         private readonly Fixture _fixture = new Fixture();
         private readonly Mock<ILogger<ContactDetailsDynamoDbGateway>> _logger;
+        private readonly Mock<IEntityUpdater> _updater;
         private readonly IDynamoDbFixture _dbFixture;
         private readonly ContactDetailsDynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
@@ -28,8 +31,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public ContactDetailsDynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
+            _updater = new Mock<IEntityUpdater>();
+
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object);
+            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object);
         }
 
         public void Dispose()
@@ -52,7 +57,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
         {
-            await _dbFixture.SaveEntityAsync<ContactDetailsEntity>(entity).ConfigureAwait(false);
+            await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
         [Fact]
@@ -62,18 +67,24 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var entity = _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
+
                 .Create();
 
             // Act
             var result = await _classUnderTest.CreateContact(entity).ConfigureAwait(false);
 
             // Assert
-            result.Should().BeEquivalentTo(entity);
+            result.Should().BeEquivalentTo(entity, config => config);
 
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.Should().NotBeNull();
-            result.Should().BeEquivalentTo(databaseResponse, config => config.Excluding(y => y.LastModified));
+
+            result.Should().BeEquivalentTo(databaseResponse, config =>
+                config.Excluding(y => y.LastModified)
+
+            );
+
             databaseResponse.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
@@ -120,10 +131,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Assert
             result.Should().HaveCount(1);
 
-            result.First().Should().BeEquivalentTo(entity, config =>
-            {
-                return config.Excluding(x => x.ContactInformation);
-            });
+            result.First().Should().BeEquivalentTo(entity, config => config.Excluding(x => x.ContactInformation));
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {entity.TargetId}", Times.Once());
         }
@@ -185,7 +193,141 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Assert
             result.First().ContactInformation.AddressExtended.AddressLine1.Should().NotBe(contactInformation.Value);
 
-            result.Should().BeEquivalentTo(entity);
+            result.First().Should().BeEquivalentTo(entity, options => options);
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenContactDoesntExist_ReturnsNull()
+        {
+            // Arrange
+            var request = new EditContactDetailsRequest { };
+            var requestBody = string.Empty;
+
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = Guid.NewGuid(),
+                ContactDetailId = Guid.NewGuid()
+            };
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenNoChanges_DoesntUpdateDatabase()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var request = new EditContactDetailsRequest
+            {
+                ContactInformation = contactInformation
+            };
+            var requestBody = string.Empty;
+
+            var newDescription = _fixture.Create<string>();
+
+            var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
+            {
+                NewValues = new Dictionary<string, object> { },
+                UpdatedEntity = new ContactDetailsEntity
+                {
+                    Id = entity.Id,
+                    TargetId = entity.TargetId,
+                    ContactInformation = new ContactInformation
+                    {
+                        Description = newDescription
+                    }
+
+                }
+            };
+
+            _updater
+                .Setup(x => x.UpdateEntity(It.IsAny<ContactDetailsEntity>(), It.IsAny<string>(), It.IsAny<EditContactDetailsDatabase>()))
+                .Returns(updaterResponse);
+
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = entity.TargetId,
+                ContactDetailId = entity.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
+            databaseResponse.ContactInformation.Description.Should().NotBe(newDescription);
+        }
+
+        [Fact]
+        public async Task EditContactDetails_WhenChanges_SavesChangesToDatabase()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+
+            var request = new EditContactDetailsRequest
+            {
+                ContactInformation = contactInformation
+            };
+
+            var requestBody = string.Empty;
+
+            var newDescription = "Some new description";
+            entity.ContactInformation.Description = newDescription;
+
+            var updaterResponse = new UpdateEntityResult<ContactDetailsEntity>
+            {
+                NewValues = new Dictionary<string, object>
+                {
+                    { "Description", newDescription }
+                },
+                UpdatedEntity = entity
+            };
+
+            _updater
+                .Setup(x => x.UpdateEntity(It.IsAny<ContactDetailsEntity>(), It.IsAny<string>(), It.IsAny<EditContactDetailsDatabase>()))
+                .Returns(updaterResponse);
+
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = entity.TargetId,
+                ContactDetailId = entity.Id
+            };
+
+            // Act
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+
+            // Assert
+            result.Should().NotBeNull();
+
+            var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
+
+            databaseResponse.ContactInformation.Description.Should().Be(newDescription);
         }
     }
 }

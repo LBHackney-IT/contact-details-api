@@ -7,6 +7,9 @@ using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
 using ContactDetailsApi.V2.Factories.Interfaces;
 using ContactDetailsApi.V2.Gateways.Interfaces;
+using ContactDetailsApi.V2.Infrastructure;
+using ContactDetailsApi.V2.Infrastructure.Interfaces;
+using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
@@ -15,6 +18,7 @@ using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Middleware.CorrelationId;
 using Hackney.Core.Middleware.Exception;
 using Hackney.Core.Middleware.Logging;
@@ -38,6 +42,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 
 namespace ContactDetailsApi
 {
@@ -142,6 +147,9 @@ namespace ContactDetailsApi
             RegisterUseCases(services);
             RegisterFactories(services);
 
+            services.AddScoped<IEntityUpdater, EntityUpdater>();
+
+
             ConfigureHackneyCoreDI(services);
         }
 
@@ -167,6 +175,9 @@ namespace ContactDetailsApi
 
             services.AddScoped<V1.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V1.UseCase.GetContactDetailsByTargetIdUseCase>();
             services.AddScoped<V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V2.UseCase.GetContactDetailsByTargetIdUseCase>();
+
+            services.AddScoped<IEditContactDetailsUseCase, V2.UseCase.EditContactDetailsUseCase>();
+
         }
 
         private static void RegisterFactories(IServiceCollection services)
@@ -198,6 +209,7 @@ namespace ContactDetailsApi
             }
 
             app.UseXRay("contact-details-api");
+            app.EnableRequestBodyRewind();
 
             //Get All ApiVersions,
             var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
