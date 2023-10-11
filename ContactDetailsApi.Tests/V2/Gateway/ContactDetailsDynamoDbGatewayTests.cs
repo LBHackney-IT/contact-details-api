@@ -235,7 +235,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
-            var request = new EditContactDetailsRequest {
+            var request = new EditContactDetailsRequest
+            {
                 ContactInformation = contactInformation
             };
 
