@@ -52,8 +52,24 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         public void ServiceReturns404NotFound()
         {
             this.Given(g => _contactDetailsFixture.GivenAPatchContactRequest(null))
-                .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery))
+                .When(w => _steps.WhenThePatchContactEndpointIsCalled(
+                    _contactDetailsFixture.PatchContactRequestObject,
+                    _contactDetailsFixture.PatchContactDetailsQuery,
+                    _contactDetailsFixture.ExistingContact))
                 .Then(t => _steps.ThenA404NotFoundResponseIsReturned())
+                .BDDfy();
+        }
+
+        [Fact]
+        public void ServiceReturnsConflictWhenVersionMismatch()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAContactAlreadyExists())
+                .And(g => _contactDetailsFixture.GivenAPatchContactRequest(_contactDetailsFixture.ExistingContact))
+                .When(w => _steps.WhenThePatchContactEndpointIsCalledWithInvalidVersion(
+                    _contactDetailsFixture.PatchContactRequestObject,
+                    _contactDetailsFixture.PatchContactDetailsQuery,
+                    _contactDetailsFixture.ExistingContact))
+                .Then(t => _steps.ThenA409ConflictResponseIsReturned())
                 .BDDfy();
         }
 
@@ -62,7 +78,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             this.Given(g => _contactDetailsFixture.GivenAContactAlreadyExists())
                 .And(x => x._contactDetailsFixture.GivenAPatchContactRequest(_contactDetailsFixture.ExistingContact))
-                .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery, 0))
+                .When(w => _steps.WhenThePatchContactEndpointIsCalled(
+                    _contactDetailsFixture.PatchContactRequestObject,
+                    _contactDetailsFixture.PatchContactDetailsQuery,
+                    _contactDetailsFixture.ExistingContact))
                 .Then(t => _steps.ThenA204NoContentResponseIsReturned())
                 .Then(t => _steps.ThenTheContactDetailsAreUpdated(_contactDetailsFixture))
                 .BDDfy();

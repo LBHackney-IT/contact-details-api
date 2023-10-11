@@ -220,6 +220,42 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         }
 
         [Fact]
+        public async Task EditContactDetails_WhenInvalidIfMatch_ThrowsVersionConflictError()
+        {
+            // Arrange
+            var contactInformation = _fixture.Create<ContactInformation>();
+
+            var entity = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.ContactInformation, contactInformation)
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, DateTime.UtcNow)
+                .Without(x => x.VersionNumber)
+                .Create();
+
+            await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
+
+            var request = new EditContactDetailsRequest {
+                ContactInformation = contactInformation
+            };
+
+            var requestBody = string.Empty;
+            var ifMatch = entity.VersionNumber - 1;
+
+            var query = new EditContactDetailsQuery
+            {
+                PersonId = entity.TargetId,
+                ContactDetailId = entity.Id
+            };
+
+            // Act
+            Func<Task> func = async () => await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
+
+            // Assert
+            await func.Should().ThrowAsync<VersionNumberConflictException>();
+        }
+
+        [Fact]
         public async Task EditContactDetails_WhenNoChanges_DoesntUpdateDatabase()
         {
             // Arrange

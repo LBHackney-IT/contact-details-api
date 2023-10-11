@@ -24,13 +24,20 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
         public PatchContactSteps(HttpClient httpClient) : base(httpClient)
         { }
 
-        public async Task WhenThePatchContactEndpointIsCalled(EditContactDetailsRequest request, EditContactDetailsQuery query)
+        public async Task WhenThePatchContactEndpointIsCalled(EditContactDetailsRequest request, EditContactDetailsQuery query, ContactDetailsEntity existingContact)
         {
-            int? defaultIfMatch = 0;
-            await WhenThePatchContactEndpointIsCalled(request, query, defaultIfMatch);
+            var ifMatch = existingContact.VersionNumber;
+            await WhenThePatchContactEndpointIsCalled(request, query, ifMatch);
         }
 
-        public async Task WhenThePatchContactEndpointIsCalled(EditContactDetailsRequest request, EditContactDetailsQuery query, int? ifMatch)
+        public async Task WhenThePatchContactEndpointIsCalledWithInvalidVersion(EditContactDetailsRequest request, EditContactDetailsQuery query, ContactDetailsEntity existingContact)
+        {
+            var ifMatch = existingContact.VersionNumber - 1;
+
+            await WhenThePatchContactEndpointIsCalled(request, query, ifMatch);
+        }
+
+        private async Task WhenThePatchContactEndpointIsCalled(EditContactDetailsRequest request, EditContactDetailsQuery query, int? ifMatch)
         {
             var route = $"api/v2/contactDetails/{query.ContactDetailId}/person/{query.PersonId}";
 
@@ -64,6 +71,11 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
         public void ThenA404NotFoundResponseIsReturned()
         {
             ThenAResponseIsReturned(StatusCodes.Status404NotFound);
+        }
+
+        public void ThenA409ConflictResponseIsReturned()
+        {
+            ThenAResponseIsReturned(StatusCodes.Status409Conflict);
         }
 
         public void ThenA204NoContentResponseIsReturned()
