@@ -67,7 +67,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var entity = _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
-
+                .Without(x => x.VersionNumber)
                 .Create();
 
             // Act
@@ -119,6 +119,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 .With(x => x.RecordValidUntil, validDate)
                 .With(x => x.IsActive, true)
                 .With(x => x.LastModified, validDate)
+                .Without(x => x.VersionNumber)
                 .Create();
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
@@ -154,6 +155,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
                 .With(x => x.LastModified, DateTime.UtcNow)
+                .Without(x => x.VersionNumber)
                 .Create();
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
@@ -181,6 +183,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
                 .With(x => x.LastModified, DateTime.UtcNow)
+                .Without(x => x.VersionNumber)
                 .Create();
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
@@ -210,7 +213,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, null).ConfigureAwait(false);
 
             // Assert
             result.Should().BeNull();
@@ -227,6 +230,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
                 .With(x => x.LastModified, DateTime.UtcNow)
+                .Without(x => x.VersionNumber)
                 .Create();
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
@@ -236,6 +240,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 ContactInformation = contactInformation
             };
             var requestBody = string.Empty;
+            var ifMatch = 0;
 
             var newDescription = _fixture.Create<string>();
 
@@ -265,7 +270,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
 
             // Assert
             result.Should().NotBeNull();
@@ -285,6 +290,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, true)
                 .With(x => x.LastModified, DateTime.UtcNow)
+                .Without(x => x.VersionNumber)
                 .Create();
 
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
@@ -296,6 +302,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             var requestBody = string.Empty;
+            var ifMatch = 0;
 
             var newDescription = "Some new description";
             entity.ContactInformation.Description = newDescription;
@@ -320,7 +327,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             };
 
             // Act
-            var result = await _classUnderTest.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+            var result = await _classUnderTest.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
 
             // Assert
             result.Should().NotBeNull();

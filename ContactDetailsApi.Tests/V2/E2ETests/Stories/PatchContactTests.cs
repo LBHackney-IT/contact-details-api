@@ -62,7 +62,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             this.Given(g => _contactDetailsFixture.GivenAContactAlreadyExists())
                 .And(x => x._contactDetailsFixture.GivenAPatchContactRequest(_contactDetailsFixture.ExistingContact))
-                .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery))
+                .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery, 0))
                 .Then(t => _steps.ThenA204NoContentResponseIsReturned())
                 .Then(t => _steps.ThenTheContactDetailsAreUpdated(_contactDetailsFixture))
                 .BDDfy();

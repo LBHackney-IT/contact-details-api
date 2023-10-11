@@ -45,7 +45,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
             {
                 if (Contacts.Any())
                     foreach (var contact in Contacts)
-                        _dbContext.DeleteAsync(contact).GetAwaiter().GetResult();
+                    {
+                        var actualContact = _dbContext.LoadAsync<ContactDetailsEntity>(contact.TargetId, contact.Id).GetAwaiter().GetResult();
+                        _dbContext.DeleteAsync(actualContact).GetAwaiter().GetResult();
+                    }
+
 
                 _disposed = true;
             }
@@ -54,12 +58,13 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
         private IEnumerable<ContactDetailsEntity> CreateContacts(int count, bool isActive)
         {
             return _fixture.Build<ContactDetailsEntity>()
-                .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>()
-                    .Create())
+                .With(x => x.CreatedBy, () => _fixture.Build<CreatedBy>().Create())
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
-                .With(x => x.TargetId, TargetId).CreateMany(count);
+                .With(x => x.TargetId, TargetId)
+                .Without(x => x.VersionNumber)
+                .CreateMany(count);
         }
 
         private ContactDetailsRequestObject CreateContact()

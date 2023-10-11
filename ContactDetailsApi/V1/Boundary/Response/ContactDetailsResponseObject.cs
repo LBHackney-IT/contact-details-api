@@ -20,5 +20,7 @@ namespace ContactDetailsApi.V1.Boundary.Response
         public bool IsActive { get; set; }
 
         public CreatedBy CreatedBy { get; set; }
+
+        public int? VersionNumber { get; set; }
     }
 }

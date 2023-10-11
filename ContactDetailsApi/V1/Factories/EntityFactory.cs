@@ -22,7 +22,8 @@ namespace ContactDetailsApi.V1.Factories
                 CreatedBy = databaseEntity.CreatedBy,
                 IsActive = databaseEntity.IsActive,
                 RecordValidUntil = databaseEntity.RecordValidUntil,
-                LastModified = databaseEntity.LastModified
+                LastModified = databaseEntity.LastModified,
+                VersionNumber = databaseEntity.VersionNumber
             };
         }
 
