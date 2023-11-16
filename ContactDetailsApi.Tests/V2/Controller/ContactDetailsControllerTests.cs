@@ -223,7 +223,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
             var request = _fixture.Create<EditContactDetailsRequest>();
 
             _mockEditContactUseCase
-                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>()))
+                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .ReturnsAsync((ContactDetailsResponseObject) null);
 
             // Act
@@ -247,7 +247,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
             var useCaseResponse = new ContactDetailsResponseObject();
 
             _mockEditContactUseCase
-                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>()))
+                .Setup(x => x.ExecuteAsync(query, It.IsAny<EditContactDetailsRequest>(), It.IsAny<string>(), It.IsAny<Token>(), It.IsAny<int?>()))
                 .ReturnsAsync(useCaseResponse);
 
             // Act

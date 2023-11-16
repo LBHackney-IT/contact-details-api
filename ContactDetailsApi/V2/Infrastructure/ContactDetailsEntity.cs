@@ -35,5 +35,8 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         [DynamoDBProperty(Converter = typeof(DynamoDbDateTimeConverter))]
         public DateTime? LastModified { get; set; }
+
+        [DynamoDBVersion]
+        public int? VersionNumber { get; set; }
     }
 }

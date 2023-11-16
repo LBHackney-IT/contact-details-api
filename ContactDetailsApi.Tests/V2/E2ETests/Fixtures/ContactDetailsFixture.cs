@@ -53,7 +53,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             {
                 if (Contacts.Any())
                     foreach (var contact in Contacts)
-                        _dbContext.DeleteAsync(contact).GetAwaiter().GetResult();
+                    {
+                        var actualContact = _dbContext.LoadAsync<ContactDetailsEntity>(contact.TargetId, contact.Id).GetAwaiter().GetResult();
+                        _dbContext.DeleteAsync(actualContact).GetAwaiter().GetResult();
+                    }
 
                 _disposed = true;
             }
@@ -66,7 +69,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
-                .With(x => x.TargetId, TargetId).CreateMany(count);
+                .With(x => x.TargetId, TargetId)
+                .Without(x => x.VersionNumber)
+                .CreateMany(count);
         }
 
         private IEnumerable<ContactDetailsEntity> CreateContactsForType(ContactType type, Guid targetId, int count, bool isActive = true)
@@ -77,7 +82,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
-                .With(x => x.TargetId, targetId).CreateMany(count);
+                .With(x => x.TargetId, targetId)
+                .Without(x => x.VersionNumber)
+                .CreateMany(count);
         }
 
         private ContactDetailsRequestObject CreateContactRestObject(ContactType type = ContactType.email)

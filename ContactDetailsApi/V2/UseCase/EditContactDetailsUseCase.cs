@@ -32,9 +32,10 @@ namespace ContactDetailsApi.V2.UseCase
             EditContactDetailsQuery query,
             EditContactDetailsRequest request,
             string requestBody,
-            Token token)
+            Token token,
+            int? ifMatch)
         {
-            var result = await _gateway.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+            var result = await _gateway.EditContactDetails(query, request, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
             if (result.NewValues.Any() == true)
