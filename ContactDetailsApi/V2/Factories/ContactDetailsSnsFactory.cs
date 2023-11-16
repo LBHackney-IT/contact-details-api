@@ -1,6 +1,7 @@
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Factories.Interfaces;
 using Hackney.Core.JWT;
 using System;
 using User = ContactDetailsApi.V1.Domain.Sns.User;
@@ -34,7 +35,7 @@ namespace ContactDetailsApi.V2.Factories
         }
 
         private static void PopulateEventOldAndNewData(ContactDetails contactDetails, string eventType,
-            ContactDetailsSns contactDetailsSns)
+           ContactDetailsSns contactDetailsSns)
         {
             switch (eventType)
             {
@@ -45,12 +46,18 @@ namespace ContactDetailsApi.V2.Factories
                         OldData = new DataItem()
                     };
                     break;
+                case EventConstants.EDITED:
+                    contactDetailsSns.EventData = new EventData
+                    {
+                        NewData = ReturnDataItem(contactDetails),
+                        OldData = new DataItem()
+                    };
+                    break;
                 case EventConstants.DELETED:
                     contactDetailsSns.EventData = new EventData
                     {
+                        NewData = new DataItem(),
                         OldData = ReturnDataItem(contactDetails),
-                        NewData = new DataItem()
-
                     };
                     break;
                 default:

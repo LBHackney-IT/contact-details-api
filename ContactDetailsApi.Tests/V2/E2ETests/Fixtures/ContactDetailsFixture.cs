@@ -19,7 +19,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         private readonly Fixture _fixture = new Fixture();
         public readonly IDynamoDBContext _dbContext;
         public List<ContactDetailsEntity> Contacts { get; private set; } = new List<ContactDetailsEntity>();
+
         public ContactDetailsRequestObject ContactRequestObject { get; private set; } = new ContactDetailsRequestObject();
+
+        public EditContactDetailsQuery PatchContactDetailsQuery { get; private set; } = new EditContactDetailsQuery();
+        public EditContactDetailsRequest PatchContactRequestObject { get; private set; } = new EditContactDetailsRequest();
+
+        public ContactDetailsEntity ExistingContact { get; private set; } = new ContactDetailsEntity();
+
 
         private const int MAX_EMAIL_CONTACTS = 5;
         private const int MAX_PHONE_CONTACTS = 5;
@@ -78,6 +85,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             return SetupContactCreationFixture(type).Create();
         }
 
+        private EditContactDetailsRequest CreateEditContactDetailsRequest()
+        {
+            return _fixture.Create<EditContactDetailsRequest>();
+        }
+
+        private EditContactDetailsQuery CreateEditContactDetailsQuery()
+        {
+            return _fixture.Create<EditContactDetailsQuery>();
+        }
+
         private ContactInformation CreateContactInformation(ContactType type)
         {
             string value;
@@ -111,6 +128,13 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
             foreach (var contact in Contacts)
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+        }
+
+        public async Task GivenAContactAlreadyExists()
+        {
+            ExistingContact = CreateContacts(1, true).First();
+
+            await _dbContext.SaveAsync(ExistingContact).ConfigureAwait(false);
         }
 
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)
@@ -193,6 +217,26 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         {
             ContactRequestObject = CreateContactRestObject();
         }
+
+        public void GivenAPatchContactRequest(ContactDetailsEntity existingContact = null)
+        {
+            PatchContactRequestObject = CreateEditContactDetailsRequest();
+
+            if (existingContact == null)
+            {
+                PatchContactDetailsQuery = CreateEditContactDetailsQuery();
+                return;
+            }
+
+            PatchContactDetailsQuery = new EditContactDetailsQuery
+            {
+                ContactDetailId = existingContact.Id,
+                PersonId = existingContact.TargetId
+            };
+
+
+        }
+
         public void GivenANewContactRequest(ContactType type)
         {
             ContactRequestObject = CreateContactRestObject(type);

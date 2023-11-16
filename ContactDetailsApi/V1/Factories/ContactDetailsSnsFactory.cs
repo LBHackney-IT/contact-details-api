@@ -1,6 +1,7 @@
 using System;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V1.Domain.Sns;
+using ContactDetailsApi.V1.Factories.Interfaces;
 using ContactDetailsApi.V1.Infrastructure;
 using Hackney.Core.JWT;
 

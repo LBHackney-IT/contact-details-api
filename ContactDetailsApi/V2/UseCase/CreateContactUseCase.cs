@@ -4,7 +4,7 @@ using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request.Validation;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Factories;
-using ContactDetailsApi.V2.Gateways;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentValidation;
 using Hackney.Core.JWT;
@@ -19,9 +19,9 @@ namespace ContactDetailsApi.V2.UseCase
     {
         private readonly IContactDetailsGateway _gateway;
         private readonly ISnsGateway _snsGateway;
-        private readonly Factories.ISnsFactory _snsFactory;
+        private readonly Factories.Interfaces.ISnsFactory _snsFactory;
 
-        public CreateContactUseCase(IContactDetailsGateway gateway, ISnsGateway snsGateway, Factories.ISnsFactory snsFactory)
+        public CreateContactUseCase(IContactDetailsGateway gateway, ISnsGateway snsGateway, Factories.Interfaces.ISnsFactory snsFactory)
         {
             _gateway = gateway;
             _snsGateway = snsGateway;

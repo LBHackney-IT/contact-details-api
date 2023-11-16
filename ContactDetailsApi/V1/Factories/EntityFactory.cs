@@ -28,9 +28,10 @@ namespace ContactDetailsApi.V1.Factories
 
         public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
         {
-            return databaseEntity.Select(p => p.ToDomain())
-                                 .OrderBy(x => x.CreatedBy.CreatedAt)
-                                 .ToList();
+            return databaseEntity
+                .Select(p => p.ToDomain())
+                .OrderBy(x => x.CreatedBy.CreatedAt)
+                .ToList();
         }
 
         public static ContactDetails ToDomain(this ContactDetailsRequestObject entity, Token token)
