@@ -40,16 +40,11 @@ namespace ContactDetailsApi.Tests.V1.Factories
             for (int i = 0; i < 10; i++)
             {
                 var dt = DateTime.UtcNow.AddHours(rand.Next(500));
-
-                var createdBy = _fixture.Build<CreatedBy>()
-                    .With(y => y.CreatedAt, dt)
-                    .Create();
-
-                var entity = _fixture.Build<ContactDetailsEntity>()
-                    .With(x => x.CreatedBy, createdBy)
-                    .Create();
-
-                databaseEntities.Add(entity);
+                databaseEntities.Add(_fixture.Build<ContactDetailsEntity>()
+                                         .With(x => x.CreatedBy, _fixture.Build<CreatedBy>()
+                                                                         .With(y => y.CreatedAt, dt)
+                                                                         .Create())
+                                         .Create());
             }
 
             var entities = databaseEntities.ToDomain();

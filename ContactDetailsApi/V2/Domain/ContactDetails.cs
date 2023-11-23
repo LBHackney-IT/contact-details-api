@@ -22,7 +22,5 @@ namespace ContactDetailsApi.V2.Domain
         public CreatedBy CreatedBy { get; set; }
 
         public DateTime? LastModified { get; set; }
-
-        public int? VersionNumber { get; set; }
     }
 }

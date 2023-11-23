@@ -104,19 +104,14 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             fixture.Contacts.Add(resultAsDb);
             expected.Should().BeEquivalentTo(apiResult, config => config.Excluding(x => x.Id)
                                                                         .Excluding(y => y.CreatedBy)
-                                                                        .Excluding(y => y.IsActive)
-                                                                        .Excluding(x => x.VersionNumber));
+                                                                        .Excluding(y => y.IsActive));
             apiResult.Id.Should().NotBeEmpty();
             apiResult.IsActive.Should().BeTrue();
             apiResult.CreatedBy.Should().BeEquivalentTo(GetToken(Jwt).ToCreatedBy(), config => config.Excluding(x => x.CreatedAt));
             apiResult.CreatedBy.CreatedAt.Should().BeCloseTo(DateTime.UtcNow, 1000);
 
             var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
-
-            dbEntity.Should().BeEquivalentTo(resultAsDb, config => config
-            .Excluding(x => x.LastModified)
-            .Excluding(x => x.VersionNumber));
-
+            dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
         }
 
