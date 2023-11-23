@@ -20,8 +20,7 @@ namespace ContactDetailsApi.V1.Factories
                 CreatedBy = domain.CreatedBy,
                 IsActive = domain.IsActive,
                 RecordValidUntil = domain.RecordValidUntil,
-                SourceServiceArea = domain.SourceServiceArea,
-                VersionNumber = domain.VersionNumber,
+                SourceServiceArea = domain.SourceServiceArea
             };
         }
 

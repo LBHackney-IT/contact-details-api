@@ -45,7 +45,6 @@ functions:
               - X-Amz-Security-Token
               - X-Amz-User-Agent
               - x-correlation-id
-              - If-Match
             allowCredentials: false
       - http:
           path: /swagger/{proxy+}

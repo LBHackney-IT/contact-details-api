@@ -65,7 +65,6 @@ namespace ContactDetailsApi.V1.Gateways
 
             var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
             if (entity == null) return null;
-
             entity.IsActive = false;
             entity.LastModified = DateTime.UtcNow;
 
