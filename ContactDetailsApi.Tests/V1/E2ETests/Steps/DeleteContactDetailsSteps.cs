@@ -2,6 +2,7 @@ using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using FluentAssertions.Extensions;
 using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using System;
@@ -43,9 +44,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
         public async Task ThenTheContactDetailsAreDeleted(ContactDetailsFixture contactDetailsFixture)
         {
-            var result = await contactDetailsFixture._dbContext.LoadAsync<ContactDetailsEntity>(contactDetailsFixture.TargetId,
-                                                                                                contactDetailsFixture.Contacts.First().Id)
-                                                    .ConfigureAwait(false);
+            var result = await contactDetailsFixture._dbContext.LoadAsync<ContactDetailsEntity>(
+                contactDetailsFixture.TargetId,
+                contactDetailsFixture.Contacts.First().Id)
+            .ConfigureAwait(false);
+
             result.IsActive.Should().BeFalse();
             result.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
         }

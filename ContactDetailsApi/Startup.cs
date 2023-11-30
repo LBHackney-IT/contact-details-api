@@ -193,7 +193,7 @@ namespace ContactDetailsApi
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
-                .WithExposedHeaders("x-correlation-id"));
+                .WithExposedHeaders("x-correlation-id", "If-Match"));
 
             app.UseCorrelationId();
             app.UseLoggingScope();
