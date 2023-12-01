@@ -52,6 +52,14 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
+        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
+        {
+            return databaseEntity
+                .Select(p => p.ToDomain())
+                .OrderBy(x => x.CreatedBy.CreatedAt)
+                .ToList();
+        }
+
         public static EditContactDetailsDatabase ToDatabase(this EditContactDetailsRequest request)
         {
             return new EditContactDetailsDatabase
@@ -96,14 +104,6 @@ namespace ContactDetailsApi.V2.Factories
             address += $" {addressExtended.PostCode}";
 
             return address;
-        }
-
-        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
-        {
-            return databaseEntity
-                .Select(p => p.ToDomain())
-                .OrderBy(x => x.CreatedBy.CreatedAt)
-                .ToList();
         }
     }
 }

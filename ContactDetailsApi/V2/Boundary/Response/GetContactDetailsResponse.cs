@@ -7,7 +7,7 @@ namespace ContactDetailsApi.V2.Boundary.Response
 {
     public class GetContactDetailsResponse
     {
-        public List<ContactDetailsResponseObject> Results { get; set; } = new List<ContactDetailsResponseObject>();
+        public List<ContactDetailsResponseObject> Results { get; set; }
 
         public GetContactDetailsResponse(List<ContactDetailsResponseObject> results)
         {

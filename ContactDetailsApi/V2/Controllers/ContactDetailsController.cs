@@ -121,15 +121,12 @@ namespace ContactDetailsApi.V2.Controllers
         {
             var header = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
 
-            int numericValue;
-
             if (header == null)
                 return null;
 
-            if (header.GetType() == typeof(string))
+            if (header is string && int.TryParse(header, out var numericValue))
             {
-                if (int.TryParse(header, out numericValue))
-                    return numericValue;
+                return numericValue;
             }
 
             _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
