@@ -27,7 +27,7 @@ namespace ContactDetailsApi.V1.Gateways
         [LogCall]
         public async Task<List<ContactDetails>> GetContactDetailsByTargetId(ContactQueryParameter query)
         {
-            _logger.LogDebug("Calling IDynamoDBContext.QueryAsync for {TargetId}", query.TargetId.Value);
+            _logger.LogDebug($"Calling IDynamoDBContext.QueryAsync for targetId {query.TargetId.Value}");
 
             var contactDetailsEntities = new List<ContactDetailsEntity>();
             DynamoDBOperationConfig dbOperationConfig = null;
@@ -52,7 +52,7 @@ namespace ContactDetailsApi.V1.Gateways
         [LogCall]
         public async Task<ContactDetails> CreateContact(ContactDetailsEntity contactDetails)
         {
-            _logger.LogDebug("Calling IDynamoDBContext.SaveAsync for {TargetId} and {ContactDetailsId}", contactDetails.TargetId, contactDetails.Id);
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {contactDetails.TargetId} and id {contactDetails.Id}");
 
             contactDetails.LastModified = DateTime.UtcNow;
             await _dynamoDbContext.SaveAsync(contactDetails).ConfigureAwait(false);
@@ -63,7 +63,7 @@ namespace ContactDetailsApi.V1.Gateways
         [LogCall]
         public async Task<ContactDetails> DeleteContactDetailsById(DeleteContactQueryParameter query)
         {
-            _logger.LogDebug("Calling IDynamoDBContext.LoadAsync for {TargetId} and {QueryId}", query.TargetId, query.Id);
+            _logger.LogDebug($"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}");
 
             var entity = await _dynamoDbContext.LoadAsync<ContactDetailsEntity>(query.TargetId, query.Id).ConfigureAwait(false);
             if (entity == null) return null;
@@ -71,7 +71,7 @@ namespace ContactDetailsApi.V1.Gateways
             entity.IsActive = false;
             entity.LastModified = DateTime.UtcNow;
 
-            _logger.LogDebug("Calling IDynamoDBContext.SaveAsync for {TargetId} and {QueryId}", query.TargetId, query.Id);
+            _logger.LogDebug($"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}");
 
             await _dynamoDbContext.SaveAsync(entity).ConfigureAwait(false);
 
