@@ -2,18 +2,23 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Response;
+using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentValidation;
 using Hackney.Core.Http;
 using Hackney.Core.JWT;
 using Hackney.Core.Logging;
+using Hackney.Core.Middleware;
 using Hackney.Core.Validation.AspNet;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContactDetailsRequestObject = ContactDetailsApi.V2.Boundary.Request.ContactDetailsRequestObject;
+using HeaderConstants = ContactDetailsApi.V2.Infrastructure.HeaderConstants;
+
 
 namespace ContactDetailsApi.V2.Controllers
 {
@@ -95,12 +100,46 @@ namespace ContactDetailsApi.V2.Controllers
         public async Task<IActionResult> PatchContact([FromRoute] EditContactDetailsQuery query, [FromBody] EditContactDetailsRequest request)
         {
             var bodyText = await HttpContext.Request.GetRawBodyStringAsync().ConfigureAwait(false);
+            var ifMatch = GetIfMatchFromHeader();
             var token = _tokenFactory.Create(_httpContextWrapper.GetContextRequestHeaders(HttpContext));
 
-            var result = await _editContactDetailsUseCase.ExecuteAsync(query, request, bodyText, token).ConfigureAwait(false);
-            if (result == null) return NotFound(query);
+            try
+            {
+                var result = await _editContactDetailsUseCase.ExecuteAsync(query, request, bodyText, token, ifMatch).ConfigureAwait(false);
+                if (result == null) return NotFound(query);
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (VersionNumberConflictException e)
+            {
+                return Conflict(e.Message);
+            }
+
+        }
+
+        private int? GetIfMatchFromHeader()
+        {
+            var header = HttpContext.Request.Headers.GetHeaderValue(HeaderConstants.IfMatch);
+
+            if (header == null)
+                return null;
+
+            if (header is string && int.TryParse(header, out var numericValue))
+            {
+                return numericValue;
+            }
+
+            _ = EntityTagHeaderValue.TryParse(header, out var entityTagHeaderValue);
+
+            if (entityTagHeaderValue == null)
+                return null;
+
+            var version = entityTagHeaderValue.Tag.Replace("\"", string.Empty);
+
+            if (int.TryParse(version, out numericValue))
+                return numericValue;
+
+            return null;
         }
     }
 }

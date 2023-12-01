@@ -30,14 +30,15 @@ namespace ContactDetailsApi.V2.UseCase
 
         public async Task<ContactDetailsResponseObject> ExecuteAsync(
             EditContactDetailsQuery query,
-            EditContactDetailsRequest request,
+            EditContactDetailsRequest requestObject,
             string requestBody,
-            Token token)
+            Token token,
+            int? ifMatch)
         {
-            var result = await _gateway.EditContactDetails(query, request, requestBody).ConfigureAwait(false);
+            var result = await _gateway.EditContactDetails(query, requestObject, requestBody, ifMatch).ConfigureAwait(false);
             if (result == null) return null;
 
-            if (result.NewValues.Any() == true)
+            if (result.NewValues.Any())
             {
                 var assetSnsMessage = _snsFactory.Create(result.UpdatedEntity.ToDomain(), token, EventConstants.EDITED);
                 var assetTopicArn = Environment.GetEnvironmentVariable("CONTACT_DETAILS_SNS_ARN");

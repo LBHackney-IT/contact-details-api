@@ -75,10 +75,12 @@ namespace ContactDetailsApi.Tests.V1.Gateways
                 validDate = DateTime.UtcNow;
 
             var entity = _fixture.Build<ContactDetailsEntity>()
-                                 .With(x => x.RecordValidUntil, validDate)
-                                 .With(x => x.IsActive, true)
-                                 .With(x => x.LastModified, validDate)
-                                 .Create();
+                .With(x => x.RecordValidUntil, validDate)
+                .With(x => x.IsActive, true)
+                .With(x => x.LastModified, validDate)
+                .Without(x => x.VersionNumber)
+                .Create();
+
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
             var query = new ContactQueryParameter { TargetId = entity.TargetId };
@@ -98,9 +100,11 @@ namespace ContactDetailsApi.Tests.V1.Gateways
                 validDate = DateTime.UtcNow;
 
             var entity = _fixture.Build<ContactDetailsEntity>()
-                                 .With(x => x.RecordValidUntil, validDate)
-                                 .With(x => x.IsActive, false)
-                                 .Create();
+                .With(x => x.RecordValidUntil, validDate)
+                .With(x => x.IsActive, false)
+                .Without(x => x.VersionNumber)
+                .Create();
+
             await InsertDataIntoDynamoDB(entity).ConfigureAwait(false);
 
             var query = new DeleteContactQueryParameter
@@ -121,9 +125,10 @@ namespace ContactDetailsApi.Tests.V1.Gateways
         public async Task CreateContactDetailsCreatesRecord()
         {
             var entity = _fixture.Build<ContactDetailsEntity>()
-                                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
-                                 .With(x => x.IsActive, true)
-                                 .Create();
+                .With(x => x.RecordValidUntil, DateTime.UtcNow)
+                .With(x => x.IsActive, true)
+                .Without(x => x.VersionNumber)
+                .Create();
 
             var result = await _classUnderTest.CreateContact(entity).ConfigureAwait(false);
             result.Should().BeEquivalentTo(entity);

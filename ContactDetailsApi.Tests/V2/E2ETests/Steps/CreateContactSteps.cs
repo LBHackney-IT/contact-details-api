@@ -155,9 +155,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
             var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
 
+            dbEntity.Should().BeEquivalentTo(resultAsDb, config => config
+                .Excluding(x => x.LastModified)
+                .Excluding(x => x.VersionNumber));
 
-
-            dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
         }
 

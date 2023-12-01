@@ -32,7 +32,8 @@ namespace ContactDetailsApi.V2.Factories
                 CreatedBy = databaseEntity.CreatedBy,
                 IsActive = databaseEntity.IsActive,
                 RecordValidUntil = databaseEntity.RecordValidUntil,
-                LastModified = databaseEntity.LastModified
+                LastModified = databaseEntity.LastModified,
+                VersionNumber = databaseEntity.VersionNumber
             };
         }
 
@@ -49,6 +50,14 @@ namespace ContactDetailsApi.V2.Factories
                 IsActive = true,
                 RecordValidUntil = entity.RecordValidUntil
             };
+        }
+
+        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
+        {
+            return databaseEntity
+                .Select(p => p.ToDomain())
+                .OrderBy(x => x.CreatedBy.CreatedAt)
+                .ToList();
         }
 
         public static EditContactDetailsDatabase ToDatabase(this EditContactDetailsRequest request)
@@ -95,14 +104,6 @@ namespace ContactDetailsApi.V2.Factories
             address += $" {addressExtended.PostCode}";
 
             return address;
-        }
-
-        public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
-        {
-            return databaseEntity
-                .Select(p => p.ToDomain())
-                .OrderBy(x => x.CreatedBy.CreatedAt)
-                .ToList();
         }
     }
 }
