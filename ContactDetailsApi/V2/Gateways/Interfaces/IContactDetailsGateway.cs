@@ -2,8 +2,7 @@ using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Infrastructure;
-using ContactDetailsApi.V2.UseCase;
-using System;
+using Hackney.Core.DynamoDb.EntityUpdater;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
