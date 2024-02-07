@@ -1,8 +1,6 @@
 resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
   name           = "ContactDetails"
-  billing_mode   = "PROVISIONED"
-  read_capacity  = 10
-  write_capacity = 10
+  billing_mode   = "PAY_PER_REQUEST"  
   hash_key       = "targetId"
   range_key      = "id"
 
