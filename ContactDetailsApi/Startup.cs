@@ -1,18 +1,13 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V1.Boundary.Request.Validation;
-using ContactDetailsApi.V1.Factories.Interfaces;
-using ContactDetailsApi.V1.Gateways.Interfaces;
-using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
-using ContactDetailsApi.V2.Factories.Interfaces;
-using ContactDetailsApi.V2.Gateways.Interfaces;
-using ContactDetailsApi.V2.Infrastructure;
-using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
+using Hackney.Core.DynamoDb.EntityUpdater;
+using Hackney.Core.DynamoDb.EntityUpdater.Interfaces;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
 using Hackney.Core.Http;
@@ -148,7 +143,6 @@ namespace ContactDetailsApi
             RegisterFactories(services);
 
             services.AddScoped<IEntityUpdater, EntityUpdater>();
-
 
             ConfigureHackneyCoreDI(services);
         }

@@ -15,6 +15,7 @@ using FluentAssertions;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V2.Domain;
+using Hackney.Core.DynamoDb.EntityUpdater;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
