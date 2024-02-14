@@ -1,5 +1,7 @@
+using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
@@ -8,8 +10,14 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using Hackney.Core.Logging;
+using Hackney.Shared.Asset.Domain;
+using Hackney.Shared.Asset.Infrastructure;
+using Hackney.Shared.Person.Infrastructure;
+using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,7 +54,7 @@ namespace ContactDetailsApi.V2.Gateways
 
             do
             {
-                var newResults = await search.GetNextSetAsync().ConfigureAwait(false);
+                var newResults = await search.GetRemainingAsync().ConfigureAwait(false);
 
                 contactDetailsEntities.AddRange(newResults);
             } while (!search.IsDone);
@@ -100,6 +108,238 @@ namespace ContactDetailsApi.V2.Gateways
             await _dynamoDbContext.SaveAsync(contactDetails).ConfigureAwait(false);
 
             return contactDetails.ToDomain();
+        }
+
+
+        //private async Task<List<AssetDb>> FetchAllAssets()
+        //{
+        //    var result = await _dynamoDbContext.LoadAsync<AssetDb>(new Guid("ec761910-399f-a6e6-6af8-af9ac8f535e4")).ConfigureAwait(false);
+
+
+        //    var assets = new List<AssetDb>();
+
+        //    var scanConditions = new List<ScanCondition>();
+        //    var scan = _dynamoDbContext.ScanAsync<AssetDb>(scanConditions);
+
+        //    do
+        //    {
+        //        try
+        //        {
+        //            var newResults = await scan.GetNextSetAsync().ConfigureAwait(false);
+        //            assets.AddRange(newResults);
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            var x = e;
+        //            //throw;
+        //        }
+        //    }
+        //    while (!scan.IsDone);
+
+
+        //    return assets;
+        //}
+
+        private async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
+        {
+            var scanConditions = new List<ScanCondition>();
+            var results = new List<ContactDetailsEntity>();
+
+            var scan = _dynamoDbContext.ScanAsync<ContactDetailsEntity>(scanConditions);
+
+            //new Guid("986a2a9e-9eb4-0966-120a-238689e3e265")/
+            var val = await _dynamoDbContext.LoadAsync<object>(new DynamoDBOperationConfig
+            {
+                IndexName = "Assets",
+                
+            });
+
+            do
+            {
+                try
+                {
+                    var newResults = await scan.GetNextSetAsync().ConfigureAwait(false);
+                    results.AddRange(newResults);
+                }
+                catch (Exception e)
+                {
+                    var x = e;
+                    //throw;
+                }
+            }
+            while (!scan.IsDone);
+
+            return results;
+        }
+
+        private async Task<List<TenureInformationDb>> FetchTenures(List<Guid> tenureIds)
+        {
+            var tenureBatchRequest = _dynamoDbContext.CreateBatchGet<TenureInformationDb>();
+
+            foreach (var id in tenureIds)
+            {
+                tenureBatchRequest.AddKey(id);
+            }
+
+            await tenureBatchRequest.ExecuteAsync().ConfigureAwait(false);
+
+            return tenureBatchRequest.Results;
+        }
+
+        private async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
+        {
+            var personBatchRequest = _dynamoDbContext.CreateBatchGet<PersonDbEntity>();
+
+            foreach (var id in personIds)
+            {
+                personBatchRequest.AddKey(id);
+            }
+
+            await personBatchRequest.ExecuteAsync();
+
+            return personBatchRequest.Results;
+        }
+
+        private async Task<List<Infrastructure.ContactByUprn>> FetchAllAssets()
+        {
+            var client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
+            {
+                RegionEndpoint = Amazon.RegionEndpoint.EUWest2
+            });
+
+            var table = Table.LoadTable(client, "Assets");
+            //var document = await table.GetItemAsync("986a2a9e-9eb4-0966-120a-238689e3e265");
+
+            var search = table.Scan(new ScanOperationConfig
+            {
+
+            });
+
+            var rawResults = new List<Document>();
+
+            do
+            {
+                var nextResults = await search.GetNextSetAsync();
+
+                rawResults.AddRange(nextResults);
+            } while (!search.IsDone);
+
+
+
+            var results = new List<Infrastructure.ContactByUprn>();
+
+            foreach (var result in rawResults)
+            {
+                try
+                {
+                    var assetAddress = result["assetAddress"].AsDocument();
+                    var uprn = assetAddress.ContainsKey("uprn") ? assetAddress["uprn"] : null;
+
+                    var tenure = result.ContainsKey("tenure") ? result["tenure"].AsDocument() : null;
+                    var tenureId = tenure != null && tenure.ContainsKey("id") ? tenure["id"] : null;
+
+    
+
+                    var entity = new Infrastructure.ContactByUprn
+                    {
+                        Uprn = uprn?.ToString() ?? "",
+                       // TenureId = tenureId == null ? null : new Guid(tenureId)
+                    };
+
+                    results.Add(entity);
+                }
+                catch (Exception e)
+                {
+                    var x = e;
+                    //throw;
+                }
+            }
+
+            return results;
+        }
+
+        public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
+        {
+            // only select relevant fields
+            var assets = await FetchAllAssets();
+
+            // remove assets without a uprn
+            var filteredAssets = assets
+                .Where(x => !string.IsNullOrWhiteSpace(x.Uprn))
+                .ToList();
+
+          
+
+
+            // 1. Scan all assets
+            //var contactDetails = await FetchAllContactDetails();
+            //var assets = await FetchAllAssets();
+
+            // 2. Fetch all contact details
+
+            //var contactDetailsGroupedByTargetId = contactDetails
+            //    .GroupBy(deetz => deetz.TargetId)
+            //    .ToDictionary(group => group.Key, group => group.ToList());
+
+            //// 2. Fetch tenure records
+            //var tenureIds = assets.Select(x => new Guid(x.Tenure.Id)).ToList();
+            //var tenures = await FetchTenures(tenureIds);
+            //var tenuresByTenureId = tenures.ToDictionary(x => x.Id, x => x);
+
+            //// 3. For each household member, fetch contact details, and person recond
+            //var personIds = tenures.SelectMany(tenure => tenure.HouseholdMembers.Select(x => x.Id)).ToList();
+            //var persons = await FetchPersons(personIds);
+            //var personById = persons.ToDictionary(x => x.Id, x => x);
+
+            //// 5. consolidate the data
+            //var contacts = new List<ContactByUprn>();
+
+            //foreach (var asset in assets)
+            //{
+            //    var tenure = tenuresByTenureId[new Guid(asset.Tenure.Id)];
+
+            //    var personContacts = new List<PersonContact>();
+
+            //    foreach (var householdMember in tenure.HouseholdMembers)
+            //    {
+            //        var person = personById[householdMember.Id];
+
+            //        var deets = contactDetailsGroupedByTargetId[person.Id]
+            //            .Select(x => new PersonContactDeets
+            //            {
+            //                ContactType = x.ContactInformation.ContactType.ToString(),
+            //                SubType = x.ContactInformation.SubType.ToString(),
+            //                Value = x.ContactInformation.Value.ToString()
+            //            })
+            //            .ToList();
+
+
+            //        var personContact = new PersonContact
+            //        {
+            //            PersonTenureType = householdMember.PersonTenureType.ToString(),
+            //            IsResponsible = householdMember.IsResponsible,
+            //            FirstName = person.FirstName,
+            //            LastName = person.Surname,
+            //            Title = person.Title.ToString(),
+            //            Deets = deets
+            //        };
+
+            //        personContacts.Add(personContact);                    
+            //    }
+
+            //    var contactByUprn = new ContactByUprn
+            //    {
+            //        Uprn = asset.AssetAddress.Uprn,
+            //        TenureId = tenure.Id,
+            //        Contacts = personContacts
+            //    };
+
+            //    contacts.Add(contactByUprn);
+
+            //}
+            return assets;
+
+            //return contacts;
         }
     }
 }

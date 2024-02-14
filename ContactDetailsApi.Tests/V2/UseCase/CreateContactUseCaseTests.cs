@@ -161,5 +161,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);
         }
+
+     
     }
 }

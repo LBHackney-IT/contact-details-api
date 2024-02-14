@@ -9,6 +9,7 @@ using ContactDetailsApi.V2.Factories.Interfaces;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
+using ContactDetailsApi.V2.UseCase;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
 using FluentValidation.AspNetCore;
@@ -177,6 +178,7 @@ namespace ContactDetailsApi
             services.AddScoped<V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V2.UseCase.GetContactDetailsByTargetIdUseCase>();
 
             services.AddScoped<IEditContactDetailsUseCase, V2.UseCase.EditContactDetailsUseCase>();
+            services.AddScoped<IFetchAllContactDetailsByUprnUseCase, FetchAllContactDetailsByUprnUseCase>();
 
         }
 

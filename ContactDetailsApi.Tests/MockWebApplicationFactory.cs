@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Domain.Sns;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.Sns;
@@ -25,8 +26,40 @@ namespace ContactDetailsApi.Tests
                 KeyType = ScalarAttributeType.S,
                 RangeKeyName = "id",
                 RangeKeyType = ScalarAttributeType.S
+            },
+             new TableDef
+            {
+                Name = "Assets",
+                KeyName = "id",
+                KeyType = ScalarAttributeType.S,
+                GlobalSecondaryIndexes = new List<GlobalSecondaryIndex>(new[]
+                {
+                    new GlobalSecondaryIndex
+                    {
+                        IndexName = "AssetParentsAndChilds",
+                        KeySchema = new List<KeySchemaElement>(new[]
+                        {
+                            new KeySchemaElement("rootAsset", KeyType.HASH),
+                            new KeySchemaElement("parentAssetIds", KeyType.RANGE)
+                        }),
+                        Projection = new Projection { ProjectionType = ProjectionType.ALL },
+                        ProvisionedThroughput = new ProvisionedThroughput(10 , 10)
+                    },
+                    new GlobalSecondaryIndex
+                    {
+                        IndexName = "AssetId",
+                        KeySchema = new List<KeySchemaElement>(new[]
+                        {
+                            new KeySchemaElement("assetId", KeyType.HASH)
+                        }),
+                        Projection = new Projection { ProjectionType = ProjectionType.ALL },
+                        ProvisionedThroughput = new ProvisionedThroughput(10 , 10)
+                    }
+                })
+            },
+            new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.S },
+              new TableDef { Name = "Persons", KeyName = "id", KeyType = ScalarAttributeType.S }
 
-            }
         };
 
         public HttpClient Client { get; private set; }
