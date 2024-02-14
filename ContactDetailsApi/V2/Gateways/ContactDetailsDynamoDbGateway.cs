@@ -151,7 +151,7 @@ namespace ContactDetailsApi.V2.Gateways
             var val = await _dynamoDbContext.LoadAsync<object>(new DynamoDBOperationConfig
             {
                 IndexName = "Assets",
-                
+
             });
 
             do
@@ -226,7 +226,7 @@ namespace ContactDetailsApi.V2.Gateways
 
 
 
-            var results = new List<Infrastructure.ContactByUprn>();
+            var results = new List<ContactByUprn>();
 
             foreach (var result in rawResults)
             {
@@ -238,12 +238,12 @@ namespace ContactDetailsApi.V2.Gateways
                     var tenure = result.ContainsKey("tenure") ? result["tenure"].AsDocument() : null;
                     var tenureId = tenure != null && tenure.ContainsKey("id") ? tenure["id"] : null;
 
-    
 
-                    var entity = new Infrastructure.ContactByUprn
+
+                    var entity = new ContactByUprn
                     {
                         Uprn = uprn?.ToString() ?? "",
-                       // TenureId = tenureId == null ? null : new Guid(tenureId)
+                        // TenureId = tenureId == null ? null : new Guid(tenureId)
                     };
 
                     results.Add(entity);
@@ -268,7 +268,7 @@ namespace ContactDetailsApi.V2.Gateways
                 .Where(x => !string.IsNullOrWhiteSpace(x.Uprn))
                 .ToList();
 
-          
+
 
 
             // 1. Scan all assets

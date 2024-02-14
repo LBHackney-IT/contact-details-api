@@ -27,7 +27,7 @@ namespace ContactDetailsApi.Tests
                 RangeKeyName = "id",
                 RangeKeyType = ScalarAttributeType.S
             },
-             new TableDef
+            new TableDef
             {
                 Name = "Assets",
                 KeyName = "id",
@@ -58,7 +58,7 @@ namespace ContactDetailsApi.Tests
                 })
             },
             new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.S },
-              new TableDef { Name = "Persons", KeyName = "id", KeyType = ScalarAttributeType.S }
+            new TableDef { Name = "Persons", KeyName = "id", KeyType = ScalarAttributeType.S }
 
         };
 

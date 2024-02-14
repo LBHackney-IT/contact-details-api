@@ -1,4 +1,5 @@
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V1.Controllers;
 using ContactDetailsApi.V2.UseCase;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +12,7 @@ namespace ContactDetailsApi.V2.Controllers
     [Route("api/v2/servicesoft")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    public class ServicesoftController : ControllerBase
+    public class ServicesoftController : BaseController
     {
         private readonly IFetchAllContactDetailsByUprnUseCase _fetchAllContactDetailsByUprnUseCase;
 

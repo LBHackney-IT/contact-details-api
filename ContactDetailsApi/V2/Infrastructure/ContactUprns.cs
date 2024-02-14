@@ -24,7 +24,7 @@ namespace ContactDetailsApi.V2.Infrastructure
     //{
     //    public HouseholdMembers HouseholdMember { get; set; }
 
-        
+
     //    public List<ContactDetailsEntity> ContactDetails { get; set; }
     //}
 
