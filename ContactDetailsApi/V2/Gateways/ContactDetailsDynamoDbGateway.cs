@@ -158,7 +158,7 @@ namespace ContactDetailsApi.V2.Gateways
                     var contactValue = rawContactInformation.ContainsKey("value") ? rawContactInformation["value"] : null;
                     var contactInformation = new ContactInformation
                     {
-                        Value = contactValue
+                        Value = contactValue ?? ""
                     };
 
                     var isActive = result["isActive"];
