@@ -12,7 +12,7 @@ namespace ContactDetailsApi.V2.Controllers
     [Route("api/v2/servicesoft")]
     [Produces("application/json")]
     [ApiVersion("1.0")]
-    public class ServicesoftController : BaseController
+    public class ServicesoftController : ControllerBase
     {
         private readonly IFetchAllContactDetailsByUprnUseCase _fetchAllContactDetailsByUprnUseCase;
 
@@ -24,7 +24,7 @@ namespace ContactDetailsApi.V2.Controllers
 
         public async Task<IActionResult> FetchAllContactDetailsByUprn()
         {
-            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
+                var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
 
             return Ok(results);
         }
