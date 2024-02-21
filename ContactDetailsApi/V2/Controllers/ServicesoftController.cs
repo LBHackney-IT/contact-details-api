@@ -24,7 +24,7 @@ namespace ContactDetailsApi.V2.Controllers
 
         public async Task<IActionResult> FetchAllContactDetailsByUprn()
         {
-                var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
+            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
 
             return Ok(results);
         }

@@ -166,10 +166,10 @@ namespace ContactDetailsApi.V2.Gateways
 
                     var entity = new ContactDetailsEntity
                     {
-                       Id = (Guid) id,
-                       TargetId = (Guid) targetId,
-                       ContactInformation = contactInformation,
-                       IsActive = (bool) isActive
+                        Id = (Guid) id,
+                        TargetId = (Guid) targetId,
+                        ContactInformation = contactInformation,
+                        IsActive = (bool) isActive
                     };
 
                     results.Add(entity);
@@ -200,9 +200,9 @@ namespace ContactDetailsApi.V2.Gateways
                 tenureBatchRequest.AddKey(id);
             }
 
-           await tenureBatchRequest.ExecuteAsync();
+            await tenureBatchRequest.ExecuteAsync();
 
-            var rawResults =  tenureBatchRequest.Results;
+            var rawResults = tenureBatchRequest.Results;
 
             var results = new List<TenureInformationDb>();
 
@@ -212,7 +212,7 @@ namespace ContactDetailsApi.V2.Gateways
                 {
                     var id = result["id"];
                     var householdMembers = result["householdMembers"];
-                    
+
                     var rawHouseholdMembers = householdMembers.AsListOfDocument();
                     var householdMemberList = new List<HouseholdMembers>();
                     foreach (var member in rawHouseholdMembers)
@@ -228,7 +228,7 @@ namespace ContactDetailsApi.V2.Gateways
                         householdMemberList.Add(householdMember);
 
                     }
-                   
+
 
                     var entity = new TenureInformationDb
                     {
@@ -283,7 +283,7 @@ namespace ContactDetailsApi.V2.Gateways
                         Id = (Guid) id,
                         FirstName = firstName,
                         Surname = surname,
-                        Title =  (Title) Enum.Parse(typeof(Title), title)
+                        Title = (Title) Enum.Parse(typeof(Title), title)
                     };
 
                     results.Add(entity);
@@ -394,7 +394,7 @@ namespace ContactDetailsApi.V2.Gateways
             {
                 if (asset.TenureId == Guid.Empty || asset.TenureId == null)
                     continue;
-                
+
                 Guid tenureId = (Guid) asset.TenureId;
 
                 try
