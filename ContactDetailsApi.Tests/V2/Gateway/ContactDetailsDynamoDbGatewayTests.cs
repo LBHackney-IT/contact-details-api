@@ -1,7 +1,5 @@
-using Amazon.DynamoDBv2.Model;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
+using Amazon.DynamoDBv2;
 using AutoFixture;
-using ContactDetailsApi.Tests.Helpers.AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
@@ -35,21 +33,15 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         private readonly IDynamoDbFixture _dbFixture;
         private readonly ContactDetailsDynamoDbGateway _classUnderTest;
         private readonly List<Action> _cleanup = new List<Action>();
+        private readonly IAmazonDynamoDB _amazonDynamoDb;
 
         public ContactDetailsDynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
-            _fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
-            _fixture.Behaviors.Add(new OmitOnRecursionBehavior());
-
-            _fixture.Customizations.Add(new IgnoreVirtualMembersSpecimenBuilder());
-
-
-
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
             _updater = new Mock<IEntityUpdater>();
-
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object);
+            _amazonDynamoDb = appFactory.DynamoDbFixture.DynamoDb;
+            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object, _dbFixture.DynamoDb);
         }
 
         public void Dispose()
@@ -100,7 +92,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         }
 
 
-        [Fact(Skip = "To Fix")]
+        [Fact]
         public async Task Yeet()
         {
             // Arrange

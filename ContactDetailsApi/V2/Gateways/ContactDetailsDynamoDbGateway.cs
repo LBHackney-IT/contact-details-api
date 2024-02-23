@@ -31,13 +31,15 @@ namespace ContactDetailsApi.V2.Gateways
     {
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
+        private readonly IAmazonDynamoDB _dynamoDB;
         private readonly IEntityUpdater _updater;
 
-        public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger, IEntityUpdater updater)
+        public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger, IEntityUpdater updater, IAmazonDynamoDB dynamoDB)
         {
             _dynamoDbContext = dynamoDbContext;
             _logger = logger;
             _updater = updater;
+            _dynamoDB = dynamoDB;
         }
 
         [LogCall]
@@ -119,12 +121,7 @@ namespace ContactDetailsApi.V2.Gateways
         {
             var rawResults = new List<Document>();
 
-            var client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.EUWest2
-            });
-
-            var table = Table.LoadTable(client, "ContactDetails");
+            var table = Table.LoadTable(_dynamoDB, "ContactDetails");
 
             var scan = table.Scan(new ScanOperationConfig
             {
@@ -186,12 +183,7 @@ namespace ContactDetailsApi.V2.Gateways
 
         private async Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds)
         {
-            var client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.EUWest2
-            });
-
-            var table = Table.LoadTable(client, "TenureInformation");
+            var table = Table.LoadTable(_dynamoDB, "TenureInformation");
 
             var tenureBatchRequest = table.CreateBatchGet();
 
@@ -250,13 +242,7 @@ namespace ContactDetailsApi.V2.Gateways
 
         private async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
         {
-
-            var client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.EUWest2
-            });
-
-            var table = Table.LoadTable(client, "Persons");
+            var table = Table.LoadTable(_dynamoDB, "Persons");
 
             var personBatchRequest = table.CreateBatchGet();
 
@@ -301,12 +287,7 @@ namespace ContactDetailsApi.V2.Gateways
 
         private async Task<List<Infrastructure.ContactByUprn>> FetchAllAssets()
         {
-            var client = new AmazonDynamoDBClient(new AmazonDynamoDBConfig
-            {
-                RegionEndpoint = Amazon.RegionEndpoint.EUWest2
-            });
-
-            var table = Table.LoadTable(client, "Assets");
+            var table = Table.LoadTable(_dynamoDB, "Assets");
 
             var search = table.Scan(new ScanOperationConfig
             {
