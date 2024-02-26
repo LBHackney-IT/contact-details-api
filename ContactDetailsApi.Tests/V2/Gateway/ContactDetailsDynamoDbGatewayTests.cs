@@ -19,6 +19,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -212,6 +213,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().HaveCount(10);
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contactDetails).ConfigureAwait(false));
+
+            foreach (var contact in contactDetails)
+            {
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false));
+            }
         }
 
         [Fact]
