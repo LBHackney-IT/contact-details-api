@@ -1,6 +1,7 @@
 using Amazon.DynamoDBv2;
 using AutoFixture;
 using ContactDetailsApi.V1.Boundary.Request;
+using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Gateways;
@@ -9,6 +10,7 @@ using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
+using Hackney.Shared.Asset.Domain;
 using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
@@ -20,6 +22,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
+using AddressExtended = ContactDetailsApi.V2.Domain.AddressExtended;
+using ContactInformation = ContactDetailsApi.V2.Domain.ContactInformation;
 
 namespace ContactDetailsApi.Tests.V2.Gateway
 {
@@ -67,9 +71,25 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
+        private async Task InsertDataIntoDynamoDB(IEnumerable<AssetDb> entities)
+        {
+            foreach (var entity in entities)
+            {
+                await InsertDataIntoDynamoDB(entity);
+            }
+        }
+
         private async Task InsertDataIntoDynamoDB(TenureInformationDb entity)
         {
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
+        }
+
+        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
+        {
+            foreach (var entity in entities)
+            {
+                await InsertDataIntoDynamoDB(entity);
+            }
         }
 
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
@@ -91,9 +111,17 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
+        private async Task InsertDataIntoDynamoDB(IEnumerable<PersonDbEntity> entities)
+        {
+            foreach (var entity in entities)
+            {
+                await InsertDataIntoDynamoDB(entity);
+            }
+        }
+
 
         [Fact]
-        public async Task Yeet()
+        public async Task FetchAllContactDetailsByUprnWorksAsExpected()
         {
             // Arrange
             var person = _fixture.Build<PersonDbEntity>()
@@ -141,6 +169,93 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             {
                 _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false));
             }
+        }
+
+        [Fact]
+        public async Task FetchAllAssetsWorksAsExpected()
+        {
+            //Arrange
+            var tenure = _fixture.Build<AssetTenureDb>().With(x => x.Id, Guid.NewGuid().ToString()).Create();
+            var assets = _fixture.Build<AssetDb>()
+                                 .Without(x => x.VersionNumber)
+                                 .With(x => x.Tenure, tenure)
+                                 .CreateMany(10)
+                                 .ToList();
+            await InsertDataIntoDynamoDB(assets).ConfigureAwait(false);
+
+            //Act
+
+            var result = await _classUnderTest.FetchAllAssets().ConfigureAwait(false);
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<List<ContactByUprn>>();
+            result.Should().HaveCount(10);
+
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(assets).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task FetchAllContactDetailsWorksAsExpected()
+        {
+            //Arrange
+            var contactDetails = _fixture.Build<ContactDetailsEntity>()
+                                 .CreateMany(10)
+                                 .ToList();
+            await InsertDataIntoDynamoDB(contactDetails).ConfigureAwait(false);
+
+            //Act
+
+            var result = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<List<ContactDetailsEntity>>();
+            result.Should().HaveCount(10);
+
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contactDetails).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task FetchAllTenuresWorksAsExpected()
+        {
+            var tenures = _fixture.Build<TenureInformationDb>()
+                                  .Without(x => x.VersionNumber)
+                                  .CreateMany(10)
+                                  .ToList();
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+            var tenureIds = new List<Guid?>();
+
+            foreach (var tenure in tenures)
+            {
+                tenureIds.Add(tenure.Id);
+            }
+
+            var result = await _classUnderTest.FetchTenures(tenureIds).ConfigureAwait(false);
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<List<TenureInformationDb>>();
+            result.Should().HaveCount(10);
+
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenures).ConfigureAwait(false));
+        }
+
+        [Fact]
+        public async Task FetchPersonsWorksAsExpected()
+        {
+            var persons = _fixture.Build<PersonDbEntity>()
+                                  .Without(x => x.VersionNumber)
+                                  .CreateMany(10)
+                                  .ToList();
+            await InsertDataIntoDynamoDB(persons).ConfigureAwait(false);
+            var personIds = new List<Guid>();
+
+            foreach (var person in persons)
+            {
+                personIds.Add(person.Id);
+            }
+
+            var result = await _classUnderTest.FetchPersons(personIds).ConfigureAwait(false);
+            result.Should().NotBeNullOrEmpty();
+            result.Should().BeOfType<List<PersonDbEntity>>();
+            result.Should().HaveCount(10);
+
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(persons).ConfigureAwait(false));
         }
 
         [Fact]

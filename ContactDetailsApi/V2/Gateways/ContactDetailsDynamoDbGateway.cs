@@ -117,7 +117,7 @@ namespace ContactDetailsApi.V2.Gateways
 
 
 
-        private async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
+        public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
         {
             var rawResults = new List<Document>();
 
@@ -135,9 +135,8 @@ namespace ContactDetailsApi.V2.Gateways
                     var newResults = await scan.GetNextSetAsync();
                     rawResults.AddRange(newResults);
                 }
-                catch (Exception e)
+                catch
                 {
-                    var x = e;
                     //throw;
                 }
             }
@@ -171,9 +170,8 @@ namespace ContactDetailsApi.V2.Gateways
 
                     results.Add(entity);
                 }
-                catch (Exception e)
+                catch
                 {
-                    var x = e;
                     //throw;
                 }
             }
@@ -181,7 +179,7 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
-        private async Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds)
+        public async Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds)
         {
             var table = Table.LoadTable(_dynamoDB, "TenureInformation");
 
@@ -230,9 +228,8 @@ namespace ContactDetailsApi.V2.Gateways
 
                     results.Add(entity);
                 }
-                catch (Exception e)
+                catch
                 {
-                    var x = e;
                     //throw;
                 }
             }
@@ -240,7 +237,7 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
-        private async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
+        public async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
         {
             var table = Table.LoadTable(_dynamoDB, "Persons");
 
@@ -274,9 +271,8 @@ namespace ContactDetailsApi.V2.Gateways
 
                     results.Add(entity);
                 }
-                catch (Exception e)
+                catch
                 {
-                    var x = e;
                     //throw;
                 }
             }
@@ -285,7 +281,7 @@ namespace ContactDetailsApi.V2.Gateways
 
         }
 
-        private async Task<List<Infrastructure.ContactByUprn>> FetchAllAssets()
+        public async Task<List<Infrastructure.ContactByUprn>> FetchAllAssets()
         {
             var table = Table.LoadTable(_dynamoDB, "Assets");
 
@@ -326,9 +322,8 @@ namespace ContactDetailsApi.V2.Gateways
 
                     results.Add(entity);
                 }
-                catch (Exception e)
+                catch
                 {
-                    var x = e;
                     //throw;
                 }
             }
@@ -338,7 +333,7 @@ namespace ContactDetailsApi.V2.Gateways
 
         public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
         {
-            // only select relevant fields
+            // 1. Scan all assets
             var assets = await FetchAllAssets();
 
             // remove assets without a uprn
@@ -346,13 +341,12 @@ namespace ContactDetailsApi.V2.Gateways
                 .Where(x => !string.IsNullOrWhiteSpace(x.Uprn))
                 .ToList();
 
-            // 1. Scan all assets
+            // 2. Fetch all contact details
             var contactDetails = await FetchAllContactDetails();
 
-            // 2. Fetch all contact details
 
             var contactDetailsGroupedByTargetId = contactDetails
-                .GroupBy(deetz => deetz.TargetId)
+                .GroupBy(c => c.TargetId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             // 2. Fetch tenure records
@@ -368,8 +362,6 @@ namespace ContactDetailsApi.V2.Gateways
 
             // 5. consolidate the data
             var contacts = new List<ContactByUprn>();
-
-
 
             foreach (var asset in assets)
             {
@@ -415,8 +407,8 @@ namespace ContactDetailsApi.V2.Gateways
                         continue;
                     }
 
-                    var deets = contactDetailsGroupedByTargetId[person.Id]
-                        .Select(x => new PersonContactDeets
+                    var personContactDetails = contactDetailsGroupedByTargetId[person.Id]
+                        .Select(x => new PersonContactDetails
                         {
                             ContactType = x.ContactInformation.ContactType.ToString(),
                             SubType = x.ContactInformation.SubType.ToString(),
@@ -432,7 +424,7 @@ namespace ContactDetailsApi.V2.Gateways
                         FirstName = person.FirstName,
                         LastName = person.Surname,
                         Title = person.Title.ToString(),
-                        Deets = deets
+                        PersonContactDetails = personContactDetails
                     };
 
                     personContacts.Add(personContact);

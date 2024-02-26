@@ -1,10 +1,16 @@
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.SimpleNotificationService;
+using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AutoFixture;
 using AutoFixture.Dsl;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Infrastructure;
+using Hackney.Shared.Asset.Infrastructure;
+using Hackney.Shared.Person.Boundary.Response;
+using Hackney.Shared.Person.Infrastructure;
+using Hackney.Shared.Tenure.Domain;
+using Hackney.Shared.Tenure.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +40,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         public Guid TargetId { get; private set; }
 
         public string InvalidTargetId { get; private set; }
+
+        public PersonDbEntity Person { get; private set; }
+
+        public List<ContactDetailsEntity> ContactDetails { get; private set; }
+
+        public TenureInformationDb TenureInformation { get; private set; }
+        public AssetDb Asset { get; private set; }
+
 
         public ContactDetailsFixture(IDynamoDBContext dbContext)
         {
@@ -285,6 +299,45 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ContactRequestObject = CreateContactRestObject();
             ContactRequestObject.ContactInformation.ContactType = ContactType.email;
             ContactRequestObject.ContactInformation.Value = "Something wrong";
+        }
+
+        public async void GivenAFetchAllContactDetailsByUprnRequest()
+        {
+            var person = _fixture.Build<PersonDbEntity>()
+                .Without(x => x.VersionNumber)
+                .Create();
+            await _dbContext.SaveAsync(person).ConfigureAwait(false);
+
+            var contactInformation = _fixture.Build<ContactDetailsEntity>()
+                .With(x => x.TargetId, person.Id)
+                .CreateMany(2)
+                .ToList();
+
+            foreach (var contact in contactInformation)
+            {
+                await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+            }
+
+
+            var tenure = _fixture.Build<TenureInformationDb>()
+                .Without(x => x.VersionNumber)
+                .With(x => x.HouseholdMembers,
+                    _fixture.Build<HouseholdMembers>()
+                    .With(x => x.Id, person.Id)
+                    .CreateMany(1)
+                    .ToList()
+                )
+                .Create();
+
+            await _dbContext.SaveAsync(tenure).ConfigureAwait(false);
+
+            var asset = _fixture.Build<AssetDb>()
+                .Without(x => x.VersionNumber)
+                .Create();
+
+            asset.Tenure.Id = tenure.Id.ToString();
+
+            await _dbContext.SaveAsync(asset).ConfigureAwait(false);
         }
     }
 }
