@@ -164,6 +164,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(person).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contactInformation).ConfigureAwait(false));
+
 
             foreach (var contact in contactInformation)
             {
