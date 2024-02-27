@@ -194,6 +194,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().HaveCount(10);
 
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(assets).ConfigureAwait(false));
+
+            foreach (var asset in assets)
+            {
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
+            }
         }
 
         [Fact]
