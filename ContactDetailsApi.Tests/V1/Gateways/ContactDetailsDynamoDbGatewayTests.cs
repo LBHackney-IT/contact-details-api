@@ -86,6 +86,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
             result.Should().HaveCount(1);
             result.First().Should().BeEquivalentTo(entity);
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.QueryAsync for targetId {entity.TargetId}", Times.Once());
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
         }
 
         [Theory]
@@ -115,6 +116,7 @@ namespace ContactDetailsApi.Tests.V1.Gateways
 
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.LoadAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
             _logger.VerifyExact(LogLevel.Debug, $"Calling IDynamoDBContext.SaveAsync for targetId {query.TargetId} and id {query.Id}", Times.Once());
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
         }
 
         [Fact]

@@ -62,7 +62,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             {
                 foreach (var action in _cleanup)
                     action();
-
+                
                 _disposed = true;
             }
         }
@@ -165,8 +165,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
             _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(person).ConfigureAwait(false));
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contactInformation).ConfigureAwait(false));
-
 
             foreach (var contact in contactInformation)
             {
@@ -193,9 +191,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().BeOfType<List<ContactByUprn>>();
             result.Should().HaveCount(10);
 
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(assets).ConfigureAwait(false));
 
-            foreach (var asset in assets)
+            foreach (var asset in result)
             {
                 _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
             }
@@ -213,13 +210,12 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             //Act
 
             var result = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
+
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactDetailsEntity>>();
             result.Should().HaveCount(10);
 
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contactDetails).ConfigureAwait(false));
-
-            foreach (var contact in contactDetails)
+            foreach (var contact in result)
             {
                 _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false));
             }
@@ -245,7 +241,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().BeOfType<List<TenureInformationDb>>();
             result.Should().HaveCount(10);
 
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenures).ConfigureAwait(false));
+            foreach (var tenure in tenures)
+            {
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
+            }
         }
 
         [Fact]
@@ -268,7 +267,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().BeOfType<List<PersonDbEntity>>();
             result.Should().HaveCount(10);
 
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(persons).ConfigureAwait(false));
+            foreach (var person in persons)
+            {
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(person).ConfigureAwait(false));
+            }
         }
 
         [Fact]
@@ -538,6 +540,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.ContactInformation.Description.Should().Be(newDescription);
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
         }
     }
 }

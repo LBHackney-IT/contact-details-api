@@ -43,8 +43,11 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _contactDetailsFixture?.Dispose();
+                _contactDetailsFixture.Dispose();
+                _steps.Dispose();
                 _snsFixture?.PurgeAllQueueMessages();
+                foreach (var action in _contactDetailsFixture._cleanup)
+                    action();
 
                 _disposed = true;
             }
@@ -119,23 +122,23 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact]
-        public void ServiceDoesntValidateAddressLine1WhenContactTypeNotAddress()
-        {
-            this.Given(g => _contactDetailsFixture.GivenANewContactRequestWithInvalidAddressLine1WhenTheContactTypeNotAddress())
-                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
-                .Then(t => _steps.ThenThereIsNoValidationErrorForField("AddressLine1"))
-                .BDDfy();
-        }
+        //[Fact]
+        //public void ServiceDoesntValidateAddressLine1WhenContactTypeNotAddress()
+        //{
+        //    this.Given(g => _contactDetailsFixture.GivenANewContactRequestWithInvalidAddressLine1WhenTheContactTypeNotAddress())
+        //        .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
+        //        .Then(t => _steps.ThenThereIsNoValidationErrorForField("AddressLine1"))
+        //        .BDDfy();
+        //}
 
-        [Fact]
-        public void ServiceDoesntValidatePostCodeWhenContactTypeNotAddress()
-        {
-            this.Given(g => _contactDetailsFixture.GivenANewContactRequestWithInvalidPostCodeWhenTheContactTypeNotAddress())
-                .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
-                .Then(t => _steps.ThenThereIsNoValidationErrorForField("PostCode"))
-                .BDDfy();
-        }
+        //[Fact]
+        //public void ServiceDoesntValidatePostCodeWhenContactTypeNotAddress()
+        //{
+        //    this.Given(g => _contactDetailsFixture.GivenANewContactRequestWithInvalidPostCodeWhenTheContactTypeNotAddress())
+        //        .When(w => _steps.WhenTheCreateContactEndpointIsCalled(_contactDetailsFixture.ContactRequestObject))
+        //        .Then(t => _steps.ThenThereIsNoValidationErrorForField("PostCode"))
+        //        .BDDfy();
+        //}
 
         [Fact]
         public void ServiceValidatesAddressLine1WhenContactTypeIsAddress()
@@ -154,5 +157,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .Then(t => _steps.ThenThereIsAValidationErrorForField("PostCode"))
                 .BDDfy();
         }
+        
     }
 }

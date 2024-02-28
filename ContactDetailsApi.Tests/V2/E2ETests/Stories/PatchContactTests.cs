@@ -43,6 +43,8 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             {
                 _contactDetailsFixture?.Dispose();
                 _snsFixture?.PurgeAllQueueMessages();
+                foreach (var action in _contactDetailsFixture._cleanup)
+                    action();
 
                 _disposed = true;
             }

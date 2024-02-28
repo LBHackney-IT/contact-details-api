@@ -41,12 +41,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
         public string InvalidTargetId { get; private set; }
 
-        public PersonDbEntity Person { get; private set; }
-
-        public List<ContactDetailsEntity> ContactDetails { get; private set; }
-
-        public TenureInformationDb TenureInformation { get; private set; }
-        public AssetDb Asset { get; private set; }
+        public readonly List<Action> _cleanup = new List<Action>();
 
 
         public ContactDetailsFixture(IDynamoDBContext dbContext)
@@ -141,7 +136,11 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             Contacts.AddRange(CreateContactsForType(ContactType.phone, targetId, MAX_PHONE_CONTACTS));
 
             foreach (var contact in Contacts)
+            {
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+                _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
+            }
+            
         }
 
         public async Task GivenAContactAlreadyExists()
@@ -149,6 +148,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ExistingContact = CreateContacts(1, true).First();
 
             await _dbContext.SaveAsync(ExistingContact).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(ExistingContact).ConfigureAwait(false));
         }
 
         public async Task GivenContactDetailsAlreadyExist(int active, int inactive)
@@ -170,7 +170,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 foreach (var contact in Contacts)
                 {
                     await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+                    _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
                 }
+
             }
         }
 
@@ -316,6 +318,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             foreach (var contact in contactInformation)
             {
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);
+                _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
             }
 
 
@@ -338,6 +341,10 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             asset.Tenure.Id = tenure.Id.ToString();
 
             await _dbContext.SaveAsync(asset).ConfigureAwait(false);
+
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(asset).ConfigureAwait(false));
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(person).ConfigureAwait(false));
         }
     }
 }

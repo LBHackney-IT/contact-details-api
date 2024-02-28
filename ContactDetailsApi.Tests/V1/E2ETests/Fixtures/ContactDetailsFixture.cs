@@ -26,6 +26,8 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
 
         public string InvalidTargetId { get; private set; }
 
+        private readonly List<Action> _cleanup = new List<Action>();
+
         public ContactDetailsFixture(IDynamoDBContext dbContext, IAmazonSimpleNotificationService amazonSimpleNotificationService)
         {
             _dbContext = dbContext;
@@ -92,7 +94,10 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Fixtures
                     Contacts.AddRange(CreateContacts(inactive, false));
 
                 foreach (var note in Contacts)
+                {
                     await _dbContext.SaveAsync(note).ConfigureAwait(false);
+                    _cleanup.Add(async () => await _dbContext.DeleteAsync(note).ConfigureAwait(false));
+                }
             }
         }
 
