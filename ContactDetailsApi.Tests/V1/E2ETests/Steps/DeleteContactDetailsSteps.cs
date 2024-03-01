@@ -48,6 +48,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
                                                     .ConfigureAwait(false);
             result.IsActive.Should().BeFalse();
             result.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+            _cleanup.Add(async () => await contactDetailsFixture._dbContext.DeleteAsync(result).ConfigureAwait(false));
         }
 
         public void ThenNotFoundReturned()

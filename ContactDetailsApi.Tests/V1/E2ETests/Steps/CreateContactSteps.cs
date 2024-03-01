@@ -113,6 +113,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
             var dbEntity = await fixture._dbContext.LoadAsync<ContactDetailsEntity>(apiResult.TargetId, apiResult.Id).ConfigureAwait(false);
             dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+            _cleanup.Add(async () => await fixture._dbContext.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
 
         public async Task ThenTheResponseIncludesValidationErrors()

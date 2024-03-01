@@ -81,6 +81,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
                 config => config.Excluding(x => x.LastModified));
 
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
+            _cleanup.Add(async () => await fixture._dbContext.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
     }
 }

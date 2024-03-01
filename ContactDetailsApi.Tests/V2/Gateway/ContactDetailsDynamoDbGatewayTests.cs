@@ -62,7 +62,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             {
                 foreach (var action in _cleanup)
                     action();
-                
+
                 _disposed = true;
             }
         }
@@ -484,6 +484,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
             databaseResponse.ContactInformation.Description.Should().NotBe(newDescription);
+            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(databaseResponse).ConfigureAwait(false));
         }
 
         [Fact]

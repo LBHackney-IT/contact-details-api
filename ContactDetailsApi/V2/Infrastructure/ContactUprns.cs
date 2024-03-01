@@ -9,12 +9,12 @@ namespace ContactDetailsApi.V2.Infrastructure
     {
         public string Uprn { get; set; }
         public Guid? TenureId { get; set; }
-        public List<PersonContact> Contacts { get; set; }
+        public List<Person> Contacts { get; set; }
 
     }
 
 
-    public class PersonContact
+    public class Person
     {
         public string PersonTenureType { get; set; }
         public bool IsResponsible { get; set; }

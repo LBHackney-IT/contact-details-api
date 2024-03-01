@@ -12,7 +12,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
         protected HttpResponseMessage _lastResponse;
         protected readonly JsonSerializerOptions _jsonOptions;
-        protected readonly List<Action> _cleanup = new List<Action>();
+        public readonly List<Action> _cleanup = new List<Action>();
 
 
         public BaseSteps(HttpClient httpClient)
@@ -37,7 +37,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 
                 _disposed = true;
             }
-        }   
+        }
 
         protected JsonSerializerOptions CreateJsonOptions()
         {

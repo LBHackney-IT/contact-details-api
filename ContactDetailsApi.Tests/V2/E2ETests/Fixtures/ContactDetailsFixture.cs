@@ -1,13 +1,9 @@
 using Amazon.DynamoDBv2.DataModel;
-using Amazon.SimpleNotificationService;
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AutoFixture;
-using AutoFixture.Dsl;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Infrastructure;
 using Hackney.Shared.Asset.Infrastructure;
-using Hackney.Shared.Person.Boundary.Response;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
@@ -70,12 +66,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
         private IEnumerable<ContactDetailsEntity> CreateContacts(int count, bool isActive)
         {
-            return _fixture.Build<ContactDetailsEntity>()
+            var contact = _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.CreatedBy, () => _fixture.Create<CreatedBy>())
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.IsActive, isActive)
                 .With(x => x.TargetType, TargetType.person)
                 .With(x => x.TargetId, TargetId).CreateMany(count);
+
+            Contacts = contact.ToList();
+
+            return contact;
         }
 
         private IEnumerable<ContactDetailsEntity> CreateContactsForType(ContactType type, Guid targetId, int count, bool isActive = true)
@@ -91,7 +91,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
         private ContactDetailsRequestObject CreateContactRestObject(ContactType type = ContactType.email)
         {
-            return SetupContactCreationFixture(type).Create();
+            return SetupContactCreationFixture(type);
         }
 
         private EditContactDetailsRequest CreateEditContactDetailsRequest()
@@ -119,14 +119,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                            .Create();
         }
 
-        private IPostprocessComposer<ContactDetailsRequestObject> SetupContactCreationFixture(ContactType type = ContactType.email)
+        private ContactDetailsRequestObject SetupContactCreationFixture(ContactType type = ContactType.email)
         {
             var contactInfo = CreateContactInformation(type);
             return _fixture.Build<ContactDetailsRequestObject>()
                 .With(x => x.ContactInformation, contactInfo)
                 .With(x => x.RecordValidUntil, DateTime.UtcNow)
                 .With(x => x.TargetType, TargetType.person)
-                .With(x => x.TargetId, Guid.NewGuid);
+                .With(x => x.TargetId, Guid.NewGuid).Create();
         }
 
         public async Task GivenMaxContactDetailsAlreadyExist(Guid targetId)
@@ -140,7 +140,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);
                 _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
             }
-            
+
         }
 
         public async Task GivenAContactAlreadyExists()
@@ -314,7 +314,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .With(x => x.TargetId, person.Id)
                 .CreateMany(2)
                 .ToList();
-
+            Contacts = contactInformation;
             foreach (var contact in contactInformation)
             {
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);

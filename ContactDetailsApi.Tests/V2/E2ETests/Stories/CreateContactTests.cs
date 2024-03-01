@@ -43,12 +43,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _contactDetailsFixture.Dispose();
+                if (null != _contactDetailsFixture)
+                    _contactDetailsFixture.Dispose();
                 _steps.Dispose();
                 _snsFixture?.PurgeAllQueueMessages();
                 foreach (var action in _contactDetailsFixture._cleanup)
                     action();
-
+                foreach (var action in _steps._cleanup)
+                    action();
                 _disposed = true;
             }
         }
@@ -157,6 +159,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .Then(t => _steps.ThenThereIsAValidationErrorForField("PostCode"))
                 .BDDfy();
         }
-        
+
     }
 }

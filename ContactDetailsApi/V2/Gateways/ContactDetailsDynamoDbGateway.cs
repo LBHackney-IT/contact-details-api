@@ -331,6 +331,94 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
+        private List<ContactByUprn> GetContactByUprnForEachAsset(List<ContactByUprn> assets,
+                                                                 Dictionary<Guid, TenureInformationDb> tenuresByTenureId,
+                                                                 Dictionary<Guid, PersonDbEntity> personById,
+                                                                 Dictionary<Guid, List<ContactDetailsEntity>> contactDetailsGroupedByTargetId)
+        {
+            var contacts = new List<ContactByUprn>();
+            foreach (var asset in assets)
+            {
+                if (asset.TenureId == Guid.Empty || asset.TenureId == null)
+                    continue;
+
+                Guid tenureId = (Guid) asset.TenureId;
+
+                try
+                {
+                    var id = tenuresByTenureId[tenureId];
+
+                }
+                catch (Exception e)
+                {
+                    _logger.LogDebug($"tenuresByTenureId for id {tenureId} failed with the following message {e.Message}");
+                    continue;
+                }
+
+                var tenure = tenuresByTenureId[tenureId];
+
+                var personContacts = new List<Person>();
+
+                foreach (var householdMember in tenure.HouseholdMembers)
+                {
+                    try
+                    {
+
+                        var tenant = personById[householdMember.Id];
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogDebug($"personById for id {householdMember.Id} failed with the following message {e.Message}");
+                        continue;
+                    }
+                    var person = personById[householdMember.Id];
+
+                    try
+                    {
+                        var contactDetailsTargetId = contactDetailsGroupedByTargetId[person.Id];
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogDebug($"contactDetailsGroupedByTargetId for id {person.Id} failed with the following message {e.Message}");
+                        continue;
+                    }
+
+                    var personContactDetails = contactDetailsGroupedByTargetId[person.Id]
+                        .Select(x => new PersonContactDetails
+                        {
+                            ContactType = x.ContactInformation.ContactType.ToString(),
+                            SubType = x.ContactInformation.SubType.ToString(),
+                            Value = x.ContactInformation.Value.ToString()
+                        })
+                        .ToList();
+
+
+                    var personContact = new Person
+                    {
+                        PersonTenureType = householdMember.PersonTenureType.ToString(),
+                        IsResponsible = householdMember.IsResponsible,
+                        FirstName = person.FirstName,
+                        LastName = person.Surname,
+                        Title = person.Title.ToString(),
+                        PersonContactDetails = personContactDetails
+                    };
+
+                    personContacts.Add(personContact);
+                }
+
+                var contactByUprn = new ContactByUprn
+                {
+                    Uprn = asset.Uprn,
+                    TenureId = tenure.Id,
+                    Contacts = personContacts
+                };
+
+                contacts.Add(contactByUprn);
+            }
+            return contacts;
+        }
+
+        [LogCall]
         public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
         {
             // 1. Scan all assets
@@ -360,85 +448,8 @@ namespace ContactDetailsApi.V2.Gateways
             var persons = await FetchPersons(personIds);
             var personById = persons.ToDictionary(x => x.Id, x => x);
 
-            // 5. consolidate the data
-            var contacts = new List<ContactByUprn>();
-
-            foreach (var asset in assets)
-            {
-                if (asset.TenureId == Guid.Empty || asset.TenureId == null)
-                    continue;
-
-                Guid tenureId = (Guid) asset.TenureId;
-
-                try
-                {
-                    var id = tenuresByTenureId[tenureId];
-
-                }
-                catch
-                {
-
-                    continue;
-                }
-
-                var tenure = tenuresByTenureId[tenureId];
-
-                var personContacts = new List<PersonContact>();
-
-                foreach (var householdMember in tenure.HouseholdMembers)
-                {
-                    try
-                    {
-
-                        var tenant = personById[householdMember.Id];
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                    var person = personById[householdMember.Id];
-
-                    try
-                    {
-                        var contactDetailsTargetId = contactDetailsGroupedByTargetId[person.Id];
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-
-                    var personContactDetails = contactDetailsGroupedByTargetId[person.Id]
-                        .Select(x => new PersonContactDetails
-                        {
-                            ContactType = x.ContactInformation.ContactType.ToString(),
-                            SubType = x.ContactInformation.SubType.ToString(),
-                            Value = x.ContactInformation.Value.ToString()
-                        })
-                        .ToList();
-
-
-                    var personContact = new PersonContact
-                    {
-                        PersonTenureType = householdMember.PersonTenureType.ToString(),
-                        IsResponsible = householdMember.IsResponsible,
-                        FirstName = person.FirstName,
-                        LastName = person.Surname,
-                        Title = person.Title.ToString(),
-                        PersonContactDetails = personContactDetails
-                    };
-
-                    personContacts.Add(personContact);
-                }
-
-                var contactByUprn = new ContactByUprn
-                {
-                    Uprn = asset.Uprn,
-                    TenureId = tenure.Id,
-                    Contacts = personContacts
-                };
-
-                contacts.Add(contactByUprn);
-            }
+            // 4. consolidate the data
+            var contacts = GetContactByUprnForEachAsset(assets, tenuresByTenureId, personById, contactDetailsGroupedByTargetId);
 
             return contacts;
         }
