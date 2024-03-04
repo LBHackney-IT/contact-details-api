@@ -1,7 +1,7 @@
 using AutoFixture;
 using ContactDetailsApi.V2.Controllers;
 using ContactDetailsApi.V2.Infrastructure;
-using ContactDetailsApi.V2.UseCase;
+using ContactDetailsApi.V2.UseCase.Interfaces;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Moq;

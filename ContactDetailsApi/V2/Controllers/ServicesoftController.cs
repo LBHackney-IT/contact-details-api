@@ -1,6 +1,6 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
-using ContactDetailsApi.V2.UseCase;
+using ContactDetailsApi.V2.UseCase.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;

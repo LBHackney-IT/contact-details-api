@@ -10,7 +10,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
     [Story(
         AsA = "External ServiceSoft user",
         IWant = "to be able to fetch all the contacts details of Hackney tenants",
-        SoThat = "I can use this up to date data in my servicesoft application")]
+        SoThat = "I can use this to update data in my servicesoft application")]
     [Collection("AppTest collection")]
     public class FetchAllContactDetailsTests : IDisposable
     {

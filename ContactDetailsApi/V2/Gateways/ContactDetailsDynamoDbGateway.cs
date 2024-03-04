@@ -130,15 +130,8 @@ namespace ContactDetailsApi.V2.Gateways
 
             do
             {
-                try
-                {
-                    var newResults = await scan.GetNextSetAsync();
-                    rawResults.AddRange(newResults);
-                }
-                catch
-                {
-                    //throw;
-                }
+                var newResults = await scan.GetNextSetAsync();
+                rawResults.AddRange(newResults);
             }
             while (!scan.IsDone);
 
@@ -146,34 +139,28 @@ namespace ContactDetailsApi.V2.Gateways
 
             foreach (var result in rawResults)
             {
-                try
+
+                var id = result["id"];
+                var targetId = result["targetId"];
+                var rawContactInformation = result["contactInformation"].AsDocument();
+                var contactValue = rawContactInformation.ContainsKey("value") ? rawContactInformation["value"] : null;
+                var contactInformation = new ContactInformation
                 {
-                    var id = result["id"];
-                    var targetId = result["targetId"];
-                    var rawContactInformation = result["contactInformation"].AsDocument();
-                    var contactValue = rawContactInformation.ContainsKey("value") ? rawContactInformation["value"] : null;
-                    var contactInformation = new ContactInformation
-                    {
-                        Value = contactValue ?? ""
-                    };
+                    Value = contactValue ?? ""
+                };
 
-                    var isActive = result["isActive"];
+                var isActive = result["isActive"];
 
 
-                    var entity = new ContactDetailsEntity
-                    {
-                        Id = (Guid) id,
-                        TargetId = (Guid) targetId,
-                        ContactInformation = contactInformation,
-                        IsActive = (bool) isActive
-                    };
-
-                    results.Add(entity);
-                }
-                catch
+                var entity = new ContactDetailsEntity
                 {
-                    //throw;
-                }
+                    Id = (Guid) id,
+                    TargetId = (Guid) targetId,
+                    ContactInformation = contactInformation,
+                    IsActive = (bool) isActive
+                };
+
+                results.Add(entity);
             }
 
             return results;
@@ -198,40 +185,34 @@ namespace ContactDetailsApi.V2.Gateways
 
             foreach (var result in rawResults)
             {
-                try
+                var id = result["id"];
+                var householdMembers = result["householdMembers"];
+
+                var rawHouseholdMembers = householdMembers.AsListOfDocument();
+                var householdMemberList = new List<HouseholdMembers>();
+                foreach (var member in rawHouseholdMembers)
                 {
-                    var id = result["id"];
-                    var householdMembers = result["householdMembers"];
-
-                    var rawHouseholdMembers = householdMembers.AsListOfDocument();
-                    var householdMemberList = new List<HouseholdMembers>();
-                    foreach (var member in rawHouseholdMembers)
+                    var personId = member.ContainsKey("id") ? member["id"] : null;
+                    var isResponsible = member["isResponsible"];
+                    var householdMember = new HouseholdMembers
                     {
-                        var personId = member.ContainsKey("id") ? member["id"] : null;
-                        var isResponsible = member["isResponsible"];
-                        var householdMember = new HouseholdMembers
-                        {
-                            Id = (Guid) personId,
-                            IsResponsible = (bool) isResponsible
-                        };
-
-                        householdMemberList.Add(householdMember);
-
-                    }
-
-
-                    var entity = new TenureInformationDb
-                    {
-                        Id = (Guid) id,
-                        HouseholdMembers = householdMemberList
+                        Id = (Guid) personId,
+                        IsResponsible = (bool) isResponsible
                     };
 
-                    results.Add(entity);
+                    householdMemberList.Add(householdMember);
+
                 }
-                catch
+
+
+                var entity = new TenureInformationDb
                 {
-                    //throw;
-                }
+                    Id = (Guid) id,
+                    HouseholdMembers = householdMemberList
+                };
+
+                results.Add(entity);
+
             }
 
             return results;
@@ -255,26 +236,19 @@ namespace ContactDetailsApi.V2.Gateways
             var results = new List<PersonDbEntity>();
             foreach (var result in rawResults)
             {
-                try
+                var id = result["id"];
+                var firstName = result["firstName"];
+                var surname = result["surname"];
+                var title = result["title"];
+                var entity = new PersonDbEntity
                 {
-                    var id = result["id"];
-                    var firstName = result["firstName"];
-                    var surname = result["surname"];
-                    var title = result["title"];
-                    var entity = new PersonDbEntity
-                    {
-                        Id = (Guid) id,
-                        FirstName = firstName,
-                        Surname = surname,
-                        Title = (Title) Enum.Parse(typeof(Title), title)
-                    };
+                    Id = (Guid) id,
+                    FirstName = firstName,
+                    Surname = surname,
+                    Title = (Title) Enum.Parse(typeof(Title), title)
+                };
 
-                    results.Add(entity);
-                }
-                catch
-                {
-                    //throw;
-                }
+                results.Add(entity);
             }
 
             return results;
@@ -303,35 +277,29 @@ namespace ContactDetailsApi.V2.Gateways
 
             foreach (var result in rawResults)
             {
-                try
+                var assetAddress = result["assetAddress"].AsDocument();
+                var uprn = assetAddress != null && assetAddress.ContainsKey("uprn") ? assetAddress["uprn"] : null;
+
+                var tenure = result.ContainsKey("tenure") ? result["tenure"].AsDocument() : null;
+                var tenureId = tenure != null && tenure.ContainsKey("id") ? tenure["id"] : null;
+                if (tenureId == null)
+                    continue;
+
+
+                var entity = new ContactByUprn
                 {
-                    var assetAddress = result["assetAddress"].AsDocument();
-                    var uprn = assetAddress != null && assetAddress.ContainsKey("uprn") ? assetAddress["uprn"] : null;
+                    Uprn = uprn?.ToString() ?? "",
+                    TenureId = (Guid?) tenureId
+                };
 
-                    var tenure = result.ContainsKey("tenure") ? result["tenure"].AsDocument() : null;
-                    var tenureId = tenure != null && tenure.ContainsKey("id") ? tenure["id"] : null;
-                    if (tenureId == null)
-                        continue;
+                results.Add(entity);
 
-
-                    var entity = new ContactByUprn
-                    {
-                        Uprn = uprn?.ToString() ?? "",
-                        TenureId = (Guid?) tenureId
-                    };
-
-                    results.Add(entity);
-                }
-                catch
-                {
-                    //throw;
-                }
             }
 
             return results;
         }
 
-        private List<ContactByUprn> GetContactByUprnForEachAsset(List<ContactByUprn> assets,
+        public List<ContactByUprn> GetContactByUprnForEachAsset(List<ContactByUprn> assets,
                                                                  Dictionary<Guid, TenureInformationDb> tenuresByTenureId,
                                                                  Dictionary<Guid, PersonDbEntity> personById,
                                                                  Dictionary<Guid, List<ContactDetailsEntity>> contactDetailsGroupedByTargetId)
@@ -347,7 +315,6 @@ namespace ContactDetailsApi.V2.Gateways
                 try
                 {
                     var id = tenuresByTenureId[tenureId];
-
                 }
                 catch (Exception e)
                 {
@@ -363,7 +330,6 @@ namespace ContactDetailsApi.V2.Gateways
                 {
                     try
                     {
-
                         var tenant = personById[householdMember.Id];
                     }
                     catch (Exception e)

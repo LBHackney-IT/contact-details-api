@@ -2,7 +2,6 @@ using Amazon.DynamoDBv2.DataModel;
 using AutoFixture;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
-using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Infrastructure;
 using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
