@@ -202,6 +202,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public async Task FetchAllContactDetailsWorksAsExpected()
         {
             //Arrange
+            var before = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
+            foreach (var contact in before)
+            {
+                await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false);
+            }
             var contactDetails = _fixture.Build<ContactDetailsEntity>()
                                  .CreateMany(10)
                                  .ToList();
@@ -213,6 +218,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactDetailsEntity>>();
+
             result.Should().HaveCount(10);
 
             foreach (var contact in result)
