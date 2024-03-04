@@ -4,7 +4,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0
 ENV DOTNET_CLI_TELEMETRY_OPTOUT='true'
 
 ENV DynamoDb_LocalMode='true'
-ENV Sns_LocalMode='true'
+ENV Sns_LocalMode="true"
 
 ARG LBHPACKAGESTOKEN
 ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN

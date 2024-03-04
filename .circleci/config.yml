@@ -155,7 +155,6 @@ jobs:
           command: docker-compose build contact-details-api-test
       - run:
           name: Run tests
-          no_output_timeout: 30m
           command: docker-compose run contact-details-api-test
   assume-role-development:
     executor: docker-python
