@@ -158,8 +158,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 
             dbEntity.Should().BeEquivalentTo(resultAsDb, config => config.Excluding(x => x.LastModified));
             dbEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 500);
-
-            _cleanup.Add(async () => await fixture._dbContext.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
 
         public async Task TheMultilineAddressIsSavedInTheValueField(ContactDetailsFixture fixture)
@@ -177,8 +175,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine3);
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.AddressLine4);
             dbEntity.ContactInformation.Value.Should().Contain(expected.ContactInformation.AddressExtended.PostCode);
-
-            _cleanup.Add(async () => await fixture._dbContext.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
 
         public async Task TheMultilineAddressIsNotSavedInTheValueField(ContactDetailsFixture fixture)
@@ -199,7 +195,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.AddressLine4);
             dbEntity.ContactInformation.Value.Should().NotContain(expected.ContactInformation.AddressExtended.PostCode);
 
-            _cleanup.Add(async () => await fixture._dbContext.DeleteAsync(dbEntity).ConfigureAwait(false));
         }
 
         public async Task ThenTheResponseIncludesValidationErrors()

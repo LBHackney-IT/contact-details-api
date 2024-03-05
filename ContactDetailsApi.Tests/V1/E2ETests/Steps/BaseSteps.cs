@@ -6,37 +6,18 @@ using System.Text.Json.Serialization;
 
 namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
 {
-    public class BaseSteps : IDisposable
+    public class BaseSteps 
     {
         protected readonly HttpClient _httpClient;
 
         protected HttpResponseMessage _lastResponse;
         protected readonly JsonSerializerOptions _jsonOptions;
-        public readonly List<Action> _cleanup = new List<Action>();
 
 
         public BaseSteps(HttpClient httpClient)
         {
             _httpClient = httpClient;
             _jsonOptions = CreateJsonOptions();
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        protected bool _disposed;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (disposing && !_disposed)
-            {
-                foreach (var action in _cleanup)
-                    action();
-
-                _disposed = true;
-            }
         }
 
         protected JsonSerializerOptions CreateJsonOptions()
