@@ -56,10 +56,8 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
         {
             if (disposing && !_disposed)
             {
-                if (Contacts.Any())
-                    foreach (var contact in Contacts)
-                        _dbContext.DeleteAsync(contact).GetAwaiter().GetResult();
-
+                foreach (var action in _cleanup)
+                    action();
                 _disposed = true;
             }
         }
