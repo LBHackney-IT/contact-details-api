@@ -43,12 +43,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             {
                 if (null != _contactDetailsFixture)
                     _contactDetailsFixture.Dispose();
-                _steps.Dispose();
-                foreach (var action in _steps._cleanup)
-                    action();
-                foreach (var action in _contactDetailsFixture._cleanup)
-                    action();
-
                 _disposed = true;
             }
         }
