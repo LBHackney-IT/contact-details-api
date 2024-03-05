@@ -3,6 +3,7 @@ using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared.E2E;
 using System;
 using System.Collections.Generic;
 using System.Linq;

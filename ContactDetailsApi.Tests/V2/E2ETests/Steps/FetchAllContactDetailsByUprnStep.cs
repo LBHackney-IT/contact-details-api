@@ -1,6 +1,7 @@
 using ContactDetailsApi.Tests.V1.E2ETests.Steps;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared.E2E;
 using System;
 using System.Collections.Generic;
 using System.Net;

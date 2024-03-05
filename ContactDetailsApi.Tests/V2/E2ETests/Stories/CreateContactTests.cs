@@ -43,9 +43,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                if (null != _contactDetailsFixture)
-                    _contactDetailsFixture.Dispose();
+                _dbFixture?.Dispose();
                 _snsFixture?.PurgeAllQueueMessages();
+                _contactDetailsFixture?.Dispose();
                 _disposed = true;
             }
         }

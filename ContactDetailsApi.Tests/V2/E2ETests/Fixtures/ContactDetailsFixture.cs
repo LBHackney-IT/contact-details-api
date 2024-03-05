@@ -104,13 +104,12 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
         private ContactInformation CreateContactInformation(ContactType type)
         {
-            string value;
-            switch (type)
+            var value = type switch
             {
-                case ContactType.email: value = "somone-else@somewhere.com"; break;
-                case ContactType.phone: value = "02111231234"; break;
-                default: value = "some address"; break;
-            }
+                ContactType.email => "somone-else@somewhere.com",
+                ContactType.phone => "02111231234",
+                _ => "some address",
+            };
             return _fixture.Build<ContactInformation>()
                            .With(y => y.ContactType, type)
                            .With(y => y.Value, value)
@@ -307,17 +306,18 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .Without(x => x.VersionNumber)
                 .Create();
             await _dbContext.SaveAsync(person).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(person).ConfigureAwait(false));
 
             var contactInformation = _fixture.Build<ContactDetailsEntity>()
                 .With(x => x.TargetId, person.Id)
                 .CreateMany(2)
                 .ToList();
-            Contacts = contactInformation;
             foreach (var contact in contactInformation)
             {
                 await _dbContext.SaveAsync(contact).ConfigureAwait(false);
                 _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
             }
+            Contacts.AddRange(contactInformation);
 
 
             var tenure = _fixture.Build<TenureInformationDb>()
@@ -331,6 +331,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
                 .Create();
 
             await _dbContext.SaveAsync(tenure).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
 
             var asset = _fixture.Build<AssetDb>()
                 .Without(x => x.VersionNumber)
@@ -339,10 +340,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             asset.Tenure.Id = tenure.Id.ToString();
 
             await _dbContext.SaveAsync(asset).ConfigureAwait(false);
-
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
             _cleanup.Add(async () => await _dbContext.DeleteAsync(asset).ConfigureAwait(false));
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(person).ConfigureAwait(false));
         }
     }
 }

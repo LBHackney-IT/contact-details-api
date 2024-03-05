@@ -37,15 +37,13 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         private readonly Mock<IEntityUpdater> _updater;
         private readonly IDynamoDbFixture _dbFixture;
         private readonly ContactDetailsDynamoDbGateway _classUnderTest;
-        private readonly List<Action> _cleanup = new List<Action>();
-        private readonly IAmazonDynamoDB _amazonDynamoDb;
+        private readonly List<Action> _cleanup = new();
 
         public ContactDetailsDynamoDbGatewayTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
             _updater = new Mock<IEntityUpdater>();
             _dbFixture = appFactory.DynamoDbFixture;
-            _amazonDynamoDb = appFactory.DynamoDbFixture.DynamoDb;
             _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object, _dbFixture.DynamoDb);
         }
 
@@ -160,16 +158,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             // Act
             var result = await _classUnderTest.FetchAllContactDetailsByUprnUseCase().ConfigureAwait(false);
             result.Should().NotBeNull();
-
-
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(person).ConfigureAwait(false));
-
-            foreach (var contact in contactInformation)
-            {
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false));
-            }
         }
 
         [Fact]
@@ -190,12 +178,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactByUprn>>();
             result.Should().HaveCount(10);
-
-
-            foreach (var asset in result)
-            {
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(asset).ConfigureAwait(false));
-            }
         }
 
         [Fact]
@@ -220,11 +202,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().BeOfType<List<ContactDetailsEntity>>();
 
             result.Should().HaveCount(10);
-
-            foreach (var contact in result)
-            {
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false));
-            }
         }
 
         [Fact]
@@ -246,11 +223,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<TenureInformationDb>>();
             result.Should().HaveCount(10);
-
-            foreach (var tenure in tenures)
-            {
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
-            }
         }
 
         [Fact]
@@ -272,11 +244,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<PersonDbEntity>>();
             result.Should().HaveCount(10);
-
-            foreach (var person in persons)
-            {
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(person).ConfigureAwait(false));
-            }
         }
 
         [Fact]
@@ -547,7 +514,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.ContactInformation.Description.Should().Be(newDescription);
-            _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
         }
     }
 }
