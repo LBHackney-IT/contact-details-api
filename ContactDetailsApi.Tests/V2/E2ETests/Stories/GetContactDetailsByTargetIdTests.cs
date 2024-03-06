@@ -39,7 +39,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             {
                 if (null != _contactDetailsFixture)
                     _contactDetailsFixture.Dispose();
-
                 _disposed = true;
             }
         }

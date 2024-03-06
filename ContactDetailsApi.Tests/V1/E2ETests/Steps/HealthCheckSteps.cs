@@ -1,5 +1,6 @@
 using FluentAssertions;
 using Hackney.Core.HealthCheck;
+using Hackney.Core.Testing.Shared.E2E;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System;
 using System.Linq;

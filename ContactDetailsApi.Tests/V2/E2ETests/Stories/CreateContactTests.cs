@@ -43,9 +43,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             if (disposing && !_disposed)
             {
-                _contactDetailsFixture?.Dispose();
+                _dbFixture?.Dispose();
                 _snsFixture?.PurgeAllQueueMessages();
-
+                _contactDetailsFixture?.Dispose();
                 _disposed = true;
             }
         }
@@ -154,5 +154,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .Then(t => _steps.ThenThereIsAValidationErrorForField("PostCode"))
                 .BDDfy();
         }
+
     }
 }

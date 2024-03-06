@@ -2,6 +2,7 @@ using ContactDetailsApi.Tests.V1.E2ETests.Fixtures;
 using ContactDetailsApi.V1.Domain.Sns;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
+using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using System;
