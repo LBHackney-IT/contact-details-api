@@ -25,6 +25,7 @@ functions:
     environment:
       ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
       CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
+      AUTH_ALLOWED_GROUPS_EXTERNAL: ${ssm:/housing/${self:providr.stage}/auth-allowed-groups-service-soft}
     events:
       - http:
           path: /{proxy+}

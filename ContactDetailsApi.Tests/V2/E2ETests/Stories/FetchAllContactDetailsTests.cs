@@ -24,6 +24,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             _dbFixture = appFactory.DynamoDbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new FetchAllContactDetailsByUprnStep(appFactory.Client);
+            Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "e2e-testing");
         }
 
         public void Dispose()
@@ -53,6 +54,18 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .When(w => _steps.WhenAllContactDetailsAreRequested())
                 .Then(t => _steps.ThenAllContactDetailsAreReturned())
                 .BDDfy();
+        }
+
+        [Fact]
+        public void ServiceReturnsUnauthorizedWhenUserIsNotInAllowedGroups()
+        {
+            Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "unauthorized-group");
+
+            this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
+                .When(w => _steps.WhenAllContactDetailsAreRequested())
+                .Then(t => _steps.ThenUnauthorizedIsReturned())
+                .BDDfy();
+
         }
     }
 }
