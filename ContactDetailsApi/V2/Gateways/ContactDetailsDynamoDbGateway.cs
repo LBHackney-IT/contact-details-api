@@ -256,6 +256,9 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<List<ContactByUprn>> FetchAllAssets()
         {
             var table = Table.LoadTable(_dynamoDB, "Assets");
+            var load = table.GetItemAsync("986a2a9e-9eb4-0966-120a-238689e3e265");
+            _logger.LogInformation($"Calling IDynamoDBContext.Load with results {load}");
+
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for {table} Assets");
             var search = table.Scan(new ScanOperationConfig
             {
