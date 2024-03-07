@@ -1,7 +1,6 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DataModel;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
@@ -111,16 +110,15 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
 
-
+        [LogCall]
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
         {
             var rawResults = new List<Document>();
 
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
-
+            _logger.LogDebug($"Calling IDynamoDBContext.Scan for {table} Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
-
             });
 
             do
@@ -161,11 +159,13 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
+        [LogCall]
         public async Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds)
         {
             var table = Table.LoadTable(_dynamoDB, "TenureInformation");
 
             var tenureBatchRequest = table.CreateBatchGet();
+            _logger.LogDebug($"Calling IDynamoDBContext.CreateBatchGet for {table} Tenure Information");
 
             foreach (Guid id in tenureIds)
             {
@@ -213,11 +213,14 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
+        [LogCall]
         public async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
         {
             var table = Table.LoadTable(_dynamoDB, "Persons");
+            _logger.LogDebug($"Calling IDynamoDBContext.CreateBatchGet for {table} Persons");
 
             var personBatchRequest = table.CreateBatchGet();
+
 
             foreach (Guid id in personIds)
             {
@@ -249,11 +252,11 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
 
         }
-
-        public async Task<List<Infrastructure.ContactByUprn>> FetchAllAssets()
+        [LogCall]
+        public async Task<List<ContactByUprn>> FetchAllAssets()
         {
             var table = Table.LoadTable(_dynamoDB, "Assets");
-
+            _logger.LogDebug($"Calling IDynamoDBContext.Scan for {table} Assets");
             var search = table.Scan(new ScanOperationConfig
             {
 
