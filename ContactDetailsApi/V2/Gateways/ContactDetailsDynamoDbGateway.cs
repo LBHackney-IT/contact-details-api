@@ -116,7 +116,7 @@ namespace ContactDetailsApi.V2.Gateways
             var rawResults = new List<Document>();
 
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
-            _logger.LogInformation($"Calling IDynamoDBContext.Scan for {table} Contact details");
+            _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
             });
@@ -165,7 +165,7 @@ namespace ContactDetailsApi.V2.Gateways
             var table = Table.LoadTable(_dynamoDB, "TenureInformation");
 
             var tenureBatchRequest = table.CreateBatchGet();
-            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for {table} Tenure Information");
+            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for Tenure Information");
 
             foreach (Guid id in tenureIds)
             {
@@ -217,7 +217,7 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
         {
             var table = Table.LoadTable(_dynamoDB, "Persons");
-            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for {table} Persons");
+            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for Persons");
 
             var personBatchRequest = table.CreateBatchGet();
 
@@ -256,10 +256,7 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<List<ContactByUprn>> FetchAllAssets()
         {
             var table = Table.LoadTable(_dynamoDB, "Assets");
-            var load = table.GetItemAsync("986a2a9e-9eb4-0966-120a-238689e3e265");
-            _logger.LogInformation($"Calling IDynamoDBContext.Load with results {load.Result}");
-
-            _logger.LogInformation($"Calling IDynamoDBContext.Scan for {table} Assets");
+            _logger.LogInformation($"Calling IDynamoDBContext.Scan for Assets");
             var search = table.Scan(new ScanOperationConfig
             {
 
@@ -388,6 +385,14 @@ namespace ContactDetailsApi.V2.Gateways
         [LogCall(LogLevel.Information)]
         public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
         {
+            // 2. Fetch all contact details
+            var contactDetails = await FetchAllContactDetails();
+
+
+            var contactDetailsGroupedByTargetId = contactDetails
+                .GroupBy(c => c.TargetId)
+                .ToDictionary(group => group.Key, group => group.ToList());
+
             // 1. Scan all assets
             var assets = await FetchAllAssets();
 
@@ -396,13 +401,6 @@ namespace ContactDetailsApi.V2.Gateways
                 .Where(x => !string.IsNullOrWhiteSpace(x.Uprn))
                 .ToList();
 
-            // 2. Fetch all contact details
-            var contactDetails = await FetchAllContactDetails();
-
-
-            var contactDetailsGroupedByTargetId = contactDetails
-                .GroupBy(c => c.TargetId)
-                .ToDictionary(group => group.Key, group => group.ToList());
 
             // 2. Fetch tenure records
             var filterTenures = assets.Where(x => !string.IsNullOrWhiteSpace(x.TenureId.ToString())).ToList();
