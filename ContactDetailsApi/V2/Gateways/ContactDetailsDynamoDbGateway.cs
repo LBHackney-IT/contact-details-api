@@ -110,13 +110,13 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
 
-        [LogCall]
+        [LogCall(LogLevel.Information)]
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
         {
             var rawResults = new List<Document>();
 
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
-            _logger.LogDebug($"Calling IDynamoDBContext.Scan for {table} Contact details");
+            _logger.LogInformation($"Calling IDynamoDBContext.Scan for {table} Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
             });
@@ -159,13 +159,13 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
-        [LogCall]
+        [LogCall(LogLevel.Information)]
         public async Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds)
         {
             var table = Table.LoadTable(_dynamoDB, "TenureInformation");
 
             var tenureBatchRequest = table.CreateBatchGet();
-            _logger.LogDebug($"Calling IDynamoDBContext.CreateBatchGet for {table} Tenure Information");
+            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for {table} Tenure Information");
 
             foreach (Guid id in tenureIds)
             {
@@ -213,11 +213,11 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
         }
 
-        [LogCall]
+        [LogCall(LogLevel.Information)]
         public async Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds)
         {
             var table = Table.LoadTable(_dynamoDB, "Persons");
-            _logger.LogDebug($"Calling IDynamoDBContext.CreateBatchGet for {table} Persons");
+            _logger.LogInformation($"Calling IDynamoDBContext.CreateBatchGet for {table} Persons");
 
             var personBatchRequest = table.CreateBatchGet();
 
@@ -252,11 +252,11 @@ namespace ContactDetailsApi.V2.Gateways
             return results;
 
         }
-        [LogCall]
+        [LogCall(LogLevel.Information)]
         public async Task<List<ContactByUprn>> FetchAllAssets()
         {
             var table = Table.LoadTable(_dynamoDB, "Assets");
-            _logger.LogDebug($"Calling IDynamoDBContext.Scan for {table} Assets");
+            _logger.LogInformation($"Calling IDynamoDBContext.Scan for {table} Assets");
             var search = table.Scan(new ScanOperationConfig
             {
 
@@ -296,7 +296,7 @@ namespace ContactDetailsApi.V2.Gateways
 
             return results;
         }
-
+        [LogCall(LogLevel.Information)]
         public List<ContactByUprn> GetContactByUprnForEachAsset(List<ContactByUprn> assets,
                                                                  Dictionary<Guid, TenureInformationDb> tenuresByTenureId,
                                                                  Dictionary<Guid, PersonDbEntity> personById,
@@ -316,7 +316,7 @@ namespace ContactDetailsApi.V2.Gateways
                 }
                 catch (Exception e)
                 {
-                    _logger.LogDebug($"tenuresByTenureId for id {tenureId} failed with the following message {e.Message}");
+                    _logger.LogInformation($"tenuresByTenureId for id {tenureId} failed with the following message {e.Message}");
                     continue;
                 }
 
@@ -332,7 +332,7 @@ namespace ContactDetailsApi.V2.Gateways
                     }
                     catch (Exception e)
                     {
-                        _logger.LogDebug($"personById for id {householdMember.Id} failed with the following message {e.Message}");
+                        _logger.LogInformation($"personById for id {householdMember.Id} failed with the following message {e.Message}");
                         continue;
                     }
                     var person = personById[householdMember.Id];
@@ -343,7 +343,7 @@ namespace ContactDetailsApi.V2.Gateways
                     }
                     catch (Exception e)
                     {
-                        _logger.LogDebug($"contactDetailsGroupedByTargetId for id {person.Id} failed with the following message {e.Message}");
+                        _logger.LogInformation($"contactDetailsGroupedByTargetId for id {person.Id} failed with the following message {e.Message}");
                         continue;
                     }
 
@@ -382,7 +382,7 @@ namespace ContactDetailsApi.V2.Gateways
             return contacts;
         }
 
-        [LogCall]
+        [LogCall(LogLevel.Information)]
         public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
         {
             // 1. Scan all assets
