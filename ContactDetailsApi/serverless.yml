@@ -56,7 +56,7 @@ resources:
     LambdaSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-        GroupName: ${self:service}-${self:provider.stage}-sg
+        GroupName: ${self:service}-${self:provider.stage}-sg-1
         GroupDescription: Allow all outbound traffic
         SecurityGroupEgress:
           - IpProtocol: -1
