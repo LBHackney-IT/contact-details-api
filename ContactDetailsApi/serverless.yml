@@ -189,13 +189,6 @@ custom:
   associateWaf:
     name: Platform_APIs_Web_ACL
     version: V2
-  hostname:
-    Fn::Join:
-      - '.'
-      - - Ref: ApiGatewayRestApi
-        - execute-api
-        - eu-west-2
-        - amazonaws.com
   vpcId:
     development: vpc-0d15f152935c8716f
     staging: vpc-064521a7a4109ba31
