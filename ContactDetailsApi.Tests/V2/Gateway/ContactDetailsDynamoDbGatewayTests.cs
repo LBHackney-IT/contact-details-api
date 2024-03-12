@@ -44,7 +44,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _logger = new Mock<ILogger<ContactDetailsDynamoDbGateway>>();
             _updater = new Mock<IEntityUpdater>();
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object, _dbFixture.DynamoDb);
+            _classUnderTest = new ContactDetailsDynamoDbGateway(_dbFixture.DynamoDbContext, _logger.Object, _updater.Object);
         }
 
         public void Dispose()
@@ -65,32 +65,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
         }
 
-        private async Task InsertDataIntoDynamoDB(AssetDb entity)
-        {
-            await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
-        }
-
-        private async Task InsertDataIntoDynamoDB(IEnumerable<AssetDb> entities)
-        {
-            foreach (var entity in entities)
-            {
-                await InsertDataIntoDynamoDB(entity);
-            }
-        }
-
-        private async Task InsertDataIntoDynamoDB(TenureInformationDb entity)
-        {
-            await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
-        }
-
-        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
-        {
-            foreach (var entity in entities)
-            {
-                await InsertDataIntoDynamoDB(entity);
-            }
-        }
-
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
         {
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
@@ -102,148 +76,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             {
                 await InsertDataIntoDynamoDB(entity);
             }
-        }
-
-
-        private async Task InsertDataIntoDynamoDB(PersonDbEntity entity)
-        {
-            await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
-        }
-
-        private async Task InsertDataIntoDynamoDB(IEnumerable<PersonDbEntity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                await InsertDataIntoDynamoDB(entity);
-            }
-        }
-
-
-        [Fact]
-        public async Task FetchAllContactDetailsByUprnWorksAsExpected()
-        {
-            // Arrange
-            var person = _fixture.Build<PersonDbEntity>()
-                .Without(x => x.VersionNumber)
-                .Create();
-            await InsertDataIntoDynamoDB(person).ConfigureAwait(false);
-
-            var contactInformation = _fixture.Build<ContactDetailsEntity>()
-                .With(x => x.TargetId, person.Id)
-                .CreateMany(2)
-                .ToList();
-
-            await InsertDataIntoDynamoDB(contactInformation).ConfigureAwait(false);
-
-            var tenure = _fixture.Build<TenureInformationDb>()
-                .Without(x => x.VersionNumber)
-                .With(x => x.HouseholdMembers,
-                    _fixture.Build<HouseholdMembers>()
-                    .With(x => x.Id, person.Id)
-                    .CreateMany(1)
-                    .ToList()
-                )
-                .Create();
-
-            await InsertDataIntoDynamoDB(tenure).ConfigureAwait(false);
-
-            var asset = _fixture.Build<AssetDb>()
-                .Without(x => x.VersionNumber)
-                .Create();
-
-            asset.Tenure.Id = tenure.Id.ToString();
-
-            await InsertDataIntoDynamoDB(asset).ConfigureAwait(false);
-
-            // Act
-            var result = await _classUnderTest.FetchAllContactDetailsByUprnUseCase().ConfigureAwait(false);
-            result.Should().NotBeNull();
-        }
-
-        [Fact]
-        public async Task FetchAllAssetsWorksAsExpected()
-        {
-            //Arrange
-            var tenure = _fixture.Build<AssetTenureDb>().With(x => x.Id, Guid.NewGuid().ToString()).Create();
-            var assets = _fixture.Build<AssetDb>()
-                                 .Without(x => x.VersionNumber)
-                                 .With(x => x.Tenure, tenure)
-                                 .CreateMany(10)
-                                 .ToList();
-            await InsertDataIntoDynamoDB(assets).ConfigureAwait(false);
-
-            //Act
-
-            var result = await _classUnderTest.FetchAllAssets().ConfigureAwait(false);
-            result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<ContactByUprn>>();
-            result.Should().HaveCount(10);
-        }
-
-        [Fact]
-        public async Task FetchAllContactDetailsWorksAsExpected()
-        {
-            //Arrange
-            var before = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
-            foreach (var contact in before)
-            {
-                await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false);
-            }
-            var contactDetails = _fixture.Build<ContactDetailsEntity>()
-                                 .CreateMany(10)
-                                 .ToList();
-            await InsertDataIntoDynamoDB(contactDetails).ConfigureAwait(false);
-
-            //Act
-
-            var result = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
-
-            result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<ContactDetailsEntity>>();
-
-            result.Should().HaveCount(10);
-        }
-
-        [Fact]
-        public async Task FetchAllTenuresWorksAsExpected()
-        {
-            var tenures = _fixture.Build<TenureInformationDb>()
-                                  .Without(x => x.VersionNumber)
-                                  .CreateMany(10)
-                                  .ToList();
-            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-            var tenureIds = new List<Guid?>();
-
-            foreach (var tenure in tenures)
-            {
-                tenureIds.Add(tenure.Id);
-            }
-
-            var result = await _classUnderTest.FetchTenures(tenureIds).ConfigureAwait(false);
-            result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<TenureInformationDb>>();
-            result.Should().HaveCount(10);
-        }
-
-        [Fact]
-        public async Task FetchPersonsWorksAsExpected()
-        {
-            var persons = _fixture.Build<PersonDbEntity>()
-                                  .Without(x => x.VersionNumber)
-                                  .CreateMany(10)
-                                  .ToList();
-            await InsertDataIntoDynamoDB(persons).ConfigureAwait(false);
-            var personIds = new List<Guid>();
-
-            foreach (var person in persons)
-            {
-                personIds.Add(person.Id);
-            }
-
-            var result = await _classUnderTest.FetchPersons(personIds).ConfigureAwait(false);
-            result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<PersonDbEntity>>();
-            result.Should().HaveCount(10);
         }
 
         [Fact]
@@ -515,5 +347,45 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             databaseResponse.ContactInformation.Description.Should().Be(newDescription);
         }
+
+        // [Fact]
+        // public async Task FetchContactDetailsReturnsEmptyIfNoEntitiesExist()
+        // {
+        //     // Arrange
+        //     var targetIds = new List<Guid> { Guid.NewGuid() };
+        //
+        //     // Act
+        //     var result = await _classUnderTest.FetchContactDetails(targetIds).ConfigureAwait(false);
+        //
+        //     // Assert
+        //     result.Should().BeEmpty();
+        // }
+        //
+        // [Fact]
+        // public async Task FetchContactDetailsReturnsExpectedEntities()
+        // {
+        //     // Arrange
+        //     var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+        //
+        //     var entities = new List<ContactDetailsEntity>();
+        //     targetIds.ForEach(targetId =>
+        //     {
+        //         var contacts =
+        //             _fixture.Build<ContactDetailsEntity>()
+        //                     .With(x => x.TargetId, targetId)
+        //                     .CreateMany(3);
+        //         entities.AddRange(contacts);
+        //     });
+        //
+        //     await InsertDataIntoDynamoDB(entities).ConfigureAwait(false);
+        //
+        //     // Act
+        //     var result = await _classUnderTest.FetchContactDetails(targetIds).ConfigureAwait(false);
+        //
+        //     // Assert
+        //     result.Keys.Should().HaveCount(2);
+        //     result.Should().ContainKeys(targetIds);
+        //     targetIds.ForEach(id => result[id].Should().HaveCount(3));
+        // }
     }
 }
