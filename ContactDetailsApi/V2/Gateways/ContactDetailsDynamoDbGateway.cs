@@ -101,20 +101,5 @@ namespace ContactDetailsApi.V2.Gateways
 
             return contactDetails.ToDomain();
         }
-
-        // public async Task<Dictionary<Guid, List<ContactDetailsEntity>>> FetchContactDetails(List<Guid> targetIds)
-        // {
-        //     var batchGet = _dynamoDbContext.CreateBatchGet<ContactDetailsEntity>();
-        //     foreach (var targetId in targetIds)
-        //     {
-        //         batchGet.AddKey(targetId, null);
-        //     }
-        //
-        //     _logger.LogInformation($"Calling IDynamoDBContext.BatchGetAsync for ContactDetails with targetIds [{string.Join(", ", targetIds)}]");
-        //     await batchGet.ExecuteAsync().ConfigureAwait(false);
-        //
-        //     var results = batchGet.Results;
-        //     return results.GroupBy(x => x.TargetId).ToDictionary(g => g.Key, g => g.ToList());
-        // }
     }
 }

@@ -10,6 +10,7 @@ using ContactDetailsApi.V2.Domain;
 using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
+using Hackney.Core.Logging;
 
 namespace ContactDetailsApi.V2.UseCase
 {
@@ -27,11 +28,15 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
+        [LogCall]
         public async Task<List<ContactByUprn>> ExecuteAsync()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
 
-            var personIds = tenures.Select(x => x.HouseholdMembers.Select(y => y.Id)).SelectMany(x => x).ToList();
+            var personIds = tenures.Select(x => x.HouseholdMembers.Select(y => y.Id))
+                                   .SelectMany(x => x)
+                                   .Distinct()
+                                   .ToList();
 
             var personsData = await _personGateway.GetPersons(personIds).ConfigureAwait(false);
             var persons = personsData.ToDictionary(x => x.Id, x => x);
@@ -47,6 +52,7 @@ namespace ContactDetailsApi.V2.UseCase
             return ConsolidateData(tenures, persons, contactDetails);
         }
 
+        [LogCall]
         public List<ContactByUprn> ConsolidateData(List<TenureInformationDb> tenures, Dictionary<Guid, PersonDbEntity> persons, Dictionary<Guid, List<ContactDetails>> contactDetails)
         {
             var contactsByUprn = new List<ContactByUprn>();
