@@ -244,7 +244,7 @@ namespace ContactDetailsApi.V2.Gateways
                     Id = (Guid) id,
                     FirstName = firstName,
                     Surname = surname,
-                    Title = (Title) Enum.Parse(typeof(Title), title ?? null)
+                    Title = (Title?) Enum.Parse(typeof(Title), title ?? null)
                 };
 
                 results.Add(entity);
