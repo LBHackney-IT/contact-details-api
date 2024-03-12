@@ -22,7 +22,7 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: ContactDetailsApi::ContactDetailsApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
-    timout: 30 # default is 6
+    timout: 900 # maximum timeout set so scan can work
     environment:
       ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
       CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
