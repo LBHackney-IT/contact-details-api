@@ -116,7 +116,7 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails(FetchAllContactDetailsQuery query)
         {
             //var rawResults = new List<Document>();
-            var pageSize = query.PageSize.HasValue ? query.PageSize.Value : MAX_RESULTS; 
+            var pageSize = query.PageSize.HasValue ? query.PageSize.Value : MAX_RESULTS;
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
             var scan = table.Scan(new ScanOperationConfig
@@ -124,7 +124,7 @@ namespace ContactDetailsApi.V2.Gateways
                 Limit = pageSize,
                 //PaginationToken = PaginationDetails.DecodeToken(query.PaginationToken),
                 //ConsistentRead = true
-            }) ;
+            });
 
             //do
             //{
@@ -271,7 +271,7 @@ namespace ContactDetailsApi.V2.Gateways
                 //ConsistentRead = true
             });
 
-           
+
             var rawResults = await scan.GetNextSetAsync().ConfigureAwait(false);
 
             var results = new List<ContactByUprn>();

@@ -47,7 +47,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         }
 
 
-        [Fact(Skip = "to fix")]
+        [Fact]
         public void ServiceReturnsAllContactDetailsAsRequested()
         {
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())

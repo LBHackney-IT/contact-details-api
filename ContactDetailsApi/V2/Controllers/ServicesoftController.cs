@@ -27,7 +27,7 @@ namespace ContactDetailsApi.V2.Controllers
         [HttpGet]
         [AuthorizeEndpointByGroups("AUTH_ALLOWED_GROUPS_EXTERNAL")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> FetchAllContactDetailsByUprn(FetchAllContactDetailsQuery query)
+        public async Task<IActionResult> FetchAllContactDetailsByUprn([FromQuery] FetchAllContactDetailsQuery query)
         {
             var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync(query);
 
