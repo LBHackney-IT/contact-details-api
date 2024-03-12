@@ -114,12 +114,11 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
         {
             //var rawResults = new List<Document>();
-
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
-                Limit = 10
+                Limit = 100
             });
 
             //do
@@ -261,7 +260,7 @@ namespace ContactDetailsApi.V2.Gateways
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Assets");
             var search = table.Scan(new ScanOperationConfig
             {
-                Limit = 10
+                Limit = 100
             });
 
             //var rawResults = new List<Document>();
