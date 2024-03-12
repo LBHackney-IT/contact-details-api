@@ -1,5 +1,6 @@
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using Hackney.Core.Authorization;
 using Hackney.Core.Logging;
@@ -26,11 +27,12 @@ namespace ContactDetailsApi.V2.Controllers
         [HttpGet]
         [AuthorizeEndpointByGroups("AUTH_ALLOWED_GROUPS_EXTERNAL")]
         [LogCall(LogLevel.Information)]
-        public async Task<IActionResult> FetchAllContactDetailsByUprn()
+        public async Task<IActionResult> FetchAllContactDetailsByUprn(FetchAllContactDetailsQuery query)
         {
-            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
+            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync(query);
 
             return Ok(results);
         }
     }
 }
+

@@ -17,16 +17,16 @@ namespace ContactDetailsApi.V2.Gateways.Interfaces
         Task<List<ContactDetails>> GetContactDetailsByTargetId(ContactQueryParameter query);
         Task<ContactDetails> CreateContact(ContactDetailsEntity contactDetails);
         Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody);
-        Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase();
+        Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase(FetchAllContactDetailsQuery query);
         List<ContactByUprn> GetContactByUprnForEachAsset(List<ContactByUprn> assets,
                                                                  Dictionary<Guid, TenureInformationDb> tenuresByTenureId,
                                                                  Dictionary<Guid, PersonDbEntity> personById,
                                                                  Dictionary<Guid, List<ContactDetailsEntity>> contactDetailsGroupedByTargetId);
 
-        Task<List<ContactByUprn>> FetchAllAssets();
+        Task<List<ContactByUprn>> FetchAllAssets(FetchAllContactDetailsQuery query);
         Task<List<PersonDbEntity>> FetchPersons(List<Guid> personIds);
         Task<List<TenureInformationDb>> FetchTenures(List<Guid?> tenureIds);
-        Task<List<ContactDetailsEntity>> FetchAllContactDetails();
+        Task<List<ContactDetailsEntity>> FetchAllContactDetails(FetchAllContactDetailsQuery query);
 
 
     }

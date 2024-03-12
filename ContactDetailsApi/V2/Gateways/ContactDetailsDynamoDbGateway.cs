@@ -8,6 +8,7 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.Logging;
 using Hackney.Shared.Person.Domain;
 using Hackney.Shared.Person.Infrastructure;
@@ -23,6 +24,7 @@ namespace ContactDetailsApi.V2.Gateways
 {
     public class ContactDetailsDynamoDbGateway : IContactDetailsGateway
     {
+        private const int MAX_RESULTS = 10;
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
         private readonly IAmazonDynamoDB _dynamoDB;
@@ -111,15 +113,18 @@ namespace ContactDetailsApi.V2.Gateways
 
 
         [LogCall(LogLevel.Information)]
-        public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
+        public async Task<List<ContactDetailsEntity>> FetchAllContactDetails(FetchAllContactDetailsQuery query)
         {
             //var rawResults = new List<Document>();
+            var pageSize = query.PageSize.HasValue ? query.PageSize.Value : MAX_RESULTS; 
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
-                Limit = 100
-            });
+                Limit = pageSize,
+                //PaginationToken = PaginationDetails.DecodeToken(query.PaginationToken),
+                //ConsistentRead = true
+            }) ;
 
             //do
             //{
@@ -254,25 +259,20 @@ namespace ContactDetailsApi.V2.Gateways
 
         }
         [LogCall(LogLevel.Information)]
-        public async Task<List<ContactByUprn>> FetchAllAssets()
+        public async Task<List<ContactByUprn>> FetchAllAssets(FetchAllContactDetailsQuery query)
         {
+            var pageSize = query.PageSize.HasValue ? query.PageSize.Value : MAX_RESULTS;
             var table = Table.LoadTable(_dynamoDB, "Assets");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Assets");
-            var search = table.Scan(new ScanOperationConfig
+            var scan = table.Scan(new ScanOperationConfig
             {
-                Limit = 100
+                Limit = pageSize,
+                //PaginationToken = PaginationDetails.DecodeToken(query.PaginationToken),
+                //ConsistentRead = true
             });
 
-            //var rawResults = new List<Document>();
-
-            //do
-            //{
-            //    var nextResults = await search.GetNextSetAsync();
-
-            //    rawResults.AddRange(nextResults);
-            //} while (!search.IsDone);
-
-            var rawResults = await search.GetNextSetAsync().ConfigureAwait(false);
+           
+            var rawResults = await scan.GetNextSetAsync().ConfigureAwait(false);
 
             var results = new List<ContactByUprn>();
 
@@ -386,37 +386,36 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall(LogLevel.Information)]
-        public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase()
+        public async Task<List<ContactByUprn>> FetchAllContactDetailsByUprnUseCase(FetchAllContactDetailsQuery query)
         {
-            // 2. Fetch all contact details
-            var contactDetails = await FetchAllContactDetails();
-
-
-            var contactDetailsGroupedByTargetId = contactDetails
-                .GroupBy(c => c.TargetId)
-                .ToDictionary(group => group.Key, group => group.ToList());
 
             // 1. Scan all assets
-            var assets = await FetchAllAssets();
+            var assets = await FetchAllAssets(query);
 
             // remove assets without a uprn
             var filteredAssets = assets
                 .Where(x => !string.IsNullOrWhiteSpace(x.Uprn))
                 .ToList();
 
+            // 2. Fetch all contact details
+            var contactDetails = await FetchAllContactDetails(query);
 
-            // 2. Fetch tenure records
+            var contactDetailsGroupedByTargetId = contactDetails
+                .GroupBy(c => c.TargetId)
+                .ToDictionary(group => group.Key, group => group.ToList());
+
+            // 3. Fetch tenure records
             var filterTenures = assets.Where(x => !string.IsNullOrWhiteSpace(x.TenureId.ToString())).ToList();
             var tenureIds = filterTenures.Select(x => x.TenureId).Distinct().ToList();
             var tenures = await FetchTenures(tenureIds);
             var tenuresByTenureId = tenures.ToDictionary(x => x.Id, x => x);
 
-            // 3. For each household member, fetch contact details, and person recond
+            // 4. For each household member, fetch contact details, and person recond
             var personIds = tenures.SelectMany(tenure => tenure.HouseholdMembers.Select(x => x.Id)).Distinct().ToList();
             var persons = await FetchPersons(personIds);
             var personById = persons.ToDictionary(x => x.Id, x => x);
 
-            // 4. consolidate the data
+            // 5. consolidate the data
             var contacts = GetContactByUprnForEachAsset(assets, tenuresByTenureId, personById, contactDetailsGroupedByTargetId);
 
             return contacts;

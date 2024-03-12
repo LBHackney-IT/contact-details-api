@@ -9,6 +9,7 @@ using System;
 using Xunit;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
+using ContactDetailsApi.V2.Boundary.Request;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -30,13 +31,13 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task FetchAllContactDetailsShouldBeNull()
         {
             // Arrange
-
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             _mockGateway
-                .Setup(x => x.FetchAllContactDetailsByUprnUseCase())
+                .Setup(x => x.FetchAllContactDetailsByUprnUseCase(query))
                 .ReturnsAsync((List<ContactByUprn>) null);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(query).ConfigureAwait(false);
 
             // Assert
             response.Should().BeNull();
@@ -46,14 +47,15 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task FetchAllContactDetailsReturnsOkResponse()
         {
             // Arrange
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var allContacts = _fixture.Create<List<ContactByUprn>>();
 
             _mockGateway
-                .Setup(x => x.FetchAllContactDetailsByUprnUseCase())
+                .Setup(x => x.FetchAllContactDetailsByUprnUseCase(query))
                 .ReturnsAsync(allContacts);
 
             // Act
-            var response = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            var response = await _classUnderTest.ExecuteAsync(query).ConfigureAwait(false);
 
             // Assert
             response.Should().BeEquivalentTo(allContacts);
@@ -63,15 +65,15 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public void FetchAllContactDetailsThrowsException()
         {
             // Arrange
-
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var exception = new ApplicationException("Test Exception");
 
             _mockGateway
-                .Setup(x => x.FetchAllContactDetailsByUprnUseCase())
+                .Setup(x => x.FetchAllContactDetailsByUprnUseCase(query))
                 .ThrowsAsync(exception);
 
             // Act
-            Func<Task<List<ContactByUprn>>> func = async () => await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            Func<Task<List<ContactByUprn>>> func = async () => await _classUnderTest.ExecuteAsync(query).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

@@ -1,4 +1,5 @@
 using AutoFixture;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Controllers;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
@@ -29,12 +30,13 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task FetchAllContactDetailsReturns200Response()
         {
             // Arrange
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var response = _fixture.Build<ContactByUprn>().CreateMany(2).ToList();
 
-            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync()).ReturnsAsync(response);
+            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(query)).ReturnsAsync(response);
 
             // Act
-            var result = await _classUnderTest.FetchAllContactDetailsByUprn().ConfigureAwait(false);
+            var result = await _classUnderTest.FetchAllContactDetailsByUprn(query).ConfigureAwait(false);
 
             // Assert
             result.Should().BeOfType(typeof(OkObjectResult));
@@ -45,12 +47,13 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public void FetchAllContactDetailsThrowsException()
         {
             // Arrange
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var exception = new ApplicationException("Test Exception");
 
-            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync()).ThrowsAsync(exception);
+            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(query)).ThrowsAsync(exception);
 
             // Act
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.FetchAllContactDetailsByUprn().ConfigureAwait(false);
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.FetchAllContactDetailsByUprn(query).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

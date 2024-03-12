@@ -123,6 +123,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public async Task FetchAllContactDetailsByUprnWorksAsExpected()
         {
             // Arrange
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var person = _fixture.Build<PersonDbEntity>()
                 .Without(x => x.VersionNumber)
                 .Create();
@@ -156,7 +157,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             await InsertDataIntoDynamoDB(asset).ConfigureAwait(false);
 
             // Act
-            var result = await _classUnderTest.FetchAllContactDetailsByUprnUseCase().ConfigureAwait(false);
+            var result = await _classUnderTest.FetchAllContactDetailsByUprnUseCase(query).ConfigureAwait(false);
             result.Should().NotBeNull();
         }
 
@@ -164,6 +165,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public async Task FetchAllAssetsWorksAsExpected()
         {
             //Arrange
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
             var tenure = _fixture.Build<AssetTenureDb>().With(x => x.Id, Guid.NewGuid().ToString()).Create();
             var assets = _fixture.Build<AssetDb>()
                                  .Without(x => x.VersionNumber)
@@ -174,7 +176,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             //Act
 
-            var result = await _classUnderTest.FetchAllAssets().ConfigureAwait(false);
+            var result = await _classUnderTest.FetchAllAssets(query).ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactByUprn>>();
             result.Should().HaveCount(10);
@@ -184,7 +186,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public async Task FetchAllContactDetailsWorksAsExpected()
         {
             //Arrange
-            var before = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
+            var query = _fixture.Create<FetchAllContactDetailsQuery>();
+            var before = await _classUnderTest.FetchAllContactDetails(query).ConfigureAwait(false);
             foreach (var contact in before)
             {
                 await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false);
@@ -196,7 +199,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             //Act
 
-            var result = await _classUnderTest.FetchAllContactDetails().ConfigureAwait(false);
+            var result = await _classUnderTest.FetchAllContactDetails(query).ConfigureAwait(false);
 
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactDetailsEntity>>();

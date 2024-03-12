@@ -1,3 +1,4 @@
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
@@ -18,9 +19,9 @@ namespace ContactDetailsApi.V2.UseCase
             _gateway = gateway;
         }
 
-        public async Task<List<ContactByUprn>> ExecuteAsync()
+        public async Task<List<ContactByUprn>> ExecuteAsync(FetchAllContactDetailsQuery query)
         {
-            var results = await _gateway.FetchAllContactDetailsByUprnUseCase();
+            var results = await _gateway.FetchAllContactDetailsByUprnUseCase(query);
 
             return results;
         }
