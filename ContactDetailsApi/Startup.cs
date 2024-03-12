@@ -1,18 +1,12 @@
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V1.Boundary.Request.Validation;
-using ContactDetailsApi.V1.Factories.Interfaces;
-using ContactDetailsApi.V1.Gateways.Interfaces;
-using ContactDetailsApi.V1.Infrastructure;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
-using ContactDetailsApi.V2.Factories.Interfaces;
-using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using ContactDetailsApi.V2.UseCase;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using ContactDetailsApi.Versioning;
-using FluentValidation.AspNetCore;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.DynamoDb.HealthCheck;
 using Hackney.Core.HealthCheck;
@@ -43,6 +37,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using ContactDetailsApi.V2.Gateways;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 
 namespace ContactDetailsApi
@@ -165,6 +161,8 @@ namespace ContactDetailsApi
         {
             services.AddScoped<V1.Gateways.Interfaces.IContactDetailsGateway, V1.Gateways.ContactDetailsDynamoDbGateway>();
             services.AddScoped<V2.Gateways.Interfaces.IContactDetailsGateway, V2.Gateways.ContactDetailsDynamoDbGateway>();
+            services.AddScoped<ITenureDbGateway, TenureDbGateway>();
+            services.AddScoped<IPersonDbGateway, PersonDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
