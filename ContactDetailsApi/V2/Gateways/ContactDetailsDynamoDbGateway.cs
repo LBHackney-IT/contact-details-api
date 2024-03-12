@@ -244,7 +244,7 @@ namespace ContactDetailsApi.V2.Gateways
                     Id = (Guid) id,
                     FirstName = firstName,
                     Surname = surname,
-                    Title = (Title?) Enum.Parse(typeof(Title?), title)
+                    Title = (Title) Enum.Parse(typeof(Title), title ?? null)
                 };
 
                 results.Add(entity);
@@ -263,7 +263,7 @@ namespace ContactDetailsApi.V2.Gateways
             {
                 Limit = pageSize,
                 //PaginationToken = PaginationDetails.DecodeToken(query.PaginationToken),
-                //ConsistentRead = true
+                ConsistentRead = true
             });
 
 
