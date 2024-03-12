@@ -26,7 +26,7 @@ namespace ContactDetailsApi.V2.Gateways
 
             var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig
             {
-                Limit = 10
+                // Limit = 10
             });
 
             _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
