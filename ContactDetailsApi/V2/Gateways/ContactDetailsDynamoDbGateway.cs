@@ -113,7 +113,7 @@ namespace ContactDetailsApi.V2.Gateways
         [LogCall(LogLevel.Information)]
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails()
         {
-            var rawResults = new List<Document>();
+            //var rawResults = new List<Document>();
 
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
@@ -122,12 +122,13 @@ namespace ContactDetailsApi.V2.Gateways
                 Limit = 10
             });
 
-            do
-            {
-                var newResults = await scan.GetNextSetAsync();
-                rawResults.AddRange(newResults);
-            }
-            while (!scan.IsDone);
+            //do
+            //{
+            //    var newResults = await scan.GetNextSetAsync();
+            //    rawResults.AddRange(newResults);
+            //}
+            //while (!scan.IsDone);
+            var rawResults = await scan.GetNextSetAsync().ConfigureAwait(false);
 
             var results = new List<ContactDetailsEntity>();
 
@@ -263,14 +264,16 @@ namespace ContactDetailsApi.V2.Gateways
                 Limit = 10
             });
 
-            var rawResults = new List<Document>();
+            //var rawResults = new List<Document>();
 
-            do
-            {
-                var nextResults = await search.GetNextSetAsync();
+            //do
+            //{
+            //    var nextResults = await search.GetNextSetAsync();
 
-                rawResults.AddRange(nextResults);
-            } while (!search.IsDone);
+            //    rawResults.AddRange(nextResults);
+            //} while (!search.IsDone);
+
+            var rawResults = await search.GetNextSetAsync().ConfigureAwait(false);
 
             var results = new List<ContactByUprn>();
 
