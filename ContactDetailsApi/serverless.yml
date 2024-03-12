@@ -22,6 +22,7 @@ functions:
     name: ${self:service}-${self:provider.stage}
     handler: ContactDetailsApi::ContactDetailsApi.LambdaEntryPoint::FunctionHandlerAsync
     role: lambdaExecutionRole
+    timout: 30 # default is 6
     environment:
       ASPNETCORE_ENVIRONMENT:  ${ssm:/housing-tl/${self:provider.stage}/aspnetcore-environment}
       CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
@@ -56,7 +57,7 @@ resources:
     LambdaSecurityGroup:
       Type: AWS::EC2::SecurityGroup
       Properties:
-        GroupName: ${self:service}-${self:provider.stage}-sg-2
+        GroupName: ${self:service}-${self:provider.stage}-sg-2  
         GroupDescription: Allow all outbound traffic
         SecurityGroupEgress:
           - IpProtocol: -1
@@ -205,8 +206,8 @@ custom:
       securityGroupIds:
         - Ref: LambdaSecurityGroup
       subnetIds:
-        - subnet-029aded4e4b739233
-        - subnet-0c522aafcb373a205
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
     staging:
       securityGroupIds:
         - Ref: LambdaSecurityGroup
