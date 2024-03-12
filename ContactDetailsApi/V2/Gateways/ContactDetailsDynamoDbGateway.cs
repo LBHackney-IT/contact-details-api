@@ -115,7 +115,6 @@ namespace ContactDetailsApi.V2.Gateways
         [LogCall(LogLevel.Information)]
         public async Task<List<ContactDetailsEntity>> FetchAllContactDetails(FetchAllContactDetailsQuery query)
         {
-            //var rawResults = new List<Document>();
             var pageSize = query.PageSize.HasValue ? query.PageSize.Value : MAX_RESULTS;
             var table = Table.LoadTable(_dynamoDB, "ContactDetails");
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
@@ -126,12 +125,7 @@ namespace ContactDetailsApi.V2.Gateways
                 //ConsistentRead = true
             });
 
-            //do
-            //{
-            //    var newResults = await scan.GetNextSetAsync();
-            //    rawResults.AddRange(newResults);
-            //}
-            //while (!scan.IsDone);
+           
             var rawResults = await scan.GetNextSetAsync().ConfigureAwait(false);
 
             var results = new List<ContactDetailsEntity>();
@@ -244,6 +238,7 @@ namespace ContactDetailsApi.V2.Gateways
                 var firstName = result["firstName"];
                 var surname = result["surname"];
                 var title = result["title"];
+                _logger.LogInformation($"title is {title} for person Id {id}");
                 var entity = new PersonDbEntity
                 {
                     Id = (Guid) id,
