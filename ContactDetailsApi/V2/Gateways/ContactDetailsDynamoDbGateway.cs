@@ -119,7 +119,7 @@ namespace ContactDetailsApi.V2.Gateways
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Contact details");
             var scan = table.Scan(new ScanOperationConfig
             {
-                Limit = 20
+                Limit = 10
             });
 
             do
@@ -260,7 +260,7 @@ namespace ContactDetailsApi.V2.Gateways
             _logger.LogInformation($"Calling IDynamoDBContext.Scan for Assets");
             var search = table.Scan(new ScanOperationConfig
             {
-                Limit = 20
+                Limit = 10
             });
 
             var rawResults = new List<Document>();
