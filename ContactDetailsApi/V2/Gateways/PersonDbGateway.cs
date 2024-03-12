@@ -23,7 +23,7 @@ namespace ContactDetailsApi.V2.Gateways
         [LogCall]
         public async Task<List<PersonDbEntity>> GetPersons(List<Guid> ids)
         {
-            _logger.LogInformation($"Calling IDynamoDBContext.BatchGetAsync for persons with ids [{string.Join(", ", ids)}]");
+            _logger.LogInformation($"Calling IDynamoDBContext.BatchGetAsync for {ids.Count} persons");
             var batchGet = _dynamoDbContext.CreateBatchGet<PersonDbEntity>();
             foreach (var id in ids)
             {

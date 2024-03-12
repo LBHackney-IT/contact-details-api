@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
-using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
 using Hackney.Core.Logging;
@@ -32,6 +31,7 @@ namespace ContactDetailsApi.V2.UseCase
         public async Task<List<ContactByUprn>> ExecuteAsync()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
+            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null).ToList();
 
             var personIds = tenures.Select(x => x.HouseholdMembers.Select(y => y.Id))
                                    .SelectMany(x => x)
@@ -93,7 +93,7 @@ namespace ContactDetailsApi.V2.UseCase
                 contactsByUprn.Add(new ContactByUprn
                 {
                     TenureId = tenure.Id,
-                    Uprn = tenure.TenuredAsset.Uprn,
+                    Uprn = tenure.TenuredAsset?.Uprn,
                     Contacts = contacts
                 }); // Add the contacts to the contactsByUprn list
             }
