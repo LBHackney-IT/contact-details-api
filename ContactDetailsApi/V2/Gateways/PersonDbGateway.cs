@@ -21,7 +21,7 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<List<PersonDbEntity>> GetPersons(List<Guid> ids)
+        public async Task<IEnumerable<PersonDbEntity>> GetPersons(List<Guid> ids)
         {
             _logger.LogInformation($"Calling IDynamoDBContext.BatchGetAsync for {ids.Count} persons");
             var batchGet = _dynamoDbContext.CreateBatchGet<PersonDbEntity>();

@@ -7,5 +7,5 @@ namespace ContactDetailsApi.V2.Gateways.Interfaces;
 
 public interface IPersonDbGateway
 {
-    Task<List<PersonDbEntity>> GetPersons(List<Guid> ids);
+    Task<IEnumerable<PersonDbEntity>> GetPersons(List<Guid> ids);
 }

@@ -7,6 +7,6 @@ namespace ContactDetailsApi.V2.Gateways.Interfaces
     public interface ITenureDbGateway
     {
 
-        public Task<List<TenureInformationDb>> GetAllTenures();
+        public Task<IEnumerable<TenureInformationDb>> GetAllTenures();
     }
 }

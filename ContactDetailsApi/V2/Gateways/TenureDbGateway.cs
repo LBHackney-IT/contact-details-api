@@ -21,13 +21,10 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<List<TenureInformationDb>> GetAllTenures()
+        public async Task<IEnumerable<TenureInformationDb>> GetAllTenures()
         {
 
-            var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig
-            {
-                // Limit = 10
-            });
+            var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig());
 
             _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
             return await search.GetNextSetAsync().ConfigureAwait(false);
