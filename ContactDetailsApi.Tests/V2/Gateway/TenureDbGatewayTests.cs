@@ -67,9 +67,13 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             var result = await _classUnderTest.GetAllTenures().ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();
-            result.Should().BeEquivalentTo(tenures);
             result.Should().HaveCount(10);
+            result.Should().BeEquivalentTo(tenures);
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for all tenures", Times.Once());
+            foreach (var tenure in tenures)
+            {
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
+            }
         }
     }
 }

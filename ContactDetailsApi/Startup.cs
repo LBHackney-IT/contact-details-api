@@ -40,6 +40,8 @@ using System.Reflection;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
+using Hackney.Shared.Person.Infrastructure;
+using Hackney.Shared.Tenure.Infrastructure;
 
 namespace ContactDetailsApi
 {
@@ -76,6 +78,8 @@ namespace ContactDetailsApi
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
             services.AddDynamoDbHealthCheck<ContactDetailsEntity>();
+            services.AddDynamoDbHealthCheck<PersonDbEntity>();
+            services.AddDynamoDbHealthCheck<TenureInformationDb>();
 
             services.AddSwaggerGen(c =>
             {
