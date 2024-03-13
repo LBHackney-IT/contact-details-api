@@ -10,8 +10,6 @@ using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
-using Hackney.Shared.Asset.Domain;
-using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
