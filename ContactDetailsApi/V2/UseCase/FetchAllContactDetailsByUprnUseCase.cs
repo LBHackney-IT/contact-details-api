@@ -8,10 +8,8 @@ using System.Threading.Tasks;
 using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
-using Hackney.Shared.Person.Infrastructure;
-using Hackney.Shared.Tenure.Infrastructure;
-using Hackney.Core.Logging;
 using Hackney.Shared.Tenure.Domain;
+using Hackney.Core.Logging;
 
 namespace ContactDetailsApi.V2.UseCase
 {
@@ -29,14 +27,14 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async Task<IEnumerable<TenureInformationDb>> GetTenures()
+        private async Task<IEnumerable<TenureInformation>> GetTenures()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
             tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null).ToList();
             return tenures;
         }
 
-        private async Task<Dictionary<Guid, PersonDbEntity>> GetPersons(List<Guid> personIds)
+        private async Task<Dictionary<Guid, Hackney.Shared.Person.Person>> GetPersons(List<Guid> personIds)
         {
             var personsData = await _personGateway.GetPersons(personIds).ConfigureAwait(false);
             var persons = personsData.ToDictionary(x => x.Id, x => x);
@@ -59,7 +57,7 @@ namespace ContactDetailsApi.V2.UseCase
             return contactDetails;
         }
 
-        private static List<Guid> FilterPersonIds(IEnumerable<TenureInformationDb> tenures)
+        private static List<Guid> FilterPersonIds(IEnumerable<TenureInformation> tenures)
         {
             var personIds = tenures.Select(x => x.HouseholdMembers.Select(y => y.Id))
                 .SelectMany(x => x)
@@ -92,24 +90,24 @@ namespace ContactDetailsApi.V2.UseCase
             // Add personContactDetails if contactDetails are found, else empty list
         }
 
-        private static List<Person> GetTenureContacts(Dictionary<Guid, PersonDbEntity> persons, Dictionary<Guid, List<ContactDetails>> contactDetails, TenureInformationDb tenure)
+        private static List<Person> GetTenureContacts(Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, List<ContactDetails>> contactDetails, TenureInformation tenure)
         {
             var contacts = new List<Person>();
 
             // Loop through each household member and create a Person object for each one
-            tenure.HouseholdMembers.ForEach(householdMember =>
+            foreach (var householdMember in tenure.HouseholdMembers)
             {
                 if (!persons.TryGetValue(householdMember.Id, out var personDetails))
-                    return; // Skip if the person details are not found
+                    continue; // Skip if the person details are not found
 
                 var personContactDetails = PersonContactDetailsList(contactDetails, householdMember);
                 contacts.Add(personDetails.ToContactByUprnPerson(householdMember, personContactDetails)); // Add the person to the contacts list
-            });
+            }
             return contacts;
         }
 
         [LogCall]
-        public List<ContactByUprn> ConsolidateData(IEnumerable<TenureInformationDb> tenures, Dictionary<Guid, PersonDbEntity> persons, Dictionary<Guid, List<ContactDetails>> contactDetails)
+        public List<ContactByUprn> ConsolidateData(IEnumerable<TenureInformation> tenures, Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, List<ContactDetails>> contactDetails)
         {
             var contactsByUprn = new List<ContactByUprn>();
 

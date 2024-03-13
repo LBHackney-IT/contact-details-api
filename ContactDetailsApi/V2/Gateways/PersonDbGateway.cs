@@ -6,6 +6,9 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Person.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Hackney.Core.Logging;
+using System.Linq;
+using Hackney.Shared.Person.Factories;
+using Hackney.Shared.Person;
 
 namespace ContactDetailsApi.V2.Gateways
 {
@@ -21,7 +24,7 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<IEnumerable<PersonDbEntity>> GetPersons(List<Guid> ids)
+        public async Task<IEnumerable<Person>> GetPersons(List<Guid> ids)
         {
             _logger.LogInformation($"Calling IDynamoDBContext.BatchGetAsync for {ids.Count} persons");
             var batchGet = _dynamoDbContext.CreateBatchGet<PersonDbEntity>();
@@ -31,7 +34,7 @@ namespace ContactDetailsApi.V2.Gateways
             }
 
             await batchGet.ExecuteAsync().ConfigureAwait(false);
-            return batchGet.Results;
+            return batchGet.Results.Select(x => x.ToDomain());
         }
     }
 }

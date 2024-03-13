@@ -6,9 +6,7 @@ using Hackney.Core.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -127,7 +125,7 @@ namespace ContactDetailsApi.V2.Factories
                 .ToList();
         }
 
-        public static Person ToContactByUprnPerson(this PersonDbEntity personDetails, HouseholdMembers householdMember,
+        public static Person ToContactByUprnPerson(this Hackney.Shared.Person.Person personDetails, HouseholdMembers householdMember,
             List<PersonContactDetails> contactDetails)
         {
             return new Person
@@ -141,7 +139,7 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
-        public static ContactByUprn ToContactByUprn(this TenureInformationDb tenure, List<Person> contacts)
+        public static ContactByUprn ToContactByUprn(this TenureInformation tenure, List<Person> contacts)
         {
             return new ContactByUprn
             {

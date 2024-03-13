@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Hackney.Shared.Person.Infrastructure;
+using Hackney.Shared.Person;
 
 namespace ContactDetailsApi.V2.Gateways.Interfaces;
 
 public interface IPersonDbGateway
 {
-    Task<IEnumerable<PersonDbEntity>> GetPersons(List<Guid> ids);
+    Task<IEnumerable<Person>> GetPersons(List<Guid> ids);
 }

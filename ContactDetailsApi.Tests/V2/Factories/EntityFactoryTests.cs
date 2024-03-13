@@ -7,6 +7,7 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
+using Hackney.Shared.Tenure.Domain;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -264,6 +265,164 @@ namespace ContactDetailsApi.Tests.V2.Factories
             }
 
             return databaseEntities;
+        }
+
+        [Fact]
+        public void CanMapContactDetailsEntityToDomainObject()
+        {
+            // Arrange
+            var databaseEntity = _fixture.Create<ContactDetailsEntity>();
+
+            // Act
+            var entity = databaseEntity.ToDomain();
+
+            // Assert
+            entity.Id.Should().Be(databaseEntity.Id);
+            entity.TargetId.Should().Be(databaseEntity.TargetId);
+            entity.TargetType.Should().Be(databaseEntity.TargetType);
+            entity.ContactInformation.Should().Be(databaseEntity.ContactInformation);
+            entity.SourceServiceArea.Should().Be(databaseEntity.SourceServiceArea);
+            entity.CreatedBy.Should().Be(databaseEntity.CreatedBy);
+            entity.IsActive.Should().Be(databaseEntity.IsActive);
+            entity.RecordValidUntil.Should().Be(databaseEntity.RecordValidUntil);
+            entity.LastModified.Should().Be(databaseEntity.LastModified);
+        }
+
+        [Fact]
+        public void CanMapContactDetailsRequestObjectToDomainObject()
+        {
+            // Arrange
+            var entity = _fixture.Create<ContactDetailsRequestObject>();
+            var token = _fixture.Create<Token>();
+
+            // Act
+            var domainEntity = entity.ToDomain(token);
+
+            // Assert
+            domainEntity.Id.Should().NotBe(Guid.Empty);
+            domainEntity.TargetId.Should().Be(entity.TargetId);
+            domainEntity.TargetType.Should().Be(entity.TargetType);
+            domainEntity.ContactInformation.Should().Be(entity.ContactInformation);
+            domainEntity.SourceServiceArea.Should().Be(entity.SourceServiceArea);
+            domainEntity.CreatedBy.Should().Be(token.ToCreatedBy());
+            domainEntity.IsActive.Should().BeTrue();
+            domainEntity.RecordValidUntil.Should().Be(entity.RecordValidUntil);
+            domainEntity.LastModified.Should().BeNull();
+        }
+
+        [Fact]
+        public void CanMapEditContactDetailsRequestToEditContactDetailsDatabase()
+        {
+            // Arrange
+            var request = _fixture.Create<EditContactDetailsRequest>();
+
+            // Act
+            var databaseEntity = request.ToDatabase();
+
+            // Assert
+            databaseEntity.ContactInformation.Should().Be(request.ContactInformation);
+            databaseEntity.LastModified.Should().BeCloseTo(DateTime.UtcNow, 1000);
+        }
+
+        [Fact]
+        public void CanMapContactDetailsToContactDetailsEntity()
+        {
+            // Arrange
+            var domain = _fixture.Create<ContactDetails>();
+
+            // Act
+            var databaseEntity = domain.ToDatabase();
+
+            // Assert
+            databaseEntity.Id.Should().Be(domain.Id);
+            databaseEntity.TargetId.Should().Be(domain.TargetId);
+            databaseEntity.TargetType.Should().Be(domain.TargetType);
+            databaseEntity.ContactInformation.Should().Be(domain.ContactInformation);
+            databaseEntity.SourceServiceArea.Should().Be(domain.SourceServiceArea);
+            databaseEntity.CreatedBy.Should().Be(domain.CreatedBy);
+            databaseEntity.IsActive.Should().Be(domain.IsActive);
+            databaseEntity.RecordValidUntil.Should().Be(domain.RecordValidUntil);
+            databaseEntity.LastModified.Should().Be(domain.LastModified);
+        }
+
+        [Fact]
+        public void CanMapContactDetailsEntityCollectionToDomainObjectCollection()
+        {
+            // Arrange
+            var databaseEntities = _fixture.CreateMany<ContactDetailsEntity>(10);
+
+            // Act
+            var entities = databaseEntities.ToDomain();
+
+            // Assert
+            entities.Should().BeEquivalentTo(databaseEntities);
+            entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
+        }
+
+        // ServiceSoft Endpoint Factories
+
+        [Fact]
+        public void CanMapContactDetailsToPersonContactDetails()
+        {
+            // Arrange
+            var databaseEntity = _fixture.Create<ContactDetails>();
+
+            // Act
+            var personContactDetails = databaseEntity.ToUprnContact();
+
+            // Assert
+            personContactDetails.ContactType.Should().Be(databaseEntity.ContactInformation.ContactType);
+            personContactDetails.SubType.Should().Be(databaseEntity.ContactInformation.SubType);
+            personContactDetails.Value.Should().Be(databaseEntity.ContactInformation.Value);
+        }
+
+        [Fact]
+        public void CanMapContactDetailsCollectionToPersonContactDetailsList()
+        {
+            // Arrange
+            var databaseEntities = _fixture.CreateMany<ContactDetails>(10);
+
+            // Act
+            var personContactDetailsList = databaseEntities.ToContactByUprnPersonContacts();
+
+            // Assert
+            personContactDetailsList.Should().BeEquivalentTo(databaseEntities, options => options.ExcludingMissingMembers());
+        }
+
+        [Fact]
+        public void CanMapPersonDetailsToPerson()
+        {
+            // Arrange
+            var personDetails = _fixture.Create<Hackney.Shared.Person.Person>();
+            var householdMember = _fixture.Create<HouseholdMembers>();
+            var contactDetails = _fixture.Create<List<PersonContactDetails>>();
+
+            // Act
+            var person = personDetails.ToContactByUprnPerson(householdMember, contactDetails);
+
+            // Assert
+            person.PersonTenureType.Should().Be(householdMember.PersonTenureType);
+            person.IsResponsible.Should().Be(householdMember.IsResponsible);
+            person.FirstName.Should().Be(personDetails.FirstName);
+            person.LastName.Should().Be(personDetails.Surname);
+            person.Title.Should().Be(personDetails.Title);
+            person.PersonContactDetails.Should().BeEquivalentTo(contactDetails);
+        }
+
+        [Fact]
+        public void CanMapTenureInformationToContactByUprn()
+        {
+            // Arrange
+            var tenure = _fixture.Create<TenureInformation>();
+            var contacts = _fixture.Create<List<Person>>();
+
+            // Act
+            var contactByUprn = tenure.ToContactByUprn(contacts);
+
+            // Assert
+            contactByUprn.TenureId.Should().Be(tenure.Id);
+            contactByUprn.Uprn.Should().Be(tenure.TenuredAsset?.Uprn);
+            contactByUprn.Contacts.Should().BeEquivalentTo(contacts);
         }
     }
 }

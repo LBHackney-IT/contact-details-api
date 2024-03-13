@@ -6,6 +6,9 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Hackney.Core.Logging;
+using Hackney.Shared.Tenure.Domain;
+using System.Linq;
+using Hackney.Shared.Tenure.Factories;
 
 namespace ContactDetailsApi.V2.Gateways
 {
@@ -21,13 +24,15 @@ namespace ContactDetailsApi.V2.Gateways
         }
 
         [LogCall]
-        public async Task<IEnumerable<TenureInformationDb>> GetAllTenures()
+        public async Task<IEnumerable<TenureInformation>> GetAllTenures()
         {
 
             var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig());
 
             _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
-            return await search.GetNextSetAsync().ConfigureAwait(false);
+
+            var results = await search.GetNextSetAsync().ConfigureAwait(false);
+            return results.Select(x => x.ToDomain());
         }
     }
 }

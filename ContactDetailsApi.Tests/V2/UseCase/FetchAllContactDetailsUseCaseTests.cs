@@ -15,6 +15,8 @@ using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
 using Person = Hackney.Shared.Person.Person;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Person.Factories;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -42,16 +44,16 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public void ConsolidateDataReturnsListOfContacts()
         {
             // Arrange
-            var person = _fixture.Create<PersonDbEntity>();
+            var person = _fixture.Create<Person>();
             var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).CreateMany().ToList();
             var householdMembers = new List<HouseholdMembers>
             {
                 _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).Create()
             };
-            var tenure = _fixture.Build<TenureInformationDb>().With(x => x.HouseholdMembers, householdMembers).Create();
+            var tenure = _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Create();
 
-            var tenures = new List<TenureInformationDb> { tenure };
-            var persons = new Dictionary<Guid, PersonDbEntity> { { person.Id, person } };
+            var tenures = new List<TenureInformation> { tenure };
+            var persons = new Dictionary<Guid, Person> { { person.Id, person } };
             var contactDetailsDict = new Dictionary<Guid, List<ContactDetails>> { { person.Id, contactDetails } };
 
             // Act
@@ -84,15 +86,15 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public void ConsolidateDataReturnsListOfContactsWhenNoContactDetails()
         {
             // Arrange
-            var person = _fixture.Create<PersonDbEntity>();
+            var person = _fixture.Create<Person>();
             var householdMembers = new List<HouseholdMembers>
             {
                 _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).Create()
             };
-            var tenure = _fixture.Build<TenureInformationDb>().With(x => x.HouseholdMembers, householdMembers).Create();
+            var tenure = _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Create();
 
-            var tenures = new List<TenureInformationDb> { tenure };
-            var persons = new Dictionary<Guid, PersonDbEntity> { { person.Id, person } };
+            var tenures = new List<TenureInformation> { tenure };
+            var persons = new Dictionary<Guid, Person> { { person.Id, person } };
             var contactDetailsDict = new Dictionary<Guid, List<ContactDetails>>();
 
             // Act
@@ -121,16 +123,16 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task ExecuteAsyncReturnsListOfContacts()
         {
             // Arrange
-            var person = _fixture.Create<PersonDbEntity>();
+            var person = _fixture.Create<Person>();
             var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).CreateMany().ToList();
             var householdMembers = new List<HouseholdMembers>
             {
                 _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).Create()
             };
-            var tenure = _fixture.Build<TenureInformationDb>().With(x => x.HouseholdMembers, householdMembers).Create();
+            var tenure = _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Create();
 
-            _mockTenureGateway.Setup(x => x.GetAllTenures()).ReturnsAsync(new List<TenureInformationDb> { tenure });
-            _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<PersonDbEntity> { person });
+            _mockTenureGateway.Setup(x => x.GetAllTenures()).ReturnsAsync(new List<TenureInformation> { tenure });
+            _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<Person> { person });
             _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(It.IsAny<ContactQueryParameter>())).ReturnsAsync(contactDetails);
 
             // Act
