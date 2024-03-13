@@ -70,14 +70,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
-        private async Task InsertDataIntoDynamoDB(IEnumerable<ContactDetailsEntity> entities)
-        {
-            foreach (var entity in entities)
-            {
-                await InsertDataIntoDynamoDB(entity);
-            }
-        }
-
         [Fact]
         public async Task CreateContactDetailsCreatesRecord()
         {
@@ -347,45 +339,5 @@ namespace ContactDetailsApi.Tests.V2.Gateway
 
             databaseResponse.ContactInformation.Description.Should().Be(newDescription);
         }
-
-        // [Fact]
-        // public async Task FetchContactDetailsReturnsEmptyIfNoEntitiesExist()
-        // {
-        //     // Arrange
-        //     var targetIds = new List<Guid> { Guid.NewGuid() };
-        //
-        //     // Act
-        //     var result = await _classUnderTest.FetchContactDetails(targetIds).ConfigureAwait(false);
-        //
-        //     // Assert
-        //     result.Should().BeEmpty();
-        // }
-        //
-        // [Fact]
-        // public async Task FetchContactDetailsReturnsExpectedEntities()
-        // {
-        //     // Arrange
-        //     var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-        //
-        //     var entities = new List<ContactDetailsEntity>();
-        //     targetIds.ForEach(targetId =>
-        //     {
-        //         var contacts =
-        //             _fixture.Build<ContactDetailsEntity>()
-        //                     .With(x => x.TargetId, targetId)
-        //                     .CreateMany(3);
-        //         entities.AddRange(contacts);
-        //     });
-        //
-        //     await InsertDataIntoDynamoDB(entities).ConfigureAwait(false);
-        //
-        //     // Act
-        //     var result = await _classUnderTest.FetchContactDetails(targetIds).ConfigureAwait(false);
-        //
-        //     // Assert
-        //     result.Keys.Should().HaveCount(2);
-        //     result.Should().ContainKeys(targetIds);
-        //     targetIds.ForEach(id => result[id].Should().HaveCount(3));
-        // }
     }
 }
