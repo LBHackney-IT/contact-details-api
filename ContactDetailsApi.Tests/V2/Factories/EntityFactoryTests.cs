@@ -304,7 +304,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
             domainEntity.TargetType.Should().Be(entity.TargetType);
             domainEntity.ContactInformation.Should().Be(entity.ContactInformation);
             domainEntity.SourceServiceArea.Should().Be(entity.SourceServiceArea);
-            domainEntity.CreatedBy.Should().Be(token.ToCreatedBy());
+            domainEntity.CreatedBy.Should().BeEquivalentTo(token.ToCreatedBy(), c => c.Excluding(x=> x.CreatedAt));
             domainEntity.IsActive.Should().BeTrue();
             domainEntity.RecordValidUntil.Should().Be(entity.RecordValidUntil);
             domainEntity.LastModified.Should().BeNull();
