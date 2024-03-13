@@ -70,7 +70,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             result.Should().HaveCount(10);
             result.Should().BeEquivalentTo(tenures);
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for all tenures", Times.Once());
-           
+
         }
     }
 }
