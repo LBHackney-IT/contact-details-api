@@ -101,5 +101,41 @@ namespace ContactDetailsApi.V2.Gateways
 
             return contactDetails.ToDomain();
         }
+
+        [LogCall]
+        public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> GetContactDetailsByTargetIds(IEnumerable<Guid> targetIds)
+        {
+            _logger.LogInformation($"Fetching contact details for {targetIds.Count()} persons");
+
+            var contactDetails = new Dictionary<Guid, IEnumerable<ContactDetails>>();
+            foreach (var targetId in targetIds)
+            {
+                var data = await GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = targetId })
+                    .ConfigureAwait(false);
+                contactDetails.Add(targetId, data);
+            }
+
+            return contactDetails;
+        }
+
+        [LogCall]
+        public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> BatchGetContactDetailsByTargetId(List<Guid> targetIds)
+        {
+            var tasks = new List<Task<Dictionary<Guid, IEnumerable<ContactDetails>>>>();
+            var batchSize = 100;
+
+            int numberOfBatches = (int) Math.Ceiling((double) targetIds.Count / batchSize);
+            _logger.LogDebug($"Batching contact details for {targetIds.Count} persons in {numberOfBatches} batches of {batchSize} each.");
+
+            for (int i = 0; i < numberOfBatches; i++)
+            {
+                var currentIds = targetIds.Skip(i * batchSize).Take(batchSize);
+                tasks.Add(GetContactDetailsByTargetIds(currentIds));
+            }
+
+            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
+            return results.SelectMany(dict => dict)
+                          .ToDictionary(pair => pair.Key, pair => pair.Value);
+        }
     }
 }

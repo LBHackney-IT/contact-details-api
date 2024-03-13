@@ -6,17 +6,14 @@ using Moq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System;
+using System.Collections;
 using System.Linq;
 using ContactDetailsApi.V2.Domain;
 using Xunit;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
-using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
 using Person = Hackney.Shared.Person.Person;
-using Hackney.Shared.Tenure.Factories;
-using Hackney.Shared.Person.Factories;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -35,6 +32,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             _mockTenureGateway = new Mock<ITenureDbGateway>();
             _mockPersonGateway = new Mock<IPersonDbGateway>();
             _mockContactDetailsGateway = new Mock<IContactDetailsGateway>();
+
             _classUnderTest = new FetchAllContactDetailsByUprnUseCase(_mockTenureGateway.Object,
                 _mockPersonGateway.Object, _mockContactDetailsGateway.Object);
 
@@ -54,7 +52,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             var tenures = new List<TenureInformation> { tenure };
             var persons = new Dictionary<Guid, Person> { { person.Id, person } };
-            var contactDetailsDict = new Dictionary<Guid, List<ContactDetails>> { { person.Id, contactDetails } };
+            var contactDetailsDict = new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } };
 
             // Act
             var result = _classUnderTest.ConsolidateData(tenures, persons, contactDetailsDict);
@@ -95,7 +93,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             var tenures = new List<TenureInformation> { tenure };
             var persons = new Dictionary<Guid, Person> { { person.Id, person } };
-            var contactDetailsDict = new Dictionary<Guid, List<ContactDetails>>();
+            var contactDetailsDict = new Dictionary<Guid, IEnumerable<ContactDetails>>();
 
             // Act
             var result = _classUnderTest.ConsolidateData(tenures, persons, contactDetailsDict);

@@ -13,5 +13,6 @@ namespace ContactDetailsApi.V2.Gateways.Interfaces
         Task<List<ContactDetails>> GetContactDetailsByTargetId(ContactQueryParameter query);
         Task<ContactDetails> CreateContact(ContactDetailsEntity contactDetails);
         Task<UpdateEntityResult<ContactDetailsEntity>> EditContactDetails(EditContactDetailsQuery query, EditContactDetailsRequest request, string requestBody);
+        Task<Dictionary<Guid, IEnumerable<ContactDetails>>> BatchGetContactDetailsByTargetId(List<Guid> targetIds);
     }
 }
