@@ -74,8 +74,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var result = await _classUnderTest.GetPersons(personIds).ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();
             result.Should().BeEquivalentTo(persons);
-            result.Should().HaveCount(10);
-            _logger.VerifyExact(LogLevel.Information, $"Calling IDynamoDBContext.BatchGetAsync for {personIds.Count} persons", Times.Once());
+            result.Should().HaveCount(persons.Count);
+            _logger.VerifyExact(LogLevel.Information, $"Calling IDynamoDBContext.BatchGetAsync for {persons.Count} persons", Times.Once());
         }
     }
 }
