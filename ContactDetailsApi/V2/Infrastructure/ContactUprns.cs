@@ -2,6 +2,8 @@ using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using System;
 using System.Collections.Generic;
+using ContactDetailsApi.V1.Domain;
+using Hackney.Shared.Person.Domain;
 
 namespace ContactDetailsApi.V2.Infrastructure
 {
@@ -16,19 +18,19 @@ namespace ContactDetailsApi.V2.Infrastructure
 
     public class Person
     {
-        public string PersonTenureType { get; set; }
+        public PersonTenureType PersonTenureType { get; set; }
         public bool IsResponsible { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public string Title { get; set; }
+        public Title? Title { get; set; }
 
         public List<PersonContactDetails> PersonContactDetails { get; set; }
     }
 
     public class PersonContactDetails
     {
-        public string ContactType { get; set; }
-        public string SubType { get; set; }
+        public ContactType ContactType { get; set; }
+        public SubType? SubType { get; set; }
         public string Value { get; set; }
 
     }

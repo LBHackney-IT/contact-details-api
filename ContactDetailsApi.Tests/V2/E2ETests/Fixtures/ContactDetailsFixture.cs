@@ -3,7 +3,6 @@ using AutoFixture;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Infrastructure;
-using Hackney.Shared.Asset.Infrastructure;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Shared.Tenure.Infrastructure;
@@ -332,15 +331,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
 
             await _dbContext.SaveAsync(tenure).ConfigureAwait(false);
             _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
-
-            var asset = _fixture.Build<AssetDb>()
-                .Without(x => x.VersionNumber)
-                .Create();
-
-            asset.Tenure.Id = tenure.Id.ToString();
-
-            await _dbContext.SaveAsync(asset).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(asset).ConfigureAwait(false));
         }
     }
 }

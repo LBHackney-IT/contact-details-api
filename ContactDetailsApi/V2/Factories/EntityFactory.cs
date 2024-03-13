@@ -6,6 +6,7 @@ using Hackney.Core.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Hackney.Shared.Tenure.Domain;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -103,6 +104,49 @@ namespace ContactDetailsApi.V2.Factories
                 .Select(p => p.ToDomain())
                 .OrderBy(x => x.CreatedBy.CreatedAt)
                 .ToList();
+        }
+
+        // ServiceSoft Endpoint Factories
+
+        public static PersonContactDetails ToUprnContact(this ContactDetails databaseEntity)
+        {
+            return new PersonContactDetails
+            {
+                ContactType = databaseEntity.ContactInformation.ContactType,
+                SubType = databaseEntity.ContactInformation.SubType,
+                Value = databaseEntity.ContactInformation.Value
+            };
+        }
+
+        public static List<PersonContactDetails> ToContactByUprnPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
+        {
+            return databaseEntity
+                .Select(p => p.ToUprnContact())
+                .ToList();
+        }
+
+        public static Person ToContactByUprnPerson(this Hackney.Shared.Person.Person personDetails, HouseholdMembers householdMember,
+            List<PersonContactDetails> contactDetails)
+        {
+            return new Person
+            {
+                PersonTenureType = householdMember.PersonTenureType,
+                IsResponsible = householdMember.IsResponsible,
+                FirstName = personDetails.FirstName,
+                LastName = personDetails.Surname,
+                Title = personDetails.Title,
+                PersonContactDetails = contactDetails
+            };
+        }
+
+        public static ContactByUprn ToContactByUprn(this TenureInformation tenure, List<Person> contacts)
+        {
+            return new ContactByUprn
+            {
+                TenureId = tenure.Id,
+                Uprn = tenure.TenuredAsset?.Uprn,
+                Contacts = contacts
+            };
         }
     }
 }

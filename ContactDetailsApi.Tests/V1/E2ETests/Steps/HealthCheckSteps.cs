@@ -40,8 +40,11 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Steps
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
             apiResult.Status.Should().Be(HealthStatus.Healthy);
-            apiResult.Entries.First().Key.Should().Be("DynamoDb");
-            apiResult.Entries["DynamoDb"].Status.Should().Be(HealthStatus.Healthy);
+            apiResult.Entries.First().Key.Should().Be("DynamoDb_ContactDetailsEntity");
+
+            apiResult.Entries.Should().HaveCount(3);
+            apiResult.Entries.Should().ContainKeys("DynamoDb_ContactDetailsEntity", "DynamoDb_TenureInformationDb", "DynamoDb_PersonDbEntity");
+            apiResult.Entries.Values.Count(x => x.Status == HealthStatus.Healthy).Should().Be(3);
         }
     }
 }
