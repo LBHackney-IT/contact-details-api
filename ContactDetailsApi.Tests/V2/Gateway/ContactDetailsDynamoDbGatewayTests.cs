@@ -347,7 +347,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         {
             // Arrange
             var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-            var contactDetails1 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[0]).With(x=> x.IsActive, true).CreateMany(2).ToList();
+            var contactDetails1 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[0]).With(x => x.IsActive, true).CreateMany(2).ToList();
             var contactDetails2 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[1]).With(x => x.IsActive, true).CreateMany(2).ToList();
 
             await InsertDataIntoDynamoDB(contactDetails1.Select(x => x.ToDatabase()));
@@ -358,7 +358,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var resultList = result.Values.ToList();
 
             // Assert
-            resultList.FirstOrDefault().Should().BeEquivalentTo(contactDetails1, config => config.Excluding(x=> x.LastModified).Excluding(x=> x.RecordValidUntil));
+            resultList.FirstOrDefault().Should().BeEquivalentTo(contactDetails1, config => config.Excluding(x => x.LastModified).Excluding(x => x.RecordValidUntil));
             resultList[1].Should().BeEquivalentTo(contactDetails2, config => config.Excluding(x => x.LastModified).Excluding(x => x.RecordValidUntil));
         }
     }

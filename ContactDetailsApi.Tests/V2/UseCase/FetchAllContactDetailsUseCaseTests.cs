@@ -122,7 +122,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         {
             // Arrange
             var person = _fixture.Create<Person>();
-            var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).With(x=> x.IsActive, true).CreateMany(2).ToList();
+            var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).With(x => x.IsActive, true).CreateMany(2).ToList();
             var householdMembers = new List<HouseholdMembers>
             {
                 _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).Create()
@@ -131,8 +131,8 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             _mockTenureGateway.Setup(x => x.GetAllTenures()).ReturnsAsync(new List<TenureInformation> { tenure });
             _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<Person> { person });
-            _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = person.Id})).ReturnsAsync(contactDetails);
-            _mockContactDetailsGateway.Setup(x=>x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id})).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });
+            _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = person.Id })).ReturnsAsync(contactDetails);
+            _mockContactDetailsGateway.Setup(x => x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id })).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });
 
             // Act
             var result = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
