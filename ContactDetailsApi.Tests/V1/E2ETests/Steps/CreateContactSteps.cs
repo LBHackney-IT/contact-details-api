@@ -6,6 +6,7 @@ using ContactDetailsApi.V1.Factories;
 using ContactDetailsApi.V1.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
+using Hackney.Core.Testing.Shared.E2E;
 using Hackney.Core.Testing.Sns;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;

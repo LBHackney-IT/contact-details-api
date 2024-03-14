@@ -1,7 +1,6 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 
 ENV DynamoDb_LocalMode='true'
-ENV Sns_LocalMode='true'
 
 ARG LBHPACKAGESTOKEN
 ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN

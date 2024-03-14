@@ -1,4 +1,5 @@
 using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V1.Domain.Sns;
 using Hackney.Core.DynamoDb;
 using Hackney.Core.Sns;
@@ -25,8 +26,10 @@ namespace ContactDetailsApi.Tests
                 KeyType = ScalarAttributeType.S,
                 RangeKeyName = "id",
                 RangeKeyType = ScalarAttributeType.S
+            },
+            new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.S },
+            new TableDef { Name = "Persons", KeyName = "id", KeyType = ScalarAttributeType.S }
 
-            }
         };
 
         public HttpClient Client { get; private set; }
