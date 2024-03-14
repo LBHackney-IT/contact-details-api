@@ -146,6 +146,8 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactByUprn>>();
             result.Should().HaveCount(1); // Only 1 tenure
+            result.First().TenureId.Should().Be(tenures.First().Id);
+            result.First().Address.Should().Be(tenures.First().TenuredAsset.FullAddress);
 
             var contacts = result.First().Contacts;
             contacts.Should().HaveCount(1); // Only 1 household member / person

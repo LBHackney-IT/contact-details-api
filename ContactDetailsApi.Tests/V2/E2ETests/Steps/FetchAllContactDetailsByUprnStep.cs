@@ -64,6 +64,8 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             {
                 var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByUprn.TenureId.Value);
                 tenure.ToDomain().IsActive.Should().BeTrue();
+                contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+                contactByUprn.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
             }
         }
 
