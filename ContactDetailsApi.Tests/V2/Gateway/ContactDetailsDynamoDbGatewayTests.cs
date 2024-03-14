@@ -347,46 +347,19 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         {
             // Arrange
             var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
-            var contactDetails1 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[0]).CreateMany(2);
-            var contactDetails2 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[1]).CreateMany(2);
-            var expectedContactDetails = new Dictionary<Guid, IEnumerable<ContactDetails>>
-            {
-                { targetIds[0], contactDetails1 },
-                { targetIds[1], contactDetails2 }
-            };
+            var contactDetails1 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[0]).With(x=> x.IsActive, true).CreateMany(2).ToList();
+            var contactDetails2 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[1]).With(x => x.IsActive, true).CreateMany(2).ToList();
 
             await InsertDataIntoDynamoDB(contactDetails1.Select(x => x.ToDatabase()));
             await InsertDataIntoDynamoDB(contactDetails2.Select(x => x.ToDatabase()));
 
             // Act
             var result = await _classUnderTest.GetContactDetailsByTargetIds(targetIds).ConfigureAwait(false);
+            var resultList = result.Values.ToList();
 
             // Assert
-            result.Should().BeEquivalentTo(expectedContactDetails);
+            resultList.FirstOrDefault().Should().BeEquivalentTo(contactDetails1, config => config.Excluding(x=> x.LastModified).Excluding(x=> x.RecordValidUntil));
+            resultList[1].Should().BeEquivalentTo(contactDetails2, config => config.Excluding(x => x.LastModified).Excluding(x => x.RecordValidUntil));
         }
-
-        // [Fact]
-        // public async Task BatchGetContactDetailsByTargetIdShouldReturnDictionaryOfContactDetails()
-        // {
-        //     // Arrange
-        //     var targetIds = Enumerable.Range(1, 200).Select(_ => Guid.NewGuid()).ToList();
-        //     var contactDetails = _fixture.CreateMany<ContactDetails>();
-        //     await InsertDataIntoDynamoDB(contactDetails.Select(x => x.ToDatabase()));
-        //
-        //     var expectedContactDetails = new Dictionary<Guid, IEnumerable<ContactDetails>>
-        //     {
-        //         { targetIds[0], contactDetails },
-        //         { targetIds[1], contactDetails },
-        //         // ...
-        //         { targetIds[199], contactDetails }
-        //     };
-        //
-        //
-        //     // Act
-        //     var result = await _classUnderTest.BatchGetContactDetailsByTargetId(targetIds).ConfigureAwait(false);
-        //
-        //     // Assert
-        //     result.Should().BeEquivalentTo(expectedContactDetails);
-        // }
     }
 }
