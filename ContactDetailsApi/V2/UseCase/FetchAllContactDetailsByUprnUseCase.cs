@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using Hackney.Shared.Tenure.Domain;
@@ -41,20 +40,9 @@ namespace ContactDetailsApi.V2.UseCase
             return persons;
         }
 
-        private async Task<Dictionary<Guid, List<ContactDetails>>> GetContactDetails(List<Guid> personIds)
+        private async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> GetContactDetails(List<Guid> targetIds)
         {
-            var contactDetails = new Dictionary<Guid, List<ContactDetails>>();
-
-            var tasks = personIds.Select(async personId =>
-            {
-                var data = await _contactGateway
-                    .GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = personId })
-                    .ConfigureAwait(false);
-                contactDetails.Add(personId, data);
-            });
-
-            await Task.WhenAll(tasks).ConfigureAwait(false);
-            return contactDetails;
+            return await _contactGateway.BatchGetContactDetailsByTargetId(targetIds).ConfigureAwait(false);
         }
 
         private static List<Guid> FilterPersonIds(IEnumerable<TenureInformation> tenures)
@@ -68,19 +56,7 @@ namespace ContactDetailsApi.V2.UseCase
             return personIds;
         }
 
-        [LogCall]
-        public async Task<List<ContactByUprn>> ExecuteAsync()
-        {
-            var tenures = await GetTenures().ConfigureAwait(false);
-            var personIds = FilterPersonIds(tenures.ToList());
-
-            var persons = await GetPersons(personIds);
-            var contactDetails = await GetContactDetails(personIds);
-
-            return ConsolidateData(tenures, persons, contactDetails);
-        }
-
-        private static List<PersonContactDetails> PersonContactDetailsList(Dictionary<Guid, List<ContactDetails>> contactDetails, HouseholdMembers householdMember)
+        private static List<PersonContactDetails> PersonContactDetailsList(Dictionary<Guid, IEnumerable<ContactDetails>> contactDetails, HouseholdMembers householdMember)
         {
             if (contactDetails.TryGetValue(householdMember.Id, out var rawContactDetails))
             {
@@ -90,7 +66,7 @@ namespace ContactDetailsApi.V2.UseCase
             // Add personContactDetails if contactDetails are found, else empty list
         }
 
-        private static List<Person> GetTenureContacts(Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, List<ContactDetails>> contactDetails, TenureInformation tenure)
+        private static List<Person> GetTenureContacts(Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, IEnumerable<ContactDetails>> contactDetails, TenureInformation tenure)
         {
             var contacts = new List<Person>();
 
@@ -107,7 +83,7 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         [LogCall]
-        public List<ContactByUprn> ConsolidateData(IEnumerable<TenureInformation> tenures, Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, List<ContactDetails>> contactDetails)
+        public List<ContactByUprn> ConsolidateData(IEnumerable<TenureInformation> tenures, Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, IEnumerable<ContactDetails>> contactDetails)
         {
             var contactsByUprn = new List<ContactByUprn>();
 
@@ -118,6 +94,18 @@ namespace ContactDetailsApi.V2.UseCase
             }
 
             return contactsByUprn;
+        }
+
+        [LogCall]
+        public async Task<List<ContactByUprn>> ExecuteAsync()
+        {
+            var tenures = await GetTenures().ConfigureAwait(false);
+            var personIds = FilterPersonIds(tenures.ToList());
+
+            var persons = await GetPersons(personIds);
+            var contactDetails = await GetContactDetails(personIds);
+
+            return ConsolidateData(tenures, persons, contactDetails);
         }
     }
 }

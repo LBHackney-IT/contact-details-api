@@ -10,18 +10,16 @@ using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
-using Hackney.Shared.Person.Infrastructure;
-using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Factories;
 using Xunit;
 using AddressExtended = ContactDetailsApi.V2.Domain.AddressExtended;
+using ContactDetails = ContactDetailsApi.V2.Domain.ContactDetails;
 using ContactInformation = ContactDetailsApi.V2.Domain.ContactInformation;
 
 namespace ContactDetailsApi.Tests.V2.Gateway
@@ -66,6 +64,12 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         private async Task InsertDataIntoDynamoDB(ContactDetailsEntity entity)
         {
             await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
+        }
+
+        private async Task InsertDataIntoDynamoDB(IEnumerable<ContactDetailsEntity> entities)
+        {
+            foreach (var entity in entities)
+                await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
         }
 
         [Fact]
@@ -336,6 +340,26 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             var databaseResponse = await _dbFixture.DynamoDbContext.LoadAsync<ContactDetailsEntity>(entity.TargetId, entity.Id).ConfigureAwait(false);
 
             databaseResponse.ContactInformation.Description.Should().Be(newDescription);
+        }
+
+        [Fact]
+        public async Task GetContactDetailsByTargetIdsShouldReturnDictionaryOfContactDetails()
+        {
+            // Arrange
+            var targetIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+            var contactDetails1 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[0]).With(x => x.IsActive, true).CreateMany(2).ToList();
+            var contactDetails2 = _fixture.Build<ContactDetails>().With(x => x.TargetId, targetIds[1]).With(x => x.IsActive, true).CreateMany(2).ToList();
+
+            await InsertDataIntoDynamoDB(contactDetails1.Select(x => x.ToDatabase()));
+            await InsertDataIntoDynamoDB(contactDetails2.Select(x => x.ToDatabase()));
+
+            // Act
+            var result = await _classUnderTest.GetContactDetailsByTargetIds(targetIds).ConfigureAwait(false);
+            var resultList = result.Values.ToList();
+
+            // Assert
+            resultList.FirstOrDefault().Should().BeEquivalentTo(contactDetails1, config => config.Excluding(x => x.LastModified).Excluding(x => x.RecordValidUntil));
+            resultList[1].Should().BeEquivalentTo(contactDetails2, config => config.Excluding(x => x.LastModified).Excluding(x => x.RecordValidUntil));
         }
     }
 }
