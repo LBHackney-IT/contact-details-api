@@ -272,9 +272,9 @@ workflows:
           context:
               - api-nuget-token-context
               - SonarCloud
-          filters:
-            branches:
-              only: release
+          # filters:
+          #   branches:
+          #     only: release
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
