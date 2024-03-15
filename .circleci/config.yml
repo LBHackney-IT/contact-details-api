@@ -279,34 +279,34 @@ workflows:
           context: api-assume-role-housing-staging-context
           requires:
               - build-and-test
-          filters:
-             branches:
-               only: release
+          # filters:
+          #    branches:
+          #      only: release
       - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
-          filters:
-            branches:
-              only: release
+          # filters:
+          #   branches:
+          #     only: release
       - terraform-compliance-staging:
           requires:
             - terraform-init-and-plan-staging
-          filters:
-            branches:
-              only: release
+          # filters:
+          #   branches:
+          #     only: release
       - terraform-apply-staging:
           requires:
             - terraform-compliance-staging
-          filters:
-            branches:
-              only: release
+          # filters:
+          #   branches:
+          #     only: release
       - deploy-to-staging:
           context: api-nuget-token-context
           requires:
             - terraform-apply-staging
-          filters:
-            branches:
-              only: release
+          # filters:
+          #   branches:
+          #     only: release
       - permit-production-terraform-release:
           type: approval
           requires:
