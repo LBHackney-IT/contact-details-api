@@ -29,7 +29,10 @@ namespace ContactDetailsApi.V2.UseCase
         private async Task<IEnumerable<TenureInformation>> GetTenures()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
-            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null).ToList();
+            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
+                            .GroupBy(x => x.TenuredAsset.Uprn)
+                            .Select(x => x.FirstOrDefault())
+                             .ToList();
             return tenures;
         }
 
@@ -47,12 +50,12 @@ namespace ContactDetailsApi.V2.UseCase
 
         private static List<Guid> FilterPersonIds(IEnumerable<TenureInformation> tenures)
         {
-            var personIds = tenures.Select(x => x.HouseholdMembers.Select(y => y.Id))
+            var personIds = tenures.Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
+                                                                  .Select(y => y.Id))
                 .SelectMany(x => x)
                 .Distinct()
                 .ToList();
 
-            // TODO: Add filter here to select 1 person per tenure (will be in a future PR)
             return personIds;
         }
 

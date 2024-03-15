@@ -318,19 +318,33 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             }
             Contacts.AddRange(contactInformation);
 
+            var tenant = _fixture.Build<HouseholdMembers>()
+                                                 .With(x => x.Id, person.Id)
+                                                 .With(x => x.IsResponsible, true)
+                                                 .Create();
+
+            var householdMember = _fixture.Build<HouseholdMembers>()
+                .With(x => x.IsResponsible, false)
+                .Create();
+
+            var householdMembers = new List<HouseholdMembers> { tenant, householdMember };
 
             var tenure = _fixture.Build<TenureInformationDb>()
                 .Without(x => x.VersionNumber)
-                .With(x => x.HouseholdMembers,
-                    _fixture.Build<HouseholdMembers>()
-                    .With(x => x.Id, person.Id)
-                    .CreateMany(1)
-                    .ToList()
-                )
+                .Without(x => x.EndOfTenureDate)
+                .With(x => x.HouseholdMembers, householdMembers)
                 .Create();
 
             await _dbContext.SaveAsync(tenure).ConfigureAwait(false);
             _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
+
+            var inactiveTenure = _fixture.Build<TenureInformationDb>()
+                .Without(x => x.VersionNumber)
+                .With(x => x.EndOfTenureDate, DateTime.Today.AddDays(-10))
+                .Create();
+
+            await _dbContext.SaveAsync(inactiveTenure).ConfigureAwait(false);
+            _cleanup.Add(async () => await _dbContext.DeleteAsync(inactiveTenure).ConfigureAwait(false));
         }
     }
 }

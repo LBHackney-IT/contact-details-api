@@ -52,7 +52,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         {
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
                 .When(w => _steps.WhenAllContactDetailsAreRequested())
-                .Then(t => _steps.ThenAllContactDetailsAreReturned())
+                .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))
                 .BDDfy();
         }
 

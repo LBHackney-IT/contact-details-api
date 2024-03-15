@@ -125,11 +125,16 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).With(x => x.IsActive, true).CreateMany(2).ToList();
             var householdMembers = new List<HouseholdMembers>
             {
-                _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).Create()
+                _fixture.Build<HouseholdMembers>().With(x => x.Id, person.Id).With(x => x.IsResponsible, true).Create(),
+                _fixture.Build<HouseholdMembers>().With(x => x.IsResponsible, false).Create(),
             };
-            var tenure = _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Create();
+            var tenures = new List<TenureInformation>
+            {
+                _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Without(x => x.EndOfTenureDate).Create(),
+                _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, DateTime.Today.AddDays(-10)).Create()
+            };
 
-            _mockTenureGateway.Setup(x => x.GetAllTenures()).ReturnsAsync(new List<TenureInformation> { tenure });
+            _mockTenureGateway.Setup(x => x.GetAllTenures()).ReturnsAsync(tenures);
             _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<Person> { person });
             _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = person.Id })).ReturnsAsync(contactDetails);
             _mockContactDetailsGateway.Setup(x => x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id })).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });
@@ -140,10 +145,14 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             // Assert
             result.Should().NotBeNullOrEmpty();
             result.Should().BeOfType<List<ContactByUprn>>();
-            result.Should().HaveCount(1); // 1 tenure
+            result.Should().HaveCount(1); // Only 1 tenure
+            result.First().TenureId.Should().Be(tenures.First().Id);
+            result.First().Address.Should().Be(tenures.First().TenuredAsset.FullAddress);
 
-            result.First().Contacts.Should().HaveCount(1); // 1 household member / person
-            result.First().Contacts.First().PersonContactDetails.Should().HaveCount(contactDetails.Count); // count of contact details
+            var contacts = result.First().Contacts;
+            contacts.Should().HaveCount(1); // Only 1 household member / person
+            contacts.Should().SatisfyRespectively(c => c.IsResponsible.Should().BeTrue());
+            contacts.First().PersonContactDetails.Should().HaveCount(contactDetails.Count); // count of contact details
         }
     }
 }
