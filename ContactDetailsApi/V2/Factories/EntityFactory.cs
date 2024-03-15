@@ -144,6 +144,7 @@ namespace ContactDetailsApi.V2.Factories
             return new ContactByUprn
             {
                 TenureId = tenure.Id,
+                Address = tenure.TenuredAsset?.FullAddress,
                 Uprn = tenure.TenuredAsset?.Uprn,
                 Contacts = contacts
             };

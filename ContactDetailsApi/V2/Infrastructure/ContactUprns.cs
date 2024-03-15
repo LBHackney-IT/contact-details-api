@@ -10,6 +10,7 @@ namespace ContactDetailsApi.V2.Infrastructure
     public class ContactByUprn
     {
         public string Uprn { get; set; }
+        public string Address { get; set; }
         public Guid? TenureId { get; set; }
         public List<Person> Contacts { get; set; }
 

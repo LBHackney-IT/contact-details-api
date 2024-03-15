@@ -1,17 +1,15 @@
-using ContactDetailsApi.Tests.V1.E2ETests.Steps;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
-using Hackney.Core.Middleware;
 using Hackney.Core.Testing.Shared.E2E;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
+using Hackney.Core.Testing.DynamoDb;
+using Hackney.Shared.Tenure.Factories;
+using Hackney.Shared.Tenure.Infrastructure;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
@@ -52,11 +50,23 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             return apiResult;
         }
 
-        public async Task ThenAllContactDetailsAreReturned()
+        public async Task ThenAllContactDetailsAreReturned(IDynamoDbFixture dbFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
             apiResult.Should().NotBeNullOrEmpty();
             apiResult.Should().BeOfType<List<ContactByUprn>>();
+
+            apiResult.Should().SatisfyRespectively(x => x.Contacts.Should().NotBeNullOrEmpty());
+            apiResult.Should().SatisfyRespectively(x => x.Contacts.TrueForAll(x => x.IsResponsible));
+
+            apiResult.Should().OnlyContain(x => x.TenureId != null);
+            foreach (var contactByUprn in apiResult)
+            {
+                var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByUprn.TenureId.Value);
+                tenure.ToDomain().IsActive.Should().BeTrue();
+                contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+                contactByUprn.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
+            }
         }
 
         public async Task ThenUnauthorizedIsReturned()

@@ -421,6 +421,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
 
             // Assert
             contactByUprn.TenureId.Should().Be(tenure.Id);
+            contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
             contactByUprn.Uprn.Should().Be(tenure.TenuredAsset?.Uprn);
             contactByUprn.Contacts.Should().BeEquivalentTo(contacts);
         }
