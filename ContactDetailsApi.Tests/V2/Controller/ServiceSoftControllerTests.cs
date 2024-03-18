@@ -8,6 +8,7 @@ using Moq;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Boundary.Response;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V2.Controller
@@ -29,7 +30,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task FetchAllContactDetailsReturns200Response()
         {
             // Arrange
-            var response = _fixture.Build<ContactByUprn>().CreateMany(2).ToList();
+            var response = _fixture.Create<ContactsByUprnList>();
 
             _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync()).ReturnsAsync(response);
 

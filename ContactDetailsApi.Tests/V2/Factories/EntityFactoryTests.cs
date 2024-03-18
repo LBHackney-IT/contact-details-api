@@ -371,6 +371,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var personContactDetails = databaseEntity.ToUprnContact();
 
             // Assert
+            personContactDetails.Id.Should().Be(databaseEntity.Id);
             personContactDetails.ContactType.Should().Be(databaseEntity.ContactInformation.ContactType);
             personContactDetails.SubType.Should().Be(databaseEntity.ContactInformation.SubType);
             personContactDetails.Value.Should().Be(databaseEntity.ContactInformation.Value);
@@ -401,6 +402,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var person = personDetails.ToContactByUprnPerson(householdMember, contactDetails);
 
             // Assert
+            person.Id.Should().Be(householdMember.Id);
             person.PersonTenureType.Should().Be(householdMember.PersonTenureType);
             person.IsResponsible.Should().Be(householdMember.IsResponsible);
             person.FirstName.Should().Be(personDetails.FirstName);

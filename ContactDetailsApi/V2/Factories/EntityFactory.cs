@@ -112,6 +112,7 @@ namespace ContactDetailsApi.V2.Factories
         {
             return new PersonContactDetails
             {
+                Id = databaseEntity.Id,
                 ContactType = databaseEntity.ContactInformation.ContactType,
                 SubType = databaseEntity.ContactInformation.SubType,
                 Value = databaseEntity.ContactInformation.Value
@@ -130,6 +131,7 @@ namespace ContactDetailsApi.V2.Factories
         {
             return new Person
             {
+                Id = householdMember.Id,
                 PersonTenureType = householdMember.PersonTenureType,
                 IsResponsible = householdMember.IsResponsible,
                 FirstName = personDetails.FirstName,

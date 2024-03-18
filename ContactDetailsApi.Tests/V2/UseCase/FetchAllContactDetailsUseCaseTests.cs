@@ -140,7 +140,8 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             _mockContactDetailsGateway.Setup(x => x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id })).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });
 
             // Act
-            var result = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            var rawResult = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            var result = rawResult.Results;
 
             // Assert
             result.Should().NotBeNullOrEmpty();

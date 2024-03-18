@@ -7,6 +7,8 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Boundary.Response;
+using ContactDetailsApi.V2.Domain;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
@@ -23,7 +25,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
         {
             var token =
                 "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMTUwMTgxMTYwOTIwOTg2NzYxMTMiLCJlbWFpbCI6ImUyZS10ZXN0aW5nQGRldmVsb3BtZW50LmNvbSIsImlzcyI6IkhhY2tuZXkiLCJuYW1lIjoiVGVzdGVyIiwiZ3JvdXBzIjpbImUyZS10ZXN0aW5nIl0sImlhdCI6MTYyMzA1ODIzMn0.SooWAr-NUZLwW8brgiGpi2jZdWjyZBwp4GJikn0PvEw";
-            var route = "api/v2/servicesoft";
+            var route = "api/v2/servicesoft/contactDetails";
             var uri = new Uri(route, UriKind.Relative);
 
             var message = new HttpRequestMessage(HttpMethod.Get, uri);
@@ -42,25 +44,26 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             _lastResponse = await CallApi().ConfigureAwait(false);
         }
 
-        private async Task<List<ContactByUprn>> ExtractResultFromHttpResponse(HttpResponseMessage response)
+        private async Task<ContactsByUprnList> ExtractResultFromHttpResponse(HttpResponseMessage response)
         {
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<List<ContactByUprn>>(responseContent, _jsonOptions);
+            var apiResult = JsonSerializer.Deserialize<ContactsByUprnList>(responseContent, _jsonOptions);
             return apiResult;
         }
 
         public async Task ThenAllContactDetailsAreReturned(IDynamoDbFixture dbFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
-            apiResult.Should().NotBeNullOrEmpty();
-            apiResult.Should().BeOfType<List<ContactByUprn>>();
+            var results = apiResult.Results;
+            results.Should().NotBeNullOrEmpty();
+            results.Should().BeOfType<List<ContactByUprn>>();
 
-            apiResult.Should().SatisfyRespectively(x => x.Contacts.Should().NotBeNullOrEmpty());
-            apiResult.Should().SatisfyRespectively(x => x.Contacts.TrueForAll(x => x.IsResponsible));
+            results.Should().SatisfyRespectively(x => x.Contacts.Should().NotBeNullOrEmpty());
+            results.Should().SatisfyRespectively(x => x.Contacts.TrueForAll(x => x.IsResponsible));
 
-            apiResult.Should().OnlyContain(x => x.TenureId != null);
-            foreach (var contactByUprn in apiResult)
+            results.Should().OnlyContain(x => x.TenureId != null);
+            foreach (var contactByUprn in results)
             {
                 var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByUprn.TenureId.Value);
                 tenure.ToDomain().IsActive.Should().BeTrue();
