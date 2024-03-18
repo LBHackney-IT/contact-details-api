@@ -21,7 +21,9 @@ namespace ContactDetailsApi.V2.Controllers
         {
             _fetchAllContactDetailsByUprnUseCase = fetchAllContactDetailsByUprnUseCase;
         }
+
         [HttpGet]
+        [Route("contactDetails")]
         [AuthorizeEndpointByGroups("AUTH_ALLOWED_GROUPS_EXTERNAL")]
         public async Task<IActionResult> FetchAllContactDetailsByUprn()
         {
