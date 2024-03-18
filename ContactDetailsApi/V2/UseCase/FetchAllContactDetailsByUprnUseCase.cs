@@ -1,5 +1,4 @@
 using ContactDetailsApi.V2.Gateways.Interfaces;
-using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Core.Logging;
+using ContactDetailsApi.V2.Boundary.Response;
 
 namespace ContactDetailsApi.V2.UseCase
 {
@@ -100,7 +100,7 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         [LogCall]
-        public async Task<List<ContactByUprn>> ExecuteAsync()
+        public async Task<ContactsByUprnList> ExecuteAsync()
         {
             var tenures = await GetTenures().ConfigureAwait(false);
             var personIds = FilterPersonIds(tenures.ToList());
@@ -108,7 +108,8 @@ namespace ContactDetailsApi.V2.UseCase
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
-            return ConsolidateData(tenures, persons, contactDetails);
+            var data = ConsolidateData(tenures, persons, contactDetails);
+            return data?.ToResponse();
         }
     }
 }

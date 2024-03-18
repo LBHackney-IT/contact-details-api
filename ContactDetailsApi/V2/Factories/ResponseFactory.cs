@@ -1,5 +1,6 @@
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Domain;
+using ContactDetailsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -28,6 +29,15 @@ namespace ContactDetailsApi.V2.Factories
         {
             if (null == domainList) return new List<ContactDetailsResponseObject>();
             return domainList.Select(domain => domain.ToResponse()).ToList();
+        }
+
+        public static ContactsByUprnList ToResponse(this IEnumerable<ContactByUprn> domainList)
+        {
+            if (domainList == null) return new ContactsByUprnList();
+            return new ContactsByUprnList
+            {
+                Results = domainList
+            };
         }
     }
 }
