@@ -109,7 +109,7 @@ namespace ContactDetailsApi.V2.UseCase
             var contactDetails = await GetContactDetails(personIds);
 
             var data = ConsolidateData(tenures, persons, contactDetails);
-            return data.ToResponse();
+            return data?.ToResponse();
         }
     }
 }
