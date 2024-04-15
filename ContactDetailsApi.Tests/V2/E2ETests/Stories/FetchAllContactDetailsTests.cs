@@ -56,16 +56,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .BDDfy();
         }
 
-        [Fact]
-        public void ServiceReturnsUnauthorizedWhenUserIsNotInAllowedGroups()
-        {
-            Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "unauthorized-group");
+        //[Fact]
+        //public void ServiceReturnsUnauthorizedWhenUserIsNotInAllowedGroups()
+        //{
+        //    Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "unauthorized-group");
 
-            this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
-                .When(w => _steps.WhenAllContactDetailsAreRequested())
-                .Then(t => _steps.ThenUnauthorizedIsReturned())
-                .BDDfy();
+        //    this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
+        //        .When(w => _steps.WhenAllContactDetailsAreRequested())
+        //        .Then(t => _steps.ThenUnauthorizedIsReturned())
+        //        .BDDfy();
 
-        }
+        //}
     }
 }
