@@ -14,6 +14,7 @@ namespace ContactDetailsApi.V2.Factories
     {
         public static ContactDetails ToDomain(this ContactDetailsEntity databaseEntity)
         {
+            if (databaseEntity == null) return null;
             var contactInformation = databaseEntity.ContactInformation;
 
             if (contactInformation.ContactType == V1.Domain.ContactType.address &&
@@ -22,7 +23,6 @@ namespace ContactDetailsApi.V2.Factories
                 // only required for addresses created using v1 endpoint
                 contactInformation.AddressExtended.AddressLine1 = contactInformation.Value;
             }
-            if (databaseEntity == null) return null;
 
             return new ContactDetails
             {
