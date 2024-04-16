@@ -16,7 +16,7 @@ namespace ContactDetailsApi.V2.Factories
         {
             if (databaseEntity == null) return null;
             var contactInformation = databaseEntity.ContactInformation;
-
+            if (contactInformation == null) return null;
             if (contactInformation.ContactType == V1.Domain.ContactType.address &&
                 string.IsNullOrEmpty(contactInformation.AddressExtended.AddressLine1))
             {
