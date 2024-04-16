@@ -42,6 +42,7 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
+using ContactDetailsApi.V2.Domain;
 
 namespace ContactDetailsApi
 {
@@ -152,6 +153,9 @@ namespace ContactDetailsApi
 
 
             ConfigureHackneyCoreDI(services);
+
+            services.Configure<IPWhitelistOptions>(Configuration.GetSection("IPWhitelistOptions"));
+
         }
 
         private static void ConfigureHackneyCoreDI(IServiceCollection services)
@@ -243,6 +247,8 @@ namespace ContactDetailsApi
             });
 
             app.UseLogCall();
+
+            app.UseIPWhitelist();
         }
     }
 }
