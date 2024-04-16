@@ -22,6 +22,7 @@ namespace ContactDetailsApi.V2.Factories
                 // only required for addresses created using v1 endpoint
                 contactInformation.AddressExtended.AddressLine1 = contactInformation.Value;
             }
+            if (databaseEntity == null) return null;
 
             return new ContactDetails
             {
