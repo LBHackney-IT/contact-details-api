@@ -64,6 +64,8 @@ namespace ContactDetailsApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddCors();
+            services.Configure<IPWhitelistOptions>(Configuration.GetSection("IPWhitelistOptions"));
+
 
             services
                 .AddMvc();
@@ -153,8 +155,6 @@ namespace ContactDetailsApi
 
 
             ConfigureHackneyCoreDI(services);
-
-            services.Configure<IPWhitelistOptions>(Configuration.GetSection("IPWhitelistOptions"));
 
         }
 

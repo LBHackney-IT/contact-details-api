@@ -26,7 +26,7 @@ namespace ContactDetailsApi.V2.Infrastructure
         }
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path == "api/v2/servicesoft/contactDetails")
+            if (context.Request.Path == "/api/v2/servicesoft/contactDetails")
             {
                 var ipAddress = context.Connection.RemoteIpAddress;
                 List<string> whiteListIPList = _iPWhitelistOptions.Whitelist;

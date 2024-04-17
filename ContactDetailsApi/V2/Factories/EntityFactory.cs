@@ -14,9 +14,7 @@ namespace ContactDetailsApi.V2.Factories
     {
         public static ContactDetails ToDomain(this ContactDetailsEntity databaseEntity)
         {
-            if (databaseEntity == null) return null;
             var contactInformation = databaseEntity.ContactInformation;
-            if (contactInformation == null) return null;
             if (contactInformation.ContactType == V1.Domain.ContactType.address &&
                 string.IsNullOrEmpty(contactInformation.AddressExtended.AddressLine1))
             {
@@ -102,7 +100,7 @@ namespace ContactDetailsApi.V2.Factories
         public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
         {
             return databaseEntity
-                .Select(p => p?.ToDomain())
+                .Select(p => p.ToDomain())
                 .OrderBy(x => x.CreatedBy.CreatedAt)
                 .ToList();
         }
