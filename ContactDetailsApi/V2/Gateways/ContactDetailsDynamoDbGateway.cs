@@ -51,7 +51,7 @@ namespace ContactDetailsApi.V2.Gateways
                 contactDetailsEntities.AddRange(newResults);
             } while (!search.IsDone);
 
-            return contactDetailsEntities?.ToDomain();
+            return contactDetailsEntities.ToDomain();
         }
 
         [LogCall]
