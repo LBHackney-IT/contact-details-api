@@ -248,7 +248,7 @@ namespace ContactDetailsApi
 
             app.UseLogCall();
 
-            app.UseIPWhitelist();
+            app.UseMiddleware<IPWhitelistMiddleware>();
         }
     }
 }
