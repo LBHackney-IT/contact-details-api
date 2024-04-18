@@ -197,11 +197,14 @@ namespace ContactDetailsApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .WithExposedHeaders("x-correlation-id"));
+
+            app.UseIPWhitelist();
 
             app.UseCorrelationId();
             app.UseLoggingScope();
@@ -248,7 +251,6 @@ namespace ContactDetailsApi
 
             app.UseLogCall();
 
-            app.UseIPWhitelist();
         }
     }
 }

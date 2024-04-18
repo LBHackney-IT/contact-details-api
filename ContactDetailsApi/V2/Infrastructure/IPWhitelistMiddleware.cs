@@ -2,6 +2,7 @@ using ContactDetailsApi.V2.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -30,17 +31,27 @@ namespace ContactDetailsApi.V2.Infrastructure
             {
                 var ipAddress = context.Connection.RemoteIpAddress;
                 List<string> whiteListIPList = _iPWhitelistOptions.Whitelist;
-                var isIPWhitelisted = whiteListIPList
-                                    .Where(ip => IPAddress.Parse(ip)
-                                    .Equals(ipAddress))
-                                    .Any();
-                if (!isIPWhitelisted)
+                _logger.LogInformation("My IP address {ipAddress}", ipAddress);
+                try
                 {
-                    _logger.LogWarning(
-                    "Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress);
-                    context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
-                    return;
+                    var isIPWhitelisted = whiteListIPList
+                                        .Where(ip => IPAddress.Parse(ip)
+                                        .Equals(ipAddress))
+                                        .Any();
+                    if (!isIPWhitelisted)
+                    {
+                        _logger.LogWarning(
+                        "Request from Remote IP address: {RemoteIp} is forbidden.", ipAddress);
+                        context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
+                        return;
+                    }
                 }
+                catch(Exception e)
+                {
+                    _logger.LogError("I'm failing in catch with message: {e}", e.Message);
+                    throw;
+                }
+                
             }
             await _next.Invoke(context);
         }
