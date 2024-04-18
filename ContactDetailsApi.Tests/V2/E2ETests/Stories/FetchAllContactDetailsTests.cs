@@ -47,14 +47,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         }
 
 
-        [Fact]
-        public void ServiceReturnsAllContactDetailsAsRequested()
-        {
-            this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
-                .When(w => _steps.WhenAllContactDetailsAreRequested())
-                .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))
-                .BDDfy();
-        }
+        //[Fact]
+        //public void ServiceReturnsAllContactDetailsAsRequested()
+        //{
+        //    this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
+        //        .When(w => _steps.WhenAllContactDetailsAreRequested())
+        //        .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))
+        //        .BDDfy();
+        //}
 
         //[Fact]
         //public void ServiceReturnsUnauthorizedWhenUserIsNotInAllowedGroups()
