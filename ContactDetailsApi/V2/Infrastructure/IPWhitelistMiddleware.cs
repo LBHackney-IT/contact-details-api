@@ -15,7 +15,7 @@ namespace ContactDetailsApi.V2.Infrastructure
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<IPWhitelistMiddleware> _logger;
-        private readonly byte[][] _safelist;
+        private readonly HashSet<string> _safelist;
 
         public IPWhitelistMiddleware(
             RequestDelegate next,
@@ -34,11 +34,7 @@ namespace ContactDetailsApi.V2.Infrastructure
             }
 
             var ips = safelist.Split(';');
-            _safelist = new byte[ips.Length][];
-            for (var i = 0; i < ips.Length; i++)
-            {
-                _safelist[i] = IPAddress.Parse(ips[i]).GetAddressBytes();
-            }
+            _safelist = new HashSet<string>(ips);
 
             _next = next;
             _logger = logger;
@@ -51,24 +47,16 @@ namespace ContactDetailsApi.V2.Infrastructure
                 var remoteIp = context.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
-                var bytes = remoteIp.GetAddressBytes();
-                var badIp = true;
-                foreach (var address in _safelist)
+                if(!_safelist.Contains(remoteIp.ToString()))
                 {
-                    if (address.SequenceEqual(bytes))
-                    {
-                        badIp = false;
-                        break;
-                    }
-                }
 
-                if (badIp)
-                {
                     _logger.LogWarning(
                         "Forbidden Request from Remote IP address: {RemoteIp}", remoteIp);
                     context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
                     return;
                 }
+                
+                
             }
 
             await _next.Invoke(context);
