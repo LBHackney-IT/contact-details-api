@@ -153,9 +153,9 @@ jobs:
       - run:
           name: build
           command: docker-compose build contact-details-api-test
-      # - run:
-      #     name: Run tests
-      #     command: docker-compose run contact-details-api-test
+      - run:
+          name: Run tests
+          command: docker-compose run contact-details-api-test
   assume-role-development:
     executor: docker-python
     steps:
