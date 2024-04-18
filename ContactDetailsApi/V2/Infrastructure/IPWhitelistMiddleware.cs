@@ -19,13 +19,14 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         public IPWhitelistMiddleware(
             RequestDelegate next,
-            ILogger<IPWhitelistMiddleware> logger,
-            string safelist)
+            ILogger<IPWhitelistMiddleware> logger)
         {
             try
             {
-                safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
+                var safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
                 _logger.LogInformation("whitelist ip address is {safelist}", safelist);
+                var ips = safelist.Split(';');
+                _safelist = new HashSet<string>(ips);
 
             }
             catch(Exception ex)
@@ -33,8 +34,7 @@ namespace ContactDetailsApi.V2.Infrastructure
                 _logger.LogInformation($" cannot get env var {ex.Message}");
             }
 
-            var ips = safelist.Split(';');
-            _safelist = new HashSet<string>(ips);
+            
 
             _next = next;
             _logger = logger;
