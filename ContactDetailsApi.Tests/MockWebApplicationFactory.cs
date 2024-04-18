@@ -38,6 +38,7 @@ namespace ContactDetailsApi.Tests
 
         public MockWebApplicationFactory()
         {
+            //Environment.SetEnvironmentVariable("")
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Sns_LocalMode", "true");

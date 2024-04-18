@@ -39,14 +39,14 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path == "/api/v1/servicesoft/contactDetails")
+            if (context.Request.Path == "/api/v2/servicesoft/contactDetails")
             {
+                
                 var remoteIp = context.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
                 if (!_safelist.Contains(remoteIp.ToString()))
                 {
-
                     _logger.LogWarning(
                         "Forbidden Request from Remote IP address: {RemoteIp}", remoteIp);
                     context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
