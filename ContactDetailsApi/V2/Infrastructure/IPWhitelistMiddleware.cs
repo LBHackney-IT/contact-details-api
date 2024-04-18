@@ -22,7 +22,17 @@ namespace ContactDetailsApi.V2.Infrastructure
             ILogger<IPWhitelistMiddleware> logger,
             string safelist)
         {
-            safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
+            try
+            {
+                safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
+                _logger.LogInformation("whitelist ip address is {safelist}", safelist);
+
+            }
+            catch(Exception ex)
+            {
+                _logger.LogInformation($" cannot get env var {ex.Message}");
+            }
+
             var ips = safelist.Split(';');
             _safelist = new byte[ips.Length][];
             for (var i = 0; i < ips.Length; i++)
