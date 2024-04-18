@@ -21,6 +21,8 @@ namespace ContactDetailsApi.V2.Infrastructure
             RequestDelegate next,
             ILogger<IPWhitelistMiddleware> logger)
         {
+            _next = next;
+            _logger = logger;
             try
             {
                 var safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
@@ -29,15 +31,10 @@ namespace ContactDetailsApi.V2.Infrastructure
                 _safelist = new HashSet<string>(ips);
 
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogInformation($" cannot get env var {ex.Message}");
             }
-
-            
-
-            _next = next;
-            _logger = logger;
         }
 
         public async Task Invoke(HttpContext context)
@@ -47,7 +44,7 @@ namespace ContactDetailsApi.V2.Infrastructure
                 var remoteIp = context.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
-                if(!_safelist.Contains(remoteIp.ToString()))
+                if (!_safelist.Contains(remoteIp.ToString()))
                 {
 
                     _logger.LogWarning(
@@ -55,8 +52,8 @@ namespace ContactDetailsApi.V2.Infrastructure
                     context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
                     return;
                 }
-                
-                
+
+
             }
 
             await _next.Invoke(context);
