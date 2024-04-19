@@ -25,6 +25,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new FetchAllContactDetailsByUprnStep(appFactory.Client);
             Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "e2e-testing");
+
         }
 
         public void Dispose()
@@ -47,14 +48,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         }
 
 
-        //[Fact]
-        //public void ServiceReturnsAllContactDetailsAsRequested()
-        //{
-        //    this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
-        //        .When(w => _steps.WhenAllContactDetailsAreRequested())
-        //        .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))
-        //        .BDDfy();
-        //}
+        [Fact]
+        public void ServiceReturnsAllContactDetailsAsRequested()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
+                .When(w => _steps.WhenAllContactDetailsAreRequested())
+                .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))
+                .BDDfy();
+        }
 
         //[Fact]
         //public void ServiceReturnsUnauthorizedWhenUserIsNotInAllowedGroups()
