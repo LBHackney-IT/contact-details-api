@@ -15,7 +15,8 @@ namespace ContactDetailsApi.V2.Infrastructure
     {
         private readonly RequestDelegate _next;
         private readonly ILogger<IPWhitelistMiddleware> _logger;
-        private readonly HashSet<string> _safelist;
+        private readonly HashSet<string> _whitelist;
+        private readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
 
         public IPWhitelistMiddleware(
             RequestDelegate next,
@@ -25,10 +26,10 @@ namespace ContactDetailsApi.V2.Infrastructure
             _logger = logger;
             try
             {
-                var safelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
-                _logger.LogInformation("whitelist ip address is {safelist}", safelist);
-                var ips = safelist.Split(';');
-                _safelist = new HashSet<string>(ips);
+                var whitelist = Environment.GetEnvironmentVariable("WHITELIST_IP_ADDRESS");
+                _logger.LogInformation("whitelist ip address is {whitelist}", whitelist);
+                var ips = whitelist.Split(';');
+                _whitelist = new HashSet<string>(ips);
 
             }
             catch (Exception ex)
@@ -39,13 +40,14 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         public async Task Invoke(HttpContext context)
         {
-            if (context.Request.Path == "/api/v2/servicesoft/contactDetails")
+
+            if (_enabledEndpoints.Contains(context.Request.Path))
             {
-                
+
                 var remoteIp = context.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
-                if (!_safelist.Contains(remoteIp.ToString()))
+                if (!_whitelist.Contains(remoteIp.ToString()))
                 {
                     _logger.LogWarning(
                         "Forbidden Request from Remote IP address: {RemoteIp}", remoteIp);
