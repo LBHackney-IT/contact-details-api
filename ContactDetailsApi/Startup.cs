@@ -43,7 +43,6 @@ using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsE
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
 using ContactDetailsApi.V2.Domain;
-using ContactDetailsApi.V2.Helper;
 
 namespace ContactDetailsApi
 {
@@ -205,7 +204,6 @@ namespace ContactDetailsApi
 
             app.UseIPWhitelist();
             
-
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);

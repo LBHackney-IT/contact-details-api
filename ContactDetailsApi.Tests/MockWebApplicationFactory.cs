@@ -1,9 +1,7 @@
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
 using Bogus.DataSets;
-using ContactDetailsApi.Tests.V2.Helper;
 using ContactDetailsApi.V1.Domain.Sns;
-using ContactDetailsApi.V2.Helper;
 using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.Infrastructure.Interfaces;
 using Hackney.Core.DynamoDb;
@@ -31,6 +29,21 @@ using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Hackney.Core.JWT;
+using Hackney.Core.Http;
+using System.Linq;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using System.IO;
+using System.Reflection;
+using ContactDetailsApi.Versioning;
+using System.Configuration;
+using ContactDetailsApi.V1.UseCase.Interfaces;
+using ContactDetailsApi.V2.UseCase.Interfaces;
+using ContactDetailsApi.V2.UseCase;
+using ContactDetailsApi.V1.UseCase;
+using ContactDetailsApi.V2.Gateways.Interfaces;
+using ContactDetailsApi.V2.Gateways;
 
 namespace ContactDetailsApi.Tests
 {
@@ -55,13 +68,16 @@ namespace ContactDetailsApi.Tests
         public IDynamoDbFixture DynamoDbFixture { get; private set; }
         public ISnsFixture SnsFixture { get; private set; }
 
+        private static List<ApiVersionDescription> _apiVersions { get; set; }
+        private const string ApiName = "Contact Details API";
+
         public MockWebApplicationFactory()
         {
             EnsureEnvVarConfigured("DynamoDb_LocalMode", "true");
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
-            Environment.SetEnvironmentVariable("WHITELIST_IP_ADDRESS", "123456");
+            Environment.SetEnvironmentVariable("WHITELIST_IP_ADDRESS", "127.0.0.1");
 
             Client = CreateClient();
                 
@@ -97,11 +113,25 @@ namespace ContactDetailsApi.Tests
                 .UseStartup<Startup>();
             builder.ConfigureServices(services =>
             {
+
                 services.ConfigureDynamoDB();
                 services.ConfigureDynamoDbFixture();
 
                 services.ConfigureSns();
                 services.ConfigureSnsFixture();
+
+                //services.AddTokenFactory();
+                //services.AddMvc();
+                //services.AddHealthChecks();
+                //services.AddSwaggerGen();
+
+                //RegisterUseCases(services);
+                //RegisterGateways(services);
+                //RegisterFactories(services);
+
+                //services.AddScoped<IEntityUpdater, EntityUpdater>();
+
+                //ConfigureHackneyCoreDI(services);
 
                 var serviceProvider = services.BuildServiceProvider();
 
@@ -110,46 +140,106 @@ namespace ContactDetailsApi.Tests
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
                 
-
+                
                 SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetails.fifo", "CONTACT_DETAILS_SNS_ARN");
             });
-            builder.Configure(app =>
-            {
 
-                //app.UseCors(builder => builder
-                //    .AllowAnyOrigin()
-                //    .AllowAnyHeader()
-                //    .AllowAnyMethod()
-                //    .WithExposedHeaders("x-correlation-id"));
+            //builder.Configure(app =>
+            //{
+            //    app.UseMiddleware<OverrideIpAddressMiddleware>();
+            //    app.UseCors(builder => builder
+            //        .AllowAnyOrigin()
+            //        .AllowAnyHeader()
+            //        .AllowAnyMethod()
+            //        .WithExposedHeaders("x-correlation-id"));
 
-                app.UseMiddleware<OverrideIpAddressMiddleware>();
-                app.UseIPWhitelist();
+            //    app.UseIPWhitelist();
 
+            //    app.UseCorrelationId();
+            //    app.UseLoggingScope();
+            //    //app.UseCustomExceptionHandler(logger);
 
-                app.UseCorrelationId();
-                app.UseLoggingScope();
-                //app.UseCustomExceptionHandler(logger);
+            //    //if (env.IsDevelopment())
+            //    //{
+            //    //    app.UseDeveloperExceptionPage();
+            //    //}
+            //    //else
+            //    //{
+            //    //    app.UseHsts();
+            //    //}
 
-                //if (env.IsDevelopment())
-                //{
-                //    app.UseDeveloperExceptionPage();
-                //}
-                //else
-                //{
-                //    app.UseHsts();
-                //}
+            //    app.UseXRay("contact-details-api");
+            //    app.EnableRequestBodyRewind();
 
-                app.UseXRay("contact-details-api");
-                app.EnableRequestBodyRewind();
+            //    //Get All ApiVersions,
+            //    //var api = app.ApplicationServices.GetService<IApiVersionDescriptionProvider>();
+            //    //_apiVersions = api.ApiVersionDescriptions.ToList();
 
-               
-                app.UseRouting();
-               
+            //    //Swagger ui to view the swagger.json file
+            //    //app.UseSwaggerUI(c =>
+            //    //{
+            //    //    foreach (var apiVersionDescription in _apiVersions)
+            //    //    {
+            //    //        //Create a swagger endpoint for each swagger version
+            //    //        c.SwaggerEndpoint($"{apiVersionDescription.GetFormattedApiVersion()}/swagger.json",
+            //    //            $"{ApiName}-api {apiVersionDescription.GetFormattedApiVersion()}");
+            //    //    }
+            //    //});
+            //    app.UseSwagger();
+            //    app.UseRouting();
+            //    app.UseEndpoints(endpoints =>
+            //    {
+            //        // SwaggerGen won't find controllers that are routed via this technique.
+            //        endpoints.MapControllerRoute("default", "{controller=Home}/{action=Index}/{id?}");
 
-                app.UseLogCall();
-            });
+            //        endpoints.MapHealthChecks("/api/v1/healthcheck/ping", new HealthCheckOptions()
+            //        {
+            //            ResponseWriter = HealthCheckResponseWriter.WriteResponse
+            //        });
+            //    });
+
+            //    app.UseLogCall();
+            //});
 
         }
+
+        private static void ConfigureHackneyCoreDI(IServiceCollection services)
+        {
+            services.AddSnsGateway()
+                .AddTokenFactory()
+                .AddHttpContextWrapper();
+        }
+
+        private static void RegisterGateways(IServiceCollection services)
+        {
+            services.AddScoped<ContactDetailsApi.V1.Gateways.Interfaces.IContactDetailsGateway, ContactDetailsApi.V1.Gateways.ContactDetailsDynamoDbGateway>();
+            services.AddScoped<ContactDetailsApi.V2.Gateways.Interfaces.IContactDetailsGateway, ContactDetailsApi.V2.Gateways.ContactDetailsDynamoDbGateway>();
+            services.AddScoped<ITenureDbGateway, TenureDbGateway>();
+            services.AddScoped<IPersonDbGateway, PersonDbGateway>();
+        }
+
+        private static void RegisterUseCases(IServiceCollection services)
+        {
+            services.AddScoped<IFetchAllContactDetailsByUprnUseCase, FetchAllContactDetailsByUprnUseCase>();
+
+            services.AddScoped<IDeleteContactDetailsByTargetIdUseCase, DeleteContactDetailsByTargetIdUseCase>();
+
+            services.AddScoped<ContactDetailsApi.V1.UseCase.Interfaces.ICreateContactUseCase, ContactDetailsApi.V1.UseCase.CreateContactUseCase>();
+            services.AddScoped<ContactDetailsApi.V2.UseCase.Interfaces.ICreateContactUseCase, ContactDetailsApi.V2.UseCase.CreateContactUseCase>();
+
+            services.AddScoped<ContactDetailsApi.V1.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, ContactDetailsApi.V1.UseCase.GetContactDetailsByTargetIdUseCase>();
+            services.AddScoped<ContactDetailsApi.V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, ContactDetailsApi.V2.UseCase.GetContactDetailsByTargetIdUseCase>();
+
+            services.AddScoped<IEditContactDetailsUseCase, ContactDetailsApi.V2.UseCase.EditContactDetailsUseCase>();
+
+        }
+
+        private static void RegisterFactories(IServiceCollection services)
+        {
+            services.AddScoped<ContactDetailsApi.V1.Factories.Interfaces.ISnsFactory, ContactDetailsApi.V1.Factories.ContactDetailsSnsFactory>();
+            services.AddScoped<ContactDetailsApi.V2.Factories.Interfaces.ISnsFactory, ContactDetailsApi.V2.Factories.ContactDetailsSnsFactory>();
+        }
+
     }
 
     public class OverrideIpAddressMiddleware
@@ -163,7 +253,9 @@ namespace ContactDetailsApi.Tests
 
         public async Task Invoke(HttpContext context)
         {
-            context.Connection.RemoteIpAddress = new IPAddress(123456);
+            byte[] ipBytes = { 127, 0, 0, 1};
+            IPAddress ipAddress = new IPAddress(ipBytes);
+            context.Connection.RemoteIpAddress = ipAddress;
             await _next(context);
         }
     }
