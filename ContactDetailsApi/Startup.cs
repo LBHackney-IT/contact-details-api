@@ -42,6 +42,7 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
+using ContactDetailsApi.V2.Domain;
 
 namespace ContactDetailsApi
 {
@@ -152,6 +153,7 @@ namespace ContactDetailsApi
 
 
             ConfigureHackneyCoreDI(services);
+
         }
 
         private static void ConfigureHackneyCoreDI(IServiceCollection services)
@@ -193,11 +195,14 @@ namespace ContactDetailsApi
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
+
             app.UseCors(builder => builder
                 .AllowAnyOrigin()
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .WithExposedHeaders("x-correlation-id"));
+
+            app.UseIPWhitelist();
 
             app.UseCorrelationId();
             app.UseLoggingScope();
@@ -243,6 +248,7 @@ namespace ContactDetailsApi
             });
 
             app.UseLogCall();
+
         }
     }
 }

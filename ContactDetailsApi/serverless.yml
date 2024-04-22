@@ -26,6 +26,7 @@ functions:
     environment:
       CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
       AUTH_ALLOWED_GROUPS_EXTERNAL: ${ssm:/housing/${self:provider.stage}/auth-allowed-groups-service-soft}
+      WHITELIST_IP_ADDRESS: ${ssm:/housing/${self:provider.stage}/whitelist-ip-address-service-soft}
     events:
       - http:
           path: /{proxy+}
