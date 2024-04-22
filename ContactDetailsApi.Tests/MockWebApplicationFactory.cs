@@ -80,7 +80,7 @@ namespace ContactDetailsApi.Tests
             Environment.SetEnvironmentVariable("WHITELIST_IP_ADDRESS", "127.0.0.1");
 
             Client = CreateClient();
-                
+
         }
 
         private bool _disposed;
@@ -139,8 +139,8 @@ namespace ContactDetailsApi.Tests
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-                
-                
+
+
                 SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetails.fifo", "CONTACT_DETAILS_SNS_ARN");
             });
 
@@ -253,7 +253,7 @@ namespace ContactDetailsApi.Tests
 
         public async Task Invoke(HttpContext context)
         {
-            byte[] ipBytes = { 127, 0, 0, 1};
+            byte[] ipBytes = { 127, 0, 0, 1 };
             IPAddress ipAddress = new IPAddress(ipBytes);
             context.Connection.RemoteIpAddress = ipAddress;
             await _next(context);

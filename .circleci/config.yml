@@ -254,16 +254,16 @@ workflows:
       - terraform-apply-development:
           requires:
             - terraform-compliance-development
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
       - deploy-to-development:
           context: api-nuget-token-context
           requires:
             - terraform-apply-development
-          # filters:
-          #   branches:
-          #     only: master
+          filters:
+            branches:
+              only: master
   check-and-deploy-staging-and-production:
       jobs:
       - check-code-formatting:
@@ -272,41 +272,41 @@ workflows:
           context:
               - api-nuget-token-context
               - SonarCloud
-          # filters:
-          #   branches:
-          #     only: release
+          filters:
+            branches:
+              only: release
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
               - build-and-test
-          # filters:
-          #    branches:
-          #      only: release
+          filters:
+             branches:
+               only: release
       - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
-          # filters:
-          #   branches:
-          #     only: release
+          filters:
+            branches:
+              only: release
       - terraform-compliance-staging:
           requires:
             - terraform-init-and-plan-staging
-          # filters:
-          #   branches:
-          #     only: release
+          filters:
+            branches:
+              only: release
       - terraform-apply-staging:
           requires:
             - terraform-compliance-staging
-          # filters:
-          #   branches:
-          #     only: release
+          filters:
+            branches:
+              only: release
       - deploy-to-staging:
           context: api-nuget-token-context
           requires:
             - terraform-apply-staging
-          # filters:
-          #   branches:
-          #     only: release
+          filters:
+            branches:
+              only: release
       - permit-production-terraform-release:
           type: approval
           requires:

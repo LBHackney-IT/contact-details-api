@@ -50,7 +50,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         }
 
 
-        [Fact(Skip ="To fix in next PR")]
+        [Fact(Skip = "To fix in next PR")]
         public void ServiceReturnsAllContactDetailsAsRequested()
         {
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())

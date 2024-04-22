@@ -203,7 +203,7 @@ namespace ContactDetailsApi
                 .WithExposedHeaders("x-correlation-id"));
 
             app.UseIPWhitelist();
-            
+
             app.UseCorrelationId();
             app.UseLoggingScope();
             app.UseCustomExceptionHandler(logger);

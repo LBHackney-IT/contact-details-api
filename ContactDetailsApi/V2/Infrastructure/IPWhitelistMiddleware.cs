@@ -40,10 +40,10 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         public async Task Invoke(HttpContext context)
         {
-            
+
             if (_enabledEndpoints.Contains(context.Request.Path))
             {
-                
+
                 var remoteIp = context.Connection.RemoteIpAddress;
                 _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
 
