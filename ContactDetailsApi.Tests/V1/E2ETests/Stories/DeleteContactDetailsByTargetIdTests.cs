@@ -49,7 +49,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
-        public void ServiceSoftDeletesRequestedContactDetails()
+        public void ServiceSetsRequestedContactDetailsToInactive()
         {
             this.Given(g => _contactDetailsFixture.GivenContactDetailsAlreadyExist(1, 0))
                 .When(w => _steps.WhenTheDeleteContactDetailsApiIsCalled(_contactDetailsFixture.TargetId.ToString(), _contactDetailsFixture.Contacts.First().Id.ToString()))
@@ -59,7 +59,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         }
 
         [Fact]
-        public void ServiceSoftDeletesRequestedContactDetailsReturnNotFound()
+        public void ServiceRequestedContactDetailsSetToInactiveReturnNotFound()
         {
             this.Given(g => _contactDetailsFixture.GivenContactDetailsDoesNotExist())
                 .When(w => _steps.WhenTheDeleteContactDetailsApiIsCalled(_contactDetailsFixture.TargetId.ToString(), Guid.NewGuid().ToString()))
@@ -72,7 +72,7 @@ namespace ContactDetailsApi.Tests.V1.E2ETests.Stories
         [InlineData("", "")]
         [InlineData("yhtgfsgf", "hjfhdgff")]
         [InlineData("00000000-0000-0000-0000-000000000000", "00000000-0000-0000-0000-000000000000")]
-        public void ServiceSoftDeletesRequestedContactDetailsReturnBadRequest(string targetId, string id)
+        public void ServiceRequestedContactDetailsSetToInactiveReturnBadRequest(string targetId, string id)
         {
             this.Given(g => _contactDetailsFixture.GivenContactDetailsDoesNotExist())
                 .When(w => _steps.WhenTheDeleteContactDetailsApiIsCalled(targetId, id))
