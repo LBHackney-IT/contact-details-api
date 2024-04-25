@@ -17,10 +17,10 @@ namespace ContactDetailsApi.V2.Infrastructure
     public class IPWhitelistMiddleware
     {
 
-        private readonly RequestDelegate _next;
-        private readonly ILogger<IPWhitelistMiddleware> _logger;
-        private readonly HashSet<string> _whitelist;
-        private readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
+        public readonly RequestDelegate _next;
+        public readonly ILogger<IPWhitelistMiddleware> _logger;
+        public readonly HashSet<string> _whitelist;
+        public readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
 
         public IPWhitelistMiddleware(
             RequestDelegate next,

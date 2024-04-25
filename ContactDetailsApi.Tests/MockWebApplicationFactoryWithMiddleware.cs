@@ -76,7 +76,6 @@ namespace ContactDetailsApi.Tests
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
             Environment.SetEnvironmentVariable("WHITELIST_IP_ADDRESS", "127.0.0.1");
-
             Client = CreateClient();
 
         }
