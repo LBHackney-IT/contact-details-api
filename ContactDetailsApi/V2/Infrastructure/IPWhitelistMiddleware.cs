@@ -16,10 +16,11 @@ namespace ContactDetailsApi.V2.Infrastructure
 {
     public class IPWhitelistMiddleware
     {
-        public readonly RequestDelegate _next;
-        public readonly ILogger<IPWhitelistMiddleware> _logger;
-        public HashSet<string> _whitelist;
-        public readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
+
+        private readonly RequestDelegate _next;
+        private readonly ILogger<IPWhitelistMiddleware> _logger;
+        private readonly HashSet<string> _whitelist;
+        private readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
 
         public IPWhitelistMiddleware(
             RequestDelegate next,
@@ -33,6 +34,7 @@ namespace ContactDetailsApi.V2.Infrastructure
                 _logger.LogInformation("whitelist ip address is {whitelist}", whitelist);
                 var ips = whitelist.Split(';');
                 _whitelist = new HashSet<string>(ips);
+
             }
             catch (Exception ex)
             {
