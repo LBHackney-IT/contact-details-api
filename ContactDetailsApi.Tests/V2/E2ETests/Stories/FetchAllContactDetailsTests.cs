@@ -3,9 +3,6 @@ using ContactDetailsApi.Tests.V2.E2ETests.Steps;
 using Hackney.Core.Testing.DynamoDb;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc.Controllers;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using TestStack.BDDfy;
 using Xunit;
@@ -31,6 +28,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             _dbFixture = appFactory.DynamoDbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new FetchAllContactDetailsByUprnStep(appFactory.Client);
+
         }
 
         public void Dispose()
@@ -52,11 +50,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             }
         }
 
-
         [Fact]
         public void ServiceReturnsAllContactDetailsAsRequested()
         {
-
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
                 .When(w => _steps.WhenAllContactDetailsAreRequested())
                 .Then(t => _steps.ThenAllContactDetailsAreReturned(_dbFixture))

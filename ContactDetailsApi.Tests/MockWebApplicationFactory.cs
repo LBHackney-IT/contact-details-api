@@ -132,7 +132,6 @@ namespace ContactDetailsApi.Tests
                 SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetails.fifo", "CONTACT_DETAILS_SNS_ARN");
 
             });
-
         }
     }
 
