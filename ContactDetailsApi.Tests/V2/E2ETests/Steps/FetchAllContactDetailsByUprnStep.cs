@@ -72,11 +72,5 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             }
         }
 
-        public async Task ThenUnauthorizedIsReturned()
-        {
-            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
-            await _lastResponse.Content.ReadAsStringAsync().ConfigureAwait(false);
-        }
-
     }
 }

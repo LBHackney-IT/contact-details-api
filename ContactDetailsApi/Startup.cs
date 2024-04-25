@@ -151,7 +151,6 @@ namespace ContactDetailsApi
 
             services.AddScoped<IEntityUpdater, EntityUpdater>();
 
-
             ConfigureHackneyCoreDI(services);
 
         }

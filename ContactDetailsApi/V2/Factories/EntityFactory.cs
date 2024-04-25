@@ -32,7 +32,7 @@ namespace ContactDetailsApi.V2.Factories
                 TargetType = databaseEntity.TargetType,
                 ContactInformation = contactInformation,
                 SourceServiceArea = databaseEntity.SourceServiceArea,
-                CreatedBy = databaseEntity.CreatedBy,
+                CreatedBy = databaseEntity?.CreatedBy,
                 IsActive = databaseEntity.IsActive,
                 RecordValidUntil = databaseEntity.RecordValidUntil,
                 LastModified = databaseEntity.LastModified
@@ -106,7 +106,7 @@ namespace ContactDetailsApi.V2.Factories
             if (databaseEntity.Select(p => p?.ToDomain().CreatedBy.CreatedAt) == null) return null;
             return databaseEntity
                 .Select(p => p?.ToDomain())
-                .OrderBy(x => x.CreatedBy.CreatedAt)
+                .OrderBy(x => x?.CreatedBy?.CreatedAt)
                 .ToList();
         }
 
@@ -126,6 +126,7 @@ namespace ContactDetailsApi.V2.Factories
 
         public static List<PersonContactDetails> ToContactByUprnPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
         {
+            if (databaseEntity == null || databaseEntity.Count() == 0) return null;
             return databaseEntity
                 .Select(p => p.ToUprnContact())
                 .ToList();
