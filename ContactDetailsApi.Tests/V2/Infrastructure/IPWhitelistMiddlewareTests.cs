@@ -31,7 +31,7 @@ namespace ContactDetailsApi.Tests.V2.Infrastructure
         private void SetIpAddressAndRequestPath(string requestPath, string address)
         {
             _httpContext.Request.Path = requestPath;
-            _httpContext.Connection.RemoteIpAddress =  IPAddress.Parse(address);
+            _httpContext.Connection.RemoteIpAddress = IPAddress.Parse(address);
         }
 
         [Fact]

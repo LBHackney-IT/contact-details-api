@@ -19,8 +19,8 @@ using Microsoft.Extensions.Logging;
 
 namespace ContactDetailsApi.Tests
 {
-        public class MockWebApplicationFactoryWithMiddleware<TStartup>
-        : WebApplicationFactory<TStartup> where TStartup : class
+    public class MockWebApplicationFactoryWithMiddleware<TStartup>
+    : WebApplicationFactory<TStartup> where TStartup : class
     {
         private readonly List<TableDef> _tables = new List<TableDef>
         {

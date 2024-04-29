@@ -99,6 +99,8 @@ namespace ContactDetailsApi.V2.Factories
 
         public static List<ContactDetails> ToDomain(this IEnumerable<ContactDetailsEntity> databaseEntity)
         {
+            if (databaseEntity.Select(p => p?.ToDomain().CreatedBy) == null) return null;
+            if (databaseEntity.Select(p => p?.ToDomain().CreatedBy.CreatedAt) == null) return null;
             return databaseEntity
                 .Select(p => p?.ToDomain())
                 .OrderBy(x => x?.CreatedBy?.CreatedAt)
