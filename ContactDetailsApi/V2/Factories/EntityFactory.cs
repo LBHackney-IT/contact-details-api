@@ -121,7 +121,7 @@ namespace ContactDetailsApi.V2.Factories
 
         public static List<PersonContactDetails> ToContactByUprnPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
         {
-            if(!databaseEntity.Any()) return null;
+            if (!databaseEntity.Any()) return null;
             return databaseEntity
                 .Select(p => p.ToUprnContact())
                 .ToList();
