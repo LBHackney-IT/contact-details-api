@@ -46,7 +46,7 @@ namespace ContactDetailsApi.Tests
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
-            EnsureEnvVarConfigured("WHITELIST_IP_ADDRESS", "127.168.1.32");
+            EnsureEnvVarConfigured("WHITELIST_IP_ADDRESS", "127.0.0.1");
 
             Client = CreateClient();
         }
@@ -81,7 +81,6 @@ namespace ContactDetailsApi.Tests
                 .UseStartup<StartupStub>();
             builder.ConfigureServices(services =>
             {
-
                 services.ConfigureDynamoDB();
                 services.ConfigureDynamoDbFixture();
 
@@ -108,27 +107,27 @@ namespace ContactDetailsApi.Tests
 
         public override void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
-            app.UseMiddleware<FakeRemoteIpAddressMiddleware>();
+            app.UseMiddleware<OverrideIpAddressMiddleware>();
             base.Configure(app, env, logger);
         }
     }
 
     // FakeRemoteIpAddressMiddleware is used to set the remote IP address to a fake value
-    public class FakeRemoteIpAddressMiddleware
+    public class OverrideIpAddressMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IPAddress _fakeIpAddress = IPAddress.Parse("127.168.1.32");
 
-        public FakeRemoteIpAddressMiddleware(RequestDelegate next)
+        public OverrideIpAddressMiddleware(RequestDelegate next)
         {
-            this._next = next;
+            _next = next;
         }
 
-        public async Task Invoke(HttpContext httpContext)
+        public async Task Invoke(HttpContext context)
         {
-            httpContext.Connection.RemoteIpAddress = _fakeIpAddress;
-            await this._next(httpContext);
+            byte[] ipBytes = { 127, 0, 0, 1 };
+            IPAddress ipAddress = new IPAddress(ipBytes);
+            context.Connection.RemoteIpAddress = ipAddress;
+            await _next(context);
         }
     }
-
 }

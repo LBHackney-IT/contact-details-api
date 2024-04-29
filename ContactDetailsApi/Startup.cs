@@ -53,7 +53,10 @@ namespace ContactDetailsApi
         {
             Configuration = configuration;
 
-            AWSSDKHandler.RegisterXRayForAllServices();
+#if !DEBUG
+                // disables the AWS SDK logging when running locally
+                AWSSDKHandler.RegisterXRayForAllServices();
+#endif
         }
 
         public IConfiguration Configuration { get; }
