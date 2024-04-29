@@ -192,7 +192,7 @@ namespace ContactDetailsApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
 
             app.UseCors(builder => builder
