@@ -1,15 +1,8 @@
-using AspectInjector.Broker;
-using ContactDetailsApi.V2.Domain;
-using Hackney.Core.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.Infrastructure
@@ -57,8 +50,8 @@ namespace ContactDetailsApi.V2.Infrastructure
                     return;
                 }
             }
-
-            await _next.Invoke(context);
+            if (_next != null)
+                await _next.Invoke(context);
         }
     }
 }
