@@ -14,8 +14,10 @@ namespace ContactDetailsApi.V2.Factories
     {
         public static ContactDetails ToDomain(this ContactDetailsEntity databaseEntity)
         {
+            if (databaseEntity == null) return null;
+
             var contactInformation = databaseEntity.ContactInformation;
-            if (contactInformation.ContactType == V1.Domain.ContactType.address &&
+            if (contactInformation?.ContactType == V1.Domain.ContactType.address &&
                 string.IsNullOrEmpty(contactInformation?.AddressExtended?.AddressLine1))
             {
                 // only required for addresses created using v1 endpoint
@@ -123,7 +125,7 @@ namespace ContactDetailsApi.V2.Factories
 
         public static List<PersonContactDetails> ToContactByUprnPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
         {
-            if (!databaseEntity.Any()) return null;
+            if (databaseEntity == null || !databaseEntity.Any()) return null;
             return databaseEntity
                 .Select(p => p.ToUprnContact())
                 .ToList();
