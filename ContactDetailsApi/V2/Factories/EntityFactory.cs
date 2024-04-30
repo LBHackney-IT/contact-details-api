@@ -20,6 +20,7 @@ namespace ContactDetailsApi.V2.Factories
             if (contactInformation?.ContactType == V1.Domain.ContactType.address &&
                 string.IsNullOrEmpty(contactInformation?.AddressExtended?.AddressLine1))
             {
+                if (contactInformation?.AddressExtended == null) return null;
                 // only required for addresses created using v1 endpoint
                 contactInformation.AddressExtended.AddressLine1 = contactInformation.Value;
             }
@@ -31,7 +32,7 @@ namespace ContactDetailsApi.V2.Factories
                 TargetType = databaseEntity.TargetType,
                 ContactInformation = contactInformation,
                 SourceServiceArea = databaseEntity.SourceServiceArea,
-                CreatedBy = databaseEntity.CreatedBy,
+                CreatedBy = databaseEntity?.CreatedBy,
                 IsActive = databaseEntity.IsActive,
                 RecordValidUntil = databaseEntity.RecordValidUntil,
                 LastModified = databaseEntity.LastModified

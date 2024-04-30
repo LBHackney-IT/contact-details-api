@@ -1,6 +1,8 @@
 using ContactDetailsApi.Tests.V2.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V2.E2ETests.Steps;
 using Hackney.Core.Testing.DynamoDb;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using System;
 using TestStack.BDDfy;
 using Xunit;
