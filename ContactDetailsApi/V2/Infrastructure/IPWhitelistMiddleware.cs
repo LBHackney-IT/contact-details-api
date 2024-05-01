@@ -1,22 +1,19 @@
-using ContactDetailsApi.V2.Domain;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.Infrastructure
 {
     public class IPWhitelistMiddleware
     {
-        private readonly RequestDelegate _next;
-        private readonly ILogger<IPWhitelistMiddleware> _logger;
-        private readonly HashSet<string> _whitelist;
-        private readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
+
+        public readonly RequestDelegate _next;
+        public readonly ILogger<IPWhitelistMiddleware> _logger;
+        public readonly HashSet<string> _whitelist;
+        public readonly HashSet<string> _enabledEndpoints = new HashSet<string> { "/api/v2/servicesoft/contactDetails" };
 
         public IPWhitelistMiddleware(
             RequestDelegate next,
@@ -40,12 +37,10 @@ namespace ContactDetailsApi.V2.Infrastructure
 
         public async Task Invoke(HttpContext context)
         {
-
             if (_enabledEndpoints.Contains(context.Request.Path))
             {
-
                 var remoteIp = context.Connection.RemoteIpAddress;
-                _logger.LogDebug("Request from Remote IP address: {RemoteIp}", remoteIp);
+                _logger.LogInformation("Request from Remote IP address: {RemoteIp}", remoteIp);
 
                 if (!_whitelist.Contains(remoteIp.ToString()))
                 {
@@ -54,11 +49,9 @@ namespace ContactDetailsApi.V2.Infrastructure
                     context.Response.StatusCode = (int) HttpStatusCode.Forbidden;
                     return;
                 }
-
-
             }
-
-            await _next.Invoke(context);
+            if (_next != null)
+                await _next.Invoke(context);
         }
     }
 }

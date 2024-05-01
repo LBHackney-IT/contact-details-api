@@ -50,6 +50,19 @@ namespace ContactDetailsApi.Tests.V2.Factories
         }
 
         [Fact]
+        public void CanHandleNullDatabaseEntity()
+        {
+            // Arrange
+            ContactDetailsEntity databaseEntity = null;
+
+            // Act
+            var response = databaseEntity.ToDomain();
+
+            // Assert
+            response.Should().BeNull();
+        }
+
+        [Fact]
         public void ContactDetailsEntityToDomainWhenAddressLine1IsEmptyReturnsContentsOfValueField()
         {
             // Arrange
@@ -412,7 +425,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
         }
 
         [Fact]
-        public void CanMapTenureInformationToContactByUprn()
+        public void CanMapTenureAndPersonToContactByUprn()
         {
             // Arrange
             var tenure = _fixture.Create<TenureInformation>();

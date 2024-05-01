@@ -1,8 +1,6 @@
 using ContactDetailsApi.Tests.V2.E2ETests.Fixtures;
 using ContactDetailsApi.Tests.V2.E2ETests.Steps;
 using Hackney.Core.Testing.DynamoDb;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using System;
 using TestStack.BDDfy;
 using Xunit;
@@ -13,7 +11,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         AsA = "External ServiceSoft user",
         IWant = "to be able to fetch all the contacts details of Hackney tenants",
         SoThat = "I can use this to update data in my servicesoft application")]
-    [Collection("AppTest collection")]
+    [Collection("AppTest middleware collection")]
     public class FetchAllContactDetailsTests : IDisposable
     {
 
@@ -21,12 +19,12 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         private readonly ContactDetailsFixture _contactDetailsFixture;
         private readonly FetchAllContactDetailsByUprnStep _steps;
 
-        public FetchAllContactDetailsTests(MockWebApplicationFactory<Startup> appFactory)
+
+        public FetchAllContactDetailsTests(MockWebApplicationFactoryWithMiddleware<Startup> appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
             _steps = new FetchAllContactDetailsByUprnStep(appFactory.Client);
-            Environment.SetEnvironmentVariable("AUTH_ALLOWED_GROUPS_EXTERNAL", "e2e-testing");
 
         }
 
@@ -49,8 +47,7 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             }
         }
 
-
-        [Fact(Skip = "To fix in next PR")]
+        [Fact]
         public void ServiceReturnsAllContactDetailsAsRequested()
         {
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())

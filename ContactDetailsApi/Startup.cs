@@ -53,7 +53,10 @@ namespace ContactDetailsApi
         {
             Configuration = configuration;
 
-            AWSSDKHandler.RegisterXRayForAllServices();
+#if !DEBUG
+                // disables the AWS SDK logging when running locally
+                AWSSDKHandler.RegisterXRayForAllServices();
+#endif
         }
 
         public IConfiguration Configuration { get; }
@@ -151,7 +154,6 @@ namespace ContactDetailsApi
 
             services.AddScoped<IEntityUpdater, EntityUpdater>();
 
-
             ConfigureHackneyCoreDI(services);
 
         }
@@ -193,7 +195,7 @@ namespace ContactDetailsApi
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public static void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
+        public virtual void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
 
             app.UseCors(builder => builder
