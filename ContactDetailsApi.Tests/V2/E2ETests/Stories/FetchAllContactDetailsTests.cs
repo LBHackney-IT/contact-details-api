@@ -11,16 +11,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
         AsA = "External ServiceSoft user",
         IWant = "to be able to fetch all the contacts details of Hackney tenants",
         SoThat = "I can use this to update data in my servicesoft application")]
-    [Collection("AppTest middleware collection")]
-    public class FetchAllContactDetailsTests : IDisposable
+    public abstract class FetchAllContactDetailsTests : IDisposable
     {
+        protected readonly IDynamoDbFixture _dbFixture;
+        protected readonly ContactDetailsFixture _contactDetailsFixture;
+        protected readonly FetchAllContactDetailsByUprnStep _steps;
 
-        private readonly IDynamoDbFixture _dbFixture;
-        private readonly ContactDetailsFixture _contactDetailsFixture;
-        private readonly FetchAllContactDetailsByUprnStep _steps;
 
-
-        public FetchAllContactDetailsTests(MockWebApplicationFactoryWithMiddleware<Startup> appFactory)
+        public FetchAllContactDetailsTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
@@ -46,6 +44,16 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 _disposed = true;
             }
         }
+    }
+
+    [Collection("AppTest middleware collection")]
+    public class FetchAllContactDetailsTestsAuthorised : FetchAllContactDetailsTests
+    {
+        public FetchAllContactDetailsTestsAuthorised(
+            MockWebApplicationFactoryWithMiddleware<Startup> appFactory)
+        : base(appFactory)
+        {
+        }
 
         [Fact]
         public void ServiceReturnsAllContactDetailsAsRequested()
@@ -56,4 +64,24 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
                 .BDDfy();
         }
     }
+
+    [Collection("AppTest collection")]
+    public class FetchAllContactDetailsTestsUnauthorised : FetchAllContactDetailsTests
+    {
+        public FetchAllContactDetailsTestsUnauthorised(
+            MockWebApplicationFactory<Startup> appFactory)
+        : base(appFactory)
+        {
+        }
+
+        [Fact]
+        public void ServiceReturns401Unauthorised()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
+                .When(w => _steps.WhenAllContactDetailsAreRequested())
+                .Then(t => _steps.ThenAnUnauthorisedResponseIsReturned())
+                .BDDfy();
+        }
+    }
+
 }
