@@ -29,10 +29,10 @@ namespace ContactDetailsApi.V2.UseCase
         private async Task<IEnumerable<TenureInformation>> GetTenures()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
-            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null) // filter out tenures with no UPRN
+            tenures = tenures.Where(x => x.IsActive)
                           .GroupBy(x => x.TenuredAsset.Uprn) // Group by UPRN to get tenures per property
-                          .Select(x=> x.Where(x => x.IsActive).Distinct())// Get the active tenure for each property
-                          .FirstOrDefault()
+                          .Select(x => x.Where(x => x.TenuredAsset?.Uprn != null)) // filter out tenures with no UPRN
+                          .Select(x => x.FirstOrDefault())// Get the active tenure for each property
                           .ToList();
             return tenures;
         }
@@ -53,7 +53,7 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var personIds = tenures.Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
                                                                   .Select(y => y.Id))
-                                                                  
+
                 .SelectMany(x => x)
                 .Distinct()
                 .ToList();
@@ -106,7 +106,7 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var tenures = await GetTenures().ConfigureAwait(false);
             var personIds = FilterPersonIds(tenures.ToList());
-
+            if (personIds == null) return null;
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
