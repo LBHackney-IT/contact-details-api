@@ -106,7 +106,6 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var tenures = await GetTenures().ConfigureAwait(false);
             var personIds = FilterPersonIds(tenures.ToList());
-            if (personIds == null) return null;
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
