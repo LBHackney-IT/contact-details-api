@@ -30,8 +30,9 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
             tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null) // filter out tenures with no UPRN
+                          .Where(x=> x.IsActive)
                           .GroupBy(x => x.TenuredAsset.Uprn) // Group by UPRN to get tenures per property
-                          .Select(x => x.Where(x => x.IsActive).FirstOrDefault()) // Get the active tenure for each property 
+                          .Select(x => x.FirstOrDefault()) // Get the active tenure for each property 
                           .ToList();
             return tenures;
         }
@@ -52,6 +53,7 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var personIds = tenures.Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
                                                                   .Select(y => y.Id))
+                                                                  
                 .SelectMany(x => x)
                 .Distinct()
                 .ToList();
