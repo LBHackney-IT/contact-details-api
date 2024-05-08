@@ -29,10 +29,10 @@ namespace ContactDetailsApi.V2.UseCase
         private async Task<IEnumerable<TenureInformation>> GetTenures()
         {
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
-            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
-                            .GroupBy(x => x.TenuredAsset.Uprn)
-                            .Select(x => x.FirstOrDefault())
-                             .ToList();
+            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null) // filter out tenures with no UPRN
+                          .GroupBy(x => x.TenuredAsset.Uprn) // Group by UPRN to get tenures per property
+                          .Select(x => x.Where(x => x.IsActive).FirstOrDefault()) // Get the active tenure for each property 
+                          .ToList();
             return tenures;
         }
 
