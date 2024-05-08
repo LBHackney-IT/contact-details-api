@@ -31,7 +31,7 @@ namespace ContactDetailsApi.V2.UseCase
             var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
             tenures = tenures.Where(x => x.IsActive)
                           .GroupBy(x => x.TenuredAsset.Uprn) // Group by UPRN to get tenures per property
-                          .Select(x => x.Where(x => x.TenuredAsset?.Uprn != null)) // filter out tenures with no UPRN
+                          //.Select(x => x.Where(x => x.TenuredAsset?.Uprn != null)) // filter out tenures with no UPRN
                           .Select(x => x.FirstOrDefault())// Get the active tenure for each property
                           .ToList();
             return tenures;
