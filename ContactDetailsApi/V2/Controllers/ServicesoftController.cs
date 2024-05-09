@@ -1,12 +1,8 @@
-using ContactDetailsApi.V1.Boundary.Request;
 using ContactDetailsApi.V1.Controllers;
-using ContactDetailsApi.V2.Infrastructure;
 using ContactDetailsApi.V2.UseCase.Interfaces;
-using Hackney.Core.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Boundary.Request;
 
 namespace ContactDetailsApi.V2.Controllers
 {
@@ -25,9 +21,9 @@ namespace ContactDetailsApi.V2.Controllers
 
         [HttpGet]
         [Route("contactDetails")]
-        public async Task<IActionResult> FetchAllContactDetailsByUprn()
+        public async Task<IActionResult> FetchAllContactDetailsByUprn([FromQuery] ServicesoftFetchContactDetailsRequest request)
         {
-            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync();
+            var results = await _fetchAllContactDetailsByUprnUseCase.ExecuteAsync(request);
 
             return Ok(results);
         }

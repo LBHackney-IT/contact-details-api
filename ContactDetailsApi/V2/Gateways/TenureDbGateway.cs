@@ -1,38 +1,66 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
-using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Hackney.Core.Logging;
 using Hackney.Shared.Tenure.Domain;
 using System.Linq;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.DocumentModel;
+using Amazon.DynamoDBv2.Model;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Factories;
+using Newtonsoft.Json;
 
-namespace ContactDetailsApi.V2.Gateways
+
+namespace ContactDetailsApi.V2.Gateways;
+
+public class TenureDbGateway: ITenureDbGateway
 {
-    public class TenureDbGateway : ITenureDbGateway
+    private readonly AmazonDynamoDBClient _dynamoDbClient;
+    private readonly ILogger<TenureDbGateway> _logger;
+
+    public TenureDbGateway(AmazonDynamoDBClient dynamoDbClient, ILogger<TenureDbGateway> logger)
     {
-        private readonly IDynamoDBContext _dynamoDbContext;
-        private readonly ILogger<TenureDbGateway> _logger;
+        _dynamoDbClient = dynamoDbClient;
+        _logger = logger;
+    }
 
-        public TenureDbGateway(IDynamoDBContext dynamoDbContext, ILogger<TenureDbGateway> logger)
+    [LogCall]
+    public async Task<Tuple<List<TenureInformation>, Guid>> ScanTenures(Guid? lastEvaluatedKey)
+    {
+        Dictionary<string, AttributeValue> exclusiveStartKey = null;
+
+        if (lastEvaluatedKey != null)
+            exclusiveStartKey = new Dictionary<string, AttributeValue> {
+                {
+                    "id", new AttributeValue { S = lastEvaluatedKey.ToString() }
+                }
+            };
+
+        var scanRequest = new ScanRequest
         {
-            _dynamoDbContext = dynamoDbContext;
-            _logger = logger;
+            TableName = "TenureInformation",
+            ExclusiveStartKey = exclusiveStartKey
+        };
+
+        var tenures = new List<TenureInformation>();
+        var scanResponse = await _dynamoDbClient.ScanAsync(scanRequest).ConfigureAwait(false);
+
+        if (scanResponse.Items.Count > 0)
+        {
+            tenures = scanResponse.Items
+                .Select(item => Document.FromAttributeMap(item).ToJsonPretty())
+                .Select(item => JsonConvert.DeserializeObject<TenureInformationDb>(item))
+                .Select(item => item.ToDomain())
+                .ToList();
         }
 
-        [LogCall]
-        public async Task<IEnumerable<TenureInformation>> GetAllTenures()
-        {
+        var newKeyString = scanResponse.LastEvaluatedKey.Values.FirstOrDefault().S;
+        var newLastKey = Guid.Parse(newKeyString);
 
-            var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig());
-
-            _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
-
-            var results = await search.GetNextSetAsync().ConfigureAwait(false);
-            return results.Select(x => x.ToDomain());
-        }
+        return Tuple.Create(tenures, newLastKey);
     }
 }
+

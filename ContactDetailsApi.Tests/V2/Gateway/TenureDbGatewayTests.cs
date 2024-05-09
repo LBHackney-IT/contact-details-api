@@ -65,7 +65,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .ToList();
             await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
-            var result = await _classUnderTest.GetAllTenures().ConfigureAwait(false);
+            var result = await _classUnderTest.ScanTenures().ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();
             result.Should().HaveCount(tenures.Count);
             result.Should().BeEquivalentTo(tenures);

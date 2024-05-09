@@ -1,6 +1,6 @@
+using System;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Domain;
-using ContactDetailsApi.V2.Infrastructure;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,12 +31,13 @@ namespace ContactDetailsApi.V2.Factories
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
 
-        public static ContactsByUprnList ToResponse(this IEnumerable<ContactByUprn> domainList)
+        public static ContactsByUprnList ToResponse(this IEnumerable<ContactByUprn> domainList, Guid? lastKey)
         {
             if (domainList == null) return new ContactsByUprnList();
             return new ContactsByUprnList
             {
-                Results = domainList
+                Results = domainList,
+                LastEvaluatedKey = lastKey
             };
         }
     }

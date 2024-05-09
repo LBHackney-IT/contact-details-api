@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using Hackney.Shared.Tenure.Domain;
@@ -26,14 +27,14 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async Task<IEnumerable<TenureInformation>> GetTenures()
+        private async  Task<Tuple<List<TenureInformation>, Guid>> GetTenures(Guid? lastEvaluatedKey)
         {
-            var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
+            var (tenures, lastKey) = await _tenureGateway.ScanTenures(lastEvaluatedKey).ConfigureAwait(false);
             tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
                             .GroupBy(x => x.TenuredAsset.Uprn)
                             .Select(x => x.FirstOrDefault())
                              .ToList();
-            return tenures;
+            return Tuple.Create(tenures, lastKey);
         }
 
         private async Task<Dictionary<Guid, Hackney.Shared.Person.Person>> GetPersons(List<Guid> personIds)
@@ -50,8 +51,9 @@ namespace ContactDetailsApi.V2.UseCase
 
         private static List<Guid> FilterPersonIds(IEnumerable<TenureInformation> tenures)
         {
-            var personIds = tenures.Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
-                                                                  .Select(y => y.Id))
+            var personIds = tenures
+                .Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
+                    .Select(y => y.Id))
                 .SelectMany(x => x)
                 .Distinct()
                 .ToList();
@@ -100,16 +102,16 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         [LogCall]
-        public async Task<ContactsByUprnList> ExecuteAsync()
+        public async Task<ContactsByUprnList> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
         {
-            var tenures = await GetTenures().ConfigureAwait(false);
+            var (tenures, lastKey) = await GetTenures(request.LastEvaluatedKey).ConfigureAwait(false);
             var personIds = FilterPersonIds(tenures.ToList());
 
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
             var data = ConsolidateData(tenures, persons, contactDetails);
-            return data?.ToResponse();
+            return data?.ToResponse(lastKey);
         }
     }
 }
