@@ -28,7 +28,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         {
             _logger = new Mock<ILogger<TenureDbGateway>>();
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new TenureDbGateway(appFactory.AmazonDynamoDBClient, _logger.Object);
+            _classUnderTest = new TenureDbGateway(_dbFixture.DynamoDbContext, _logger.Object);
         }
 
         public void Dispose()
@@ -64,7 +64,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .CreateMany(10)
                                   .ToList();
             await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-            
+
 
             var (result,lastKey) = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();

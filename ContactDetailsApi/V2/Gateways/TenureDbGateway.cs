@@ -6,11 +6,10 @@ using Microsoft.Extensions.Logging;
 using Hackney.Core.Logging;
 using Hackney.Shared.Tenure.Domain;
 using System.Linq;
-using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.DocumentModel;
-using Amazon.DynamoDBv2.Model;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Factories;
+using Amazon.DynamoDBv2.DataModel;
 using Newtonsoft.Json;
 
 
@@ -18,49 +17,33 @@ namespace ContactDetailsApi.V2.Gateways;
 
 public class TenureDbGateway: ITenureDbGateway
 {
-    private readonly AmazonDynamoDBClient _dynamoDbClient;
+    private readonly IDynamoDBContext _dynamoDbContext;
     private readonly ILogger<TenureDbGateway> _logger;
 
-    public TenureDbGateway(AmazonDynamoDBClient dynamoDbClient, ILogger<TenureDbGateway> logger)
+    public TenureDbGateway(IDynamoDBContext dynamoDbContext, ILogger<TenureDbGateway> logger)
     {
-        _dynamoDbClient = dynamoDbClient;
+        _dynamoDbContext = dynamoDbContext;
         _logger = logger;
     }
 
     [LogCall]
     public async Task<Tuple<List<TenureInformation>, Guid?>> ScanTenures(Guid? lastEvaluatedKey)
     {
-        Dictionary<string, AttributeValue> exclusiveStartKey = null;
-
-        if (lastEvaluatedKey != null)
-            exclusiveStartKey = new Dictionary<string, AttributeValue> {
-                {
-                    "id", new AttributeValue { S = lastEvaluatedKey.ToString() }
-                }
+        var scanConfig = new ScanOperationConfig {
+                Limit = 10
             };
+        if(lastEvaluatedKey.HasValue)
+            scanConfig.PaginationToken = lastEvaluatedKey.ToString();
 
-        var scanRequest = new ScanRequest
-        {
-            TableName = "TenureInformation",
-            ExclusiveStartKey = exclusiveStartKey
-        };
+        var search =  _dynamoDbContext.FromScanAsync<TenureInformationDb>(scanConfig);
+        _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
 
-        var tenures = new List<TenureInformation>();
-        var scanResponse = await _dynamoDbClient.ScanAsync(scanRequest).ConfigureAwait(false);
+        var tenures = await search.GetNextSetAsync().ConfigureAwait(false);
 
-        if (scanResponse.Items.Count > 0)
-        {
-            tenures = scanResponse.Items
-                .Select(item => Document.FromAttributeMap(item).ToJsonPretty())
-                .Select(item => JsonConvert.DeserializeObject<TenureInformationDb>(item))
-                .Select(item => item.ToDomain())
-                .ToList();
-        }
+        var paginationToken = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(search.PaginationToken);
+        Guid? newLastKey = search.PaginationToken != null ? Guid.Parse(paginationToken["id"]["S"]) : null;
+        var responseData = tenures.Select(x => x.ToDomain()).ToList();
 
-        var newKeyString = scanResponse.LastEvaluatedKey.Values.FirstOrDefault().S;
-        Guid? newLastKey = Guid.Parse(newKeyString);
-
-        return Tuple.Create(tenures, newLastKey);
+        return Tuple.Create(responseData, newLastKey);
     }
 }
-
