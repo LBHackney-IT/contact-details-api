@@ -18,7 +18,7 @@ namespace ContactDetailsApi.Tests
     public class MockWebApplicationFactory<TStartup>
         : WebApplicationFactory<TStartup> where TStartup : class
     {
-        protected readonly List<TableDef> _tables = new List<TableDef>
+        private readonly List<TableDef> _tables = new List<TableDef>
         {
             new TableDef {
                 Name = "ContactDetails",
@@ -32,12 +32,12 @@ namespace ContactDetailsApi.Tests
 
         };
 
-        public HttpClient Client { get; protected set; }
-        public IDynamoDbFixture DynamoDbFixture { get; protected set; }
-        public ISnsFixture SnsFixture { get; protected set; }
+        public HttpClient Client { get; private set; }
+        public IDynamoDbFixture DynamoDbFixture { get; private set; }
+        public ISnsFixture SnsFixture { get; private set; }
 
-        protected static List<ApiVersionDescription> _apiVersions { get; set; }
-        protected const string ApiName = "Contact Details API";
+        private static List<ApiVersionDescription> _apiVersions { get; set; }
+        private const string ApiName = "Contact Details API";
 
         public MockWebApplicationFactory()
         {
@@ -48,7 +48,7 @@ namespace ContactDetailsApi.Tests
             Client = CreateClient();
         }
 
-        protected bool _disposed;
+        private bool _disposed;
 
         protected override void Dispose(bool disposing)
         {
@@ -66,6 +66,7 @@ namespace ContactDetailsApi.Tests
                 _disposed = true;
             }
         }
+
         protected static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))

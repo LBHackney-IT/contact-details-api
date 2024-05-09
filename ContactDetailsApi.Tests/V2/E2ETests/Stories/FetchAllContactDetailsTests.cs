@@ -47,9 +47,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
     }
 
     [Collection("AppTest middleware collection")]
-    public class FetchAllContactDetailsTestsAuthorised : FetchAllContactDetailsTests
+    public class FetchAllContactDetailsTestsWhitelisted : FetchAllContactDetailsTests
     {
-        public FetchAllContactDetailsTestsAuthorised(
+        public FetchAllContactDetailsTestsWhitelisted(
             MockWebApplicationFactoryWithMiddleware<Startup> appFactory)
         : base(appFactory)
         {
@@ -66,21 +66,23 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
     }
 
     [Collection("AppTest collection")]
-    public class FetchAllContactDetailsTestsUnauthorised : FetchAllContactDetailsTests
+    public class FetchAllContactDetailsTestsNotWhitelisted : FetchAllContactDetailsTests
     {
-        public FetchAllContactDetailsTestsUnauthorised(
+        public FetchAllContactDetailsTestsNotWhitelisted(
             MockWebApplicationFactory<Startup> appFactory)
         : base(appFactory)
         {
         }
 
         [Fact]
-        public void ServiceReturns401Unauthorised()
+        public void ServiceReturns401UnauthorisedWhenIPAddressIsNotInWhitelist()
         {
             this.Given(g => _contactDetailsFixture.GivenAFetchAllContactDetailsByUprnRequest())
                 .When(w => _steps.WhenAllContactDetailsAreRequested())
                 .Then(t => _steps.ThenAnUnauthorisedResponseIsReturned())
                 .BDDfy();
+            // Note: The reason the test looks the same as the previous one is because the 
+            // IP is changed in middleware (MockWebApplicationFactoryWithMiddleware.cs), not in the test methods
         }
     }
 
