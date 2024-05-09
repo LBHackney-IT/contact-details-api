@@ -72,5 +72,9 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             }
         }
 
+        public void ThenAnUnauthorisedResponseIsReturned()
+        {
+            _lastResponse.StatusCode.Should().Be(HttpStatusCode.Unauthorized);
+        }
     }
 }
