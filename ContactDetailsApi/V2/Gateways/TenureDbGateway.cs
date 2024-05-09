@@ -10,12 +10,12 @@ using Amazon.DynamoDBv2.DocumentModel;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Factories;
 using Amazon.DynamoDBv2.DataModel;
-using Newtonsoft.Json;
+using Hackney.Core.DynamoDb;
 
 
 namespace ContactDetailsApi.V2.Gateways;
 
-public class TenureDbGateway: ITenureDbGateway
+public class TenureDbGateway : ITenureDbGateway
 {
     private readonly IDynamoDBContext _dynamoDbContext;
     private readonly ILogger<TenureDbGateway> _logger;
@@ -27,23 +27,25 @@ public class TenureDbGateway: ITenureDbGateway
     }
 
     [LogCall]
-    public async Task<Tuple<List<TenureInformation>, Guid?>> ScanTenures(Guid? lastEvaluatedKey)
+    public async Task<PagedResult<TenureInformation>> ScanTenures(string paginationToken, int? pageSize = null)
     {
-        var scanConfig = new ScanOperationConfig {
-                Limit = 10
-            };
-        if(lastEvaluatedKey.HasValue)
-            scanConfig.PaginationToken = lastEvaluatedKey.ToString();
+        var scanConfig = new ScanOperationConfig
+        {
+            ConsistentRead = true,
+            Limit = pageSize ?? Int32.MaxValue,
+            PaginationToken = PaginationDetails.DecodeToken(paginationToken)
+        };
 
-        var search =  _dynamoDbContext.FromScanAsync<TenureInformationDb>(scanConfig);
-        _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
+        var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(scanConfig);
+        _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for TenureInformationDb");
 
-        var tenures = await search.GetNextSetAsync().ConfigureAwait(false);
+        var resultsSet = await search.GetNextSetAsync().ConfigureAwait(false);
+        paginationToken = search.PaginationToken;
 
-        var paginationToken = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, string>>>(search.PaginationToken);
-        Guid? newLastKey = search.PaginationToken != null ? Guid.Parse(paginationToken["id"]["S"]) : null;
-        var responseData = tenures.Select(x => x.ToDomain()).ToList();
-
-        return Tuple.Create(responseData, newLastKey);
+        return new PagedResult<TenureInformation>(
+            resultsSet.Select(x => x.ToDomain()),
+            new PaginationDetails(paginationToken)
+        );
     }
 }
+
