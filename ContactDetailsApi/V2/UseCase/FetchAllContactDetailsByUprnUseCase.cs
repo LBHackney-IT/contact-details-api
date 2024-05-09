@@ -27,7 +27,7 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async  Task<Tuple<List<TenureInformation>, Guid>> GetTenures(Guid? lastEvaluatedKey)
+        private async  Task<Tuple<List<TenureInformation>, Guid?>> GetTenures(Guid? lastEvaluatedKey)
         {
             var (tenures, lastKey) = await _tenureGateway.ScanTenures(lastEvaluatedKey).ConfigureAwait(false);
             tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)

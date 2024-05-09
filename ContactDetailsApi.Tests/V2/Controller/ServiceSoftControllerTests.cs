@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ContactDetailsApi.V2.Boundary.Response;
 using Xunit;
+using ContactDetailsApi.V2.Boundary.Request;
 
 namespace ContactDetailsApi.Tests.V2.Controller
 {
@@ -31,11 +32,12 @@ namespace ContactDetailsApi.Tests.V2.Controller
         {
             // Arrange
             var response = _fixture.Create<ContactsByUprnList>();
+            var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
 
-            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync()).ReturnsAsync(response);
+            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(request)).ReturnsAsync(response);
 
             // Act
-            var result = await _classUnderTest.FetchAllContactDetailsByUprn().ConfigureAwait(false);
+            var result = await _classUnderTest.FetchAllContactDetailsByUprn(request).ConfigureAwait(false);
 
             // Assert
             result.Should().BeOfType(typeof(OkObjectResult));
@@ -47,11 +49,12 @@ namespace ContactDetailsApi.Tests.V2.Controller
         {
             // Arrange
             var exception = new ApplicationException("Test Exception");
+            var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
 
-            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync()).ThrowsAsync(exception);
+            _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(request)).ThrowsAsync(exception);
 
             // Act
-            Func<Task<IActionResult>> func = async () => await _classUnderTest.FetchAllContactDetailsByUprn().ConfigureAwait(false);
+            Func<Task<IActionResult>> func = async () => await _classUnderTest.FetchAllContactDetailsByUprn(request).ConfigureAwait(false);
 
             // Assert
             func.Should().Throw<ApplicationException>().WithMessage(exception.Message);

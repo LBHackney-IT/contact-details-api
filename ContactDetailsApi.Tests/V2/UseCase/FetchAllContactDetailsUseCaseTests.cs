@@ -14,6 +14,7 @@ using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
 using Hackney.Shared.Tenure.Domain;
 using Person = Hackney.Shared.Person.Person;
+using ContactDetailsApi.V2.Boundary.Request;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -121,6 +122,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         public async Task ExecuteAsyncReturnsListOfContacts()
         {
             // Arrange
+            var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
             var person = _fixture.Create<Person>();
             var contactDetails = _fixture.Build<ContactDetails>().With(x => x.TargetId, person.Id).With(x => x.IsActive, true).CreateMany(2).ToList();
             var householdMembers = new List<HouseholdMembers>
@@ -133,14 +135,14 @@ namespace ContactDetailsApi.Tests.V2.UseCase
                 _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Without(x => x.EndOfTenureDate).Create(),
                 _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, DateTime.Today.AddDays(-10)).Create()
             };
-
-            _mockTenureGateway.Setup(x => x.ScanTenures()).ReturnsAsync(tenures);
+             Guid? lastKey = null;
+            _mockTenureGateway.Setup(x => x.ScanTenures(request.LastEvaluatedKey)).ReturnsAsync(Tuple.Create(tenures,lastKey));
             _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<Person> { person });
             _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = person.Id })).ReturnsAsync(contactDetails);
             _mockContactDetailsGateway.Setup(x => x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id })).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });
 
             // Act
-            var rawResult = await _classUnderTest.ExecuteAsync().ConfigureAwait(false);
+            var rawResult = await _classUnderTest.ExecuteAsync(request).ConfigureAwait(false);
             var result = rawResult.Results;
 
             // Assert

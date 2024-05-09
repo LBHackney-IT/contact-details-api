@@ -28,7 +28,7 @@ public class TenureDbGateway: ITenureDbGateway
     }
 
     [LogCall]
-    public async Task<Tuple<List<TenureInformation>, Guid>> ScanTenures(Guid? lastEvaluatedKey)
+    public async Task<Tuple<List<TenureInformation>, Guid?>> ScanTenures(Guid? lastEvaluatedKey)
     {
         Dictionary<string, AttributeValue> exclusiveStartKey = null;
 
@@ -58,7 +58,7 @@ public class TenureDbGateway: ITenureDbGateway
         }
 
         var newKeyString = scanResponse.LastEvaluatedKey.Values.FirstOrDefault().S;
-        var newLastKey = Guid.Parse(newKeyString);
+        Guid? newLastKey = Guid.Parse(newKeyString);
 
         return Tuple.Create(tenures, newLastKey);
     }

@@ -34,6 +34,8 @@ namespace ContactDetailsApi.Tests
 
         public HttpClient Client { get; private set; }
         public IDynamoDbFixture DynamoDbFixture { get; private set; }
+
+        public AmazonDynamoDBClient AmazonDynamoDBClient { get; set; }
         public ISnsFixture SnsFixture { get; private set; }
 
         private static List<ApiVersionDescription> _apiVersions { get; set; }
@@ -82,6 +84,8 @@ namespace ContactDetailsApi.Tests
 
                 services.ConfigureDynamoDB();
                 services.ConfigureDynamoDbFixture();
+
+                services.AddScoped<AmazonDynamoDBClient>(sp => new AmazonDynamoDBClient());
 
                 services.ConfigureSns();
                 services.ConfigureSnsFixture();

@@ -8,6 +8,6 @@ namespace ContactDetailsApi.V2.Gateways.Interfaces
     public interface ITenureDbGateway
     {
 
-        public Task<Tuple<List<TenureInformation>, Guid>> ScanTenures(Guid? lastEvaluatedKey);
+        public Task<Tuple<List<TenureInformation>, Guid?>> ScanTenures(Guid? lastEvaluatedKey);
     }
 }

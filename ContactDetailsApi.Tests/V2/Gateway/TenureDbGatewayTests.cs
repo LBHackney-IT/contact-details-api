@@ -19,8 +19,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
     public class TenureDbGatewayTests : IDisposable
     {
         private readonly Mock<ILogger<TenureDbGateway>> _logger;
-        private readonly IDynamoDbFixture _dbFixture;
         private readonly TenureDbGateway _classUnderTest;
+        private readonly IDynamoDbFixture _dbFixture;
         private readonly Fixture _fixture = new Fixture();
         private readonly List<Action> _cleanup = new List<Action>();
 
@@ -28,7 +28,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         {
             _logger = new Mock<ILogger<TenureDbGateway>>();
             _dbFixture = appFactory.DynamoDbFixture;
-            _classUnderTest = new TenureDbGateway(_dbFixture.DynamoDbContext, _logger.Object);
+            _classUnderTest = new TenureDbGateway(appFactory.AmazonDynamoDBClient, _logger.Object);
         }
 
         public void Dispose()
@@ -64,8 +64,9 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .CreateMany(10)
                                   .ToList();
             await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+            
 
-            var result = await _classUnderTest.ScanTenures().ConfigureAwait(false);
+            var (result,lastKey) = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
             result.Should().NotBeNullOrEmpty();
             result.Should().HaveCount(tenures.Count);
             result.Should().BeEquivalentTo(tenures);

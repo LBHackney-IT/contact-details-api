@@ -2,6 +2,7 @@ using AutoFixture;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using FluentAssertions;
+using System;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V2.Factories
@@ -48,12 +49,14 @@ namespace ContactDetailsApi.Tests.V2.Factories
         {
             // Arrange
             var domainList = _fixture.CreateMany<ContactByUprn>();
+            var lastEvaluatedKey = _fixture.Create<Guid>();
 
             // Act
-            var response = domainList.ToResponse();
+            var response = domainList.ToResponse(lastEvaluatedKey);
 
             // Assert
             response.Results.Should().BeEquivalentTo(domainList);
+            response.LastEvaluatedKey.Should().Be(lastEvaluatedKey);
         }
     }
 }
