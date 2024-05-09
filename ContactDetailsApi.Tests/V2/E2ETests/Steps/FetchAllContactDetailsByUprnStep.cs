@@ -9,6 +9,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Domain;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
@@ -44,11 +45,11 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             _lastResponse = await CallApi().ConfigureAwait(false);
         }
 
-        private async Task<ContactsByUprnList> ExtractResultFromHttpResponse(HttpResponseMessage response)
+        private async Task<PagedResult<ContactByUprn>> ExtractResultFromHttpResponse(HttpResponseMessage response)
         {
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<ContactsByUprnList>(responseContent, _jsonOptions);
+            var apiResult = JsonSerializer.Deserialize<PagedResult<ContactByUprn>>(responseContent, _jsonOptions);
             return apiResult;
         }
 

@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using ContactDetailsApi.V2.Boundary.Response;
 using Xunit;
 using ContactDetailsApi.V2.Boundary.Request;
+using ContactDetailsApi.V2.Domain;
+using Hackney.Core.DynamoDb;
 
 namespace ContactDetailsApi.Tests.V2.Controller
 {
@@ -31,7 +33,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task FetchAllContactDetailsReturns200Response()
         {
             // Arrange
-            var response = _fixture.Create<ContactsByUprnList>();
+            var response = _fixture.Create<PagedResult<ContactByUprn>>();
             var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
 
             _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(request)).ReturnsAsync(response);

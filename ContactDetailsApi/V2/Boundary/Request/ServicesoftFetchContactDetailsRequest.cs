@@ -6,6 +6,9 @@ namespace ContactDetailsApi.V2.Boundary.Request
     public class ServicesoftFetchContactDetailsRequest
     {
         [FromQuery]
-        public Guid? LastEvaluatedKey { get; set; }
+        public string PaginationToken { get; set; }
+
+        [FromQuery]
+        public int? PageSize { get; set; }
     }
 }

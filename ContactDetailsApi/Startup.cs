@@ -143,7 +143,6 @@ namespace ContactDetailsApi
 
             services.ConfigureLambdaLogging(Configuration);
 
-            services.AddScoped<AmazonDynamoDBClient> (sp => new AmazonDynamoDBClient());
             services.AddLogCallAspect();
             services.ConfigureDynamoDB();
             services.ConfigureSns();

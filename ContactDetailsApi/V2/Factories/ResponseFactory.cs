@@ -30,15 +30,5 @@ namespace ContactDetailsApi.V2.Factories
             if (null == domainList) return new List<ContactDetailsResponseObject>();
             return domainList.Select(domain => domain.ToResponse()).ToList();
         }
-
-        public static ContactsByUprnList ToResponse(this IEnumerable<ContactByUprn> domainList, Guid? lastKey)
-        {
-            if (domainList == null) return new ContactsByUprnList();
-            return new ContactsByUprnList
-            {
-                Results = domainList,
-                LastEvaluatedKey = lastKey
-            };
-        }
     }
 }

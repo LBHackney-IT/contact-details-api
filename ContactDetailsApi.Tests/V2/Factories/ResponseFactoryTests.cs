@@ -43,20 +43,5 @@ namespace ContactDetailsApi.Tests.V2.Factories
             domain.IsActive.Should().Be(response.IsActive);
             domain.RecordValidUntil.Should().Be(response.RecordValidUntil);
         }
-
-        [Fact]
-        public void CanMapAListOfContactByUprnsToAResponseObject()
-        {
-            // Arrange
-            var domainList = _fixture.CreateMany<ContactByUprn>();
-            var lastEvaluatedKey = _fixture.Create<Guid>();
-
-            // Act
-            var response = domainList.ToResponse(lastEvaluatedKey);
-
-            // Assert
-            response.Results.Should().BeEquivalentTo(domainList);
-            response.LastEvaluatedKey.Should().Be(lastEvaluatedKey);
-        }
     }
 }

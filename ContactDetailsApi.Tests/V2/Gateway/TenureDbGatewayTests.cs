@@ -3,7 +3,7 @@ using ContactDetailsApi.V2.Gateways;
 using FluentAssertions;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Core.Testing.Shared;
-using Hackney.Shared.Person.Infrastructure;
+using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -48,30 +48,86 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 _disposed = true;
             }
         }
-        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
+        private void InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
         {
             foreach (var entity in entities)
             {
-                await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
+                _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
             }
         }
 
         [Fact]
-        public async Task GetAllTenuresWorksAsExpected()
+        public async Task ScanTenuresReturnsEmptyListWhenNoData()
         {
+            // Act
+            var response = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.Results.Should().BeEmpty();
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
+
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
+        }
+
+        [Fact]
+        public async Task ScanTenuresReturnsDataWhenExists()
+        {
+            // Arrange
             var tenures = _fixture.Build<TenureInformationDb>()
                                   .Without(x => x.VersionNumber)
-                                  .CreateMany(10)
+                                  .CreateMany(2)
                                   .ToList();
-            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+            InsertDataIntoDynamoDB(tenures);
 
+            // Act
+            var response = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
 
-            var (result,lastKey) = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
-            result.Should().NotBeNullOrEmpty();
-            result.Should().HaveCount(tenures.Count);
-            result.Should().BeEquivalentTo(tenures);
-            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for all tenures", Times.Once());
+            // Assert
+            response.Should().NotBeNull();
+            response.Results.Should().NotBeNullOrEmpty();
+            response.Results.Should().HaveCount(tenures.Count);
+            response.Results.Should().BeEquivalentTo(tenures.Select(x => x.ToDomain()));
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
+        }
 
+        [Fact]
+        public async Task ScanTenuresReturnsDataWithPaginationToken()
+        {
+            // Arrange
+            var tenures = _fixture.Build<TenureInformationDb>()
+                                  .Without(x => x.VersionNumber)
+                                  .CreateMany(9)
+                                  .ToList();
+            InsertDataIntoDynamoDB(tenures);
+
+            // Act (1)
+            var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
+            // Assert (1)
+            firstResponse.Should().NotBeNull();
+            firstResponse.Results.Should().NotBeNullOrEmpty();
+            firstResponse.Results.Should().HaveCount(5);
+            firstResponse.PaginationDetails.HasNext.Should().BeTrue();
+            firstResponse.PaginationDetails.NextToken.Should().NotBeNullOrEmpty();
+
+            // Arrange (2)
+            var paginationToken = firstResponse.PaginationDetails.NextToken;
+
+            // Act (2)
+            var response = await _classUnderTest.ScanTenures(paginationToken, 5).ConfigureAwait(false);
+            // Assert (2)
+            response.Should().NotBeNull();
+            response.Results.Should().NotBeNullOrEmpty();
+            response.Results.Should().HaveCount(4);
+            response.Results.Should().NotIntersectWith(firstResponse.Results);
+
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
+
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
         }
     }
 }

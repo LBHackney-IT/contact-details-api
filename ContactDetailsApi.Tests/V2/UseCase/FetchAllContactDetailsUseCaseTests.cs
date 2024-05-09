@@ -15,6 +15,7 @@ using FluentAssertions;
 using Hackney.Shared.Tenure.Domain;
 using Person = Hackney.Shared.Person.Person;
 using ContactDetailsApi.V2.Boundary.Request;
+using Hackney.Core.DynamoDb;
 
 namespace ContactDetailsApi.Tests.V2.UseCase
 {
@@ -135,8 +136,8 @@ namespace ContactDetailsApi.Tests.V2.UseCase
                 _fixture.Build<TenureInformation>().With(x => x.HouseholdMembers, householdMembers).Without(x => x.EndOfTenureDate).Create(),
                 _fixture.Build<TenureInformation>().With(x => x.EndOfTenureDate, DateTime.Today.AddDays(-10)).Create()
             };
-             Guid? lastKey = null;
-            _mockTenureGateway.Setup(x => x.ScanTenures(request.LastEvaluatedKey)).ReturnsAsync(Tuple.Create(tenures,lastKey));
+
+            _mockTenureGateway.Setup(x => x.ScanTenures(request.PaginationToken, request.PageSize)).ReturnsAsync(new PagedResult<TenureInformation>(tenures, new PaginationDetails()));
             _mockPersonGateway.Setup(x => x.GetPersons(new List<Guid> { person.Id })).ReturnsAsync(new List<Person> { person });
             _mockContactDetailsGateway.Setup(x => x.GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = person.Id })).ReturnsAsync(contactDetails);
             _mockContactDetailsGateway.Setup(x => x.BatchGetContactDetailsByTargetId(new List<Guid> { person.Id })).ReturnsAsync(new Dictionary<Guid, IEnumerable<ContactDetails>> { { person.Id, contactDetails } });

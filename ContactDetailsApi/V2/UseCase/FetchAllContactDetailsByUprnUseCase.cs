@@ -10,6 +10,7 @@ using ContactDetailsApi.V2.Factories;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Core.Logging;
 using ContactDetailsApi.V2.Boundary.Response;
+using Hackney.Core.DynamoDb;
 
 namespace ContactDetailsApi.V2.UseCase
 {
@@ -27,14 +28,14 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async  Task<Tuple<List<TenureInformation>, Guid?>> GetTenures(Guid? lastEvaluatedKey)
+        private async Task<PagedResult<TenureInformation>> GetTenures(string paginationToken, int? pageSize)
         {
-            var (tenures, lastKey) = await _tenureGateway.ScanTenures(lastEvaluatedKey).ConfigureAwait(false);
-            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
+            var tenures = await _tenureGateway.ScanTenures(paginationToken, pageSize).ConfigureAwait(false);
+            tenures.Results = tenures.Results.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
                             .GroupBy(x => x.TenuredAsset.Uprn)
                             .Select(x => x.FirstOrDefault())
                              .ToList();
-            return Tuple.Create(tenures, lastKey);
+            return tenures;
         }
 
         private async Task<Dictionary<Guid, Hackney.Shared.Person.Person>> GetPersons(List<Guid> personIds)
@@ -102,16 +103,16 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         [LogCall]
-        public async Task<ContactsByUprnList> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
+        public async Task<PagedResult<ContactByUprn>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
         {
-            var (tenures, lastKey) = await GetTenures(request.LastEvaluatedKey).ConfigureAwait(false);
-            var personIds = FilterPersonIds(tenures.ToList());
+            var tenures = await GetTenures(request.PaginationToken, request.PageSize).ConfigureAwait(false);
+            var personIds = FilterPersonIds(tenures.Results);
 
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
-            var data = ConsolidateData(tenures, persons, contactDetails);
-            return data?.ToResponse(lastKey);
+            var data = ConsolidateData(tenures.Results, persons, contactDetails);
+            return new PagedResult<ContactByUprn>(data, tenures.PaginationDetails);
         }
     }
 }
