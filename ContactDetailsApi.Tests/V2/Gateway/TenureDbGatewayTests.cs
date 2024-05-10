@@ -48,11 +48,13 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 _disposed = true;
             }
         }
-        private void InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
+        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
         {
             foreach (var entity in entities)
             {
-                _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
+                await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
+
             }
         }
 
@@ -79,8 +81,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(2)
                                   .ToList();
-            InsertDataIntoDynamoDB(tenures);
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
+            foreach (var tenure in tenures)
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
             // Act
             var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
@@ -92,8 +96,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.HasNext.Should().BeFalse();
             response.PaginationDetails.NextToken.Should().BeNull();
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
-            foreach (var tenure in tenures)
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
         }
 
         [Fact]
@@ -104,7 +106,9 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(9)
                                   .ToList();
-            InsertDataIntoDynamoDB(tenures);
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+            foreach (var tenure in tenures)
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
 
             // Act (1)
             var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
@@ -130,8 +134,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
-            foreach (var tenure in tenures)
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
         }
     }
 }
