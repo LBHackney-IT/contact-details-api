@@ -81,6 +81,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .ToList();
             InsertDataIntoDynamoDB(tenures);
 
+            foreach (var tenure in tenures)
+            {
+                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(tenure).GetAwaiter().GetResult());
+            }
+
             // Act
             var response = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
 
@@ -103,6 +108,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .CreateMany(9)
                                   .ToList();
             InsertDataIntoDynamoDB(tenures);
+
+            foreach (var tenure in tenures)
+            {
+                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(tenure).GetAwaiter().GetResult());
+            }
 
             // Act (1)
             var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
