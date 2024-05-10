@@ -60,7 +60,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         public async Task ScanTenuresReturnsEmptyListWhenNoData()
         {
             // Act
-            var response = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
+            var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
             // Assert
             response.Should().NotBeNull();
@@ -87,7 +87,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
 
             // Act
-            var response = await _classUnderTest.ScanTenures(null).ConfigureAwait(false);
+            var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
             // Assert
             response.Should().NotBeNull();
