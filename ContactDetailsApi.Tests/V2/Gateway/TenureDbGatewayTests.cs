@@ -105,8 +105,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .CreateMany(9)
                                   .ToList();
             await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-            foreach (var tenure in tenures)
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
 
             // Act (1)
             var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
