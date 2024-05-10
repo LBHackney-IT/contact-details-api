@@ -47,14 +47,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
             }
         }
 
-        // [Fact]
-        // public void ServiceReturns404NotFound()
-        // {
-        //     this.Given(g => _contactDetailsFixture.GivenAPatchContactRequest(null))
-        //         .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery))
-        //         .Then(t => _steps.ThenA404NotFoundResponseIsReturned())
-        //         .BDDfy();
-        // }
+        [Fact]
+        public void ServiceReturns404NotFound()
+        {
+            this.Given(g => _contactDetailsFixture.GivenAPatchContactRequest(null))
+                .When(w => _steps.WhenThePatchContactEndpointIsCalled(_contactDetailsFixture.PatchContactRequestObject, _contactDetailsFixture.PatchContactDetailsQuery))
+                .Then(t => _steps.ThenA404NotFoundResponseIsReturned())
+                .BDDfy();
+        }
 
         [Fact]
         public void ServiceUpdatesContactDetails()
