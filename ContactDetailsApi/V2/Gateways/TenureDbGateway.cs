@@ -32,7 +32,7 @@ public class TenureDbGateway : ITenureDbGateway
         var scanConfig = new ScanOperationConfig
         {
             ConsistentRead = true,
-            Limit = pageSize ?? int.MaxValue,
+            Limit = pageSize ?? Int32.MaxValue,
             PaginationToken = PaginationDetails.DecodeToken(paginationToken)
         };
 
@@ -42,9 +42,7 @@ public class TenureDbGateway : ITenureDbGateway
         var resultsSet = await search.GetNextSetAsync().ConfigureAwait(false);
         paginationToken = search.PaginationToken;
 
-        _logger.LogInformation("Returned {resultsCount} results from IDynamoDBContext.ScanAsync " +
-                               "for TenureInformationDb with pagination token {paginationToken}",
-            resultsSet.Count, paginationToken);
+        // _logger.LogInformation("Returned {resultsCount} results from IDynamoDBContext.ScanAsync for TenureInformationDb with pagination token {paginationToken}", resultsSet.Count, paginationToken);
 
         return new PagedResult<TenureInformation>(
             resultsSet.Select(x => x.ToDomain()),

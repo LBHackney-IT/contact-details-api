@@ -53,7 +53,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             foreach (var entity in entities)
             {
                 _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
-                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(entity).GetAwaiter().GetResult());
+                // _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(entity).GetAwaiter().GetResult());
             }
         }
 
