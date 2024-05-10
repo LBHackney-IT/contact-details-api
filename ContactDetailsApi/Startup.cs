@@ -36,13 +36,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.DynamoDBv2;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
-using ContactDetailsApi.V2.Domain;
 
 namespace ContactDetailsApi
 {

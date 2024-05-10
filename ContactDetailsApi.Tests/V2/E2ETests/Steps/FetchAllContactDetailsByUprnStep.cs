@@ -9,10 +9,12 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using ContactDetailsApi.V2.Boundary.Response;
 using ContactDetailsApi.V2.Domain;
+using Hackney.Core.DynamoDb;
 using Hackney.Core.Testing.DynamoDb;
 using Hackney.Shared.Tenure.Factories;
 using Hackney.Shared.Tenure.Infrastructure;
 using JsonSerializer = System.Text.Json.JsonSerializer;
+using System.Linq;
 
 namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 {
@@ -44,17 +46,19 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             _lastResponse = await CallApi().ConfigureAwait(false);
         }
 
-        private async Task<ContactsByUprnList> ExtractResultFromHttpResponse(HttpResponseMessage response)
+        private async Task<PagedResult<ContactByUprn>> ExtractResultFromHttpResponse(HttpResponseMessage response)
         {
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<ContactsByUprnList>(responseContent, _jsonOptions);
+            var apiResult = JsonSerializer.Deserialize<PagedResult<ContactByUprn>>(responseContent, _jsonOptions);
             return apiResult;
         }
 
         public async Task ThenAllContactDetailsAreReturned(IDynamoDbFixture dbFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
+            apiResult.Should().BeOfType<PagedResult<ContactByUprn>>();
+
             var results = apiResult.Results;
             results.Should().NotBeNullOrEmpty();
             results.Should().BeOfType<List<ContactByUprn>>();
@@ -69,7 +73,13 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
                 tenure.ToDomain().IsActive.Should().BeTrue();
                 contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
                 contactByUprn.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
+                contactByUprn.Contacts.Select(x => x.Id).Should().IntersectWith(tenure.HouseholdMembers.Select(x => x.Id));
             }
+
+            var paginationDetails = apiResult.PaginationDetails;
+            paginationDetails.Should().NotBeNull();
+            paginationDetails.HasNext.Should().BeFalse();
+            paginationDetails.NextToken.Should().BeNull();
         }
 
         public void ThenAnUnauthorisedResponseIsReturned()
