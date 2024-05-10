@@ -48,11 +48,11 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 _disposed = true;
             }
         }
-        private void InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
+        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
         {
             foreach (var entity in entities)
             {
-                _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
+                await _dbFixture.SaveEntityAsync(entity);
             }
         }
 
@@ -79,7 +79,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(2)
                                   .ToList();
-            InsertDataIntoDynamoDB(tenures);
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
             foreach (var tenure in tenures)
             {
@@ -107,7 +107,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(9)
                                   .ToList();
-            InsertDataIntoDynamoDB(tenures);
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
             foreach (var tenure in tenures)
             {
