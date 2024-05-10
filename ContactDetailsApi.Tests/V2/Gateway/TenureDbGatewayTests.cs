@@ -56,7 +56,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
         }
 
-        [Fact(Skip="")]
+        [Fact(Skip = "")]
         public async Task ScanTenuresReturnsEmptyListWhenNoData()
         {
             // Act
@@ -71,7 +71,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
         }
 
-        [Fact(Skip="")]
+        [Fact(Skip = "")]
         public async Task ScanTenuresReturnsDataWhenExists()
         {
             // Arrange
@@ -93,10 +93,10 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
             foreach (var tenure in tenures)
-               await _dbFixture.DynamoDbContext.DeleteAsync(tenure);
+                await _dbFixture.DynamoDbContext.DeleteAsync(tenure);
         }
 
-        [Fact(Skip="")]
+        [Fact(Skip = "")]
         public async Task ScanTenuresReturnsDataWithPaginationToken()
         {
             // Arrange
