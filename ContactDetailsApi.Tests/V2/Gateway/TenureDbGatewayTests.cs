@@ -52,7 +52,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         {
             foreach (var entity in entities)
             {
-                await _dbFixture.SaveEntityAsync(entity);
+                await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
             }
         }
 
