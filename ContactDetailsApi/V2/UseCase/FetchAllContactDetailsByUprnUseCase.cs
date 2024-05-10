@@ -28,7 +28,7 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async Task<PagedResult<TenureInformation>> GetTenures(string paginationToken, int? pageSize)
+        private async Task<PagedResult<TenureInformation>> GetTenures(string paginationToken, int pageSize)
         {
             var tenures = await _tenureGateway.ScanTenures(paginationToken, pageSize).ConfigureAwait(false);
             tenures.Results = tenures.Results.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)

@@ -27,12 +27,12 @@ public class TenureDbGateway : ITenureDbGateway
     }
 
     [LogCall]
-    public async Task<PagedResult<TenureInformation>> ScanTenures(string paginationToken, int? pageSize = null)
+    public async Task<PagedResult<TenureInformation>> ScanTenures(string paginationToken, int? pageSize)
     {
         var scanConfig = new ScanOperationConfig
         {
             ConsistentRead = true,
-            Limit = pageSize ?? 500,
+            Limit = pageSize ?? int.MaxValue,
             PaginationToken = PaginationDetails.DecodeToken(paginationToken)
         };
 

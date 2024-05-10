@@ -9,6 +9,6 @@ namespace ContactDetailsApi.V2.Boundary.Request
         public string PaginationToken { get; set; }
 
         [FromQuery]
-        public int? PageSize { get; set; }
+        public int PageSize { get; set; } = 500;
     }
 }
