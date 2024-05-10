@@ -56,6 +56,14 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
         }
 
+        private async Task DeleteDataInDynamoDB(IEnumerable<TenureInformationDb> entities)
+        {
+            foreach (var entity in entities)
+            {
+                await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false);
+            }
+        }
+
         [Fact]
         public async Task ScanTenuresReturnsEmptyListWhenNoData()
         {
@@ -80,7 +88,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .ToList();
             await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
-            
+
             // Act
             var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
@@ -92,8 +100,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.HasNext.Should().BeFalse();
             response.PaginationDetails.NextToken.Should().BeNull();
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
-            foreach(var tenure in tenures)
-                await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false);
+            await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
         }
 
         [Fact]
@@ -130,8 +137,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
-            foreach(var tenure in tenures)
-                await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false);
+            await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
 
         }
     }
