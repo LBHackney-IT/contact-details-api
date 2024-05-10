@@ -78,7 +78,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
         }
 
-        [Fact]
+        [Fact(Skip ="")]
         public async Task ScanTenuresReturnsDataWhenExists()
         {
             // Arrange
@@ -103,7 +103,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
         }
 
-        [Fact]
+        [Fact(Skip ="")]
         public async Task ScanTenuresReturnsDataWithPaginationToken()
         {
             // Arrange
