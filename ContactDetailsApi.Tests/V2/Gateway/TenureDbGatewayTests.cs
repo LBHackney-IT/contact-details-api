@@ -48,11 +48,12 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                 _disposed = true;
             }
         }
-        private async Task InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
+        private void InsertDataIntoDynamoDB(IEnumerable<TenureInformationDb> entities)
         {
             foreach (var entity in entities)
             {
-                await _dbFixture.SaveEntityAsync(entity).ConfigureAwait(false);
+                _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
+                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(entity).GetAwaiter().GetResult());
             }
         }
 
@@ -79,12 +80,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(2)
                                   .ToList();
-            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-
-            foreach (var tenure in tenures)
-            {
-                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(tenure).GetAwaiter().GetResult());
-            }
+            InsertDataIntoDynamoDB(tenures);
 
             // Act
             var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
@@ -107,12 +103,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
                                   .Without(x => x.VersionNumber)
                                   .CreateMany(9)
                                   .ToList();
-            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-
-            foreach (var tenure in tenures)
-            {
-                _cleanup.Add(() => _dbFixture.DynamoDbContext.DeleteAsync(tenure).GetAwaiter().GetResult());
-            }
+            InsertDataIntoDynamoDB(tenures);
 
             // Act (1)
             var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
