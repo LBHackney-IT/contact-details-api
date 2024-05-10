@@ -53,7 +53,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             foreach (var entity in entities)
             {
                 _dbFixture.SaveEntityAsync(entity).GetAwaiter().GetResult();
-                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false));
             }
         }
 
@@ -93,6 +92,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.HasNext.Should().BeFalse();
             response.PaginationDetails.NextToken.Should().BeNull();
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
+            foreach (var tenure in tenures)
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
         }
 
         [Fact]
@@ -129,6 +130,8 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
+            foreach (var tenure in tenures)
+                _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
         }
     }
 }
