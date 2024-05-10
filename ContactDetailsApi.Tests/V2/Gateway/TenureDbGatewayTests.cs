@@ -1,4 +1,3 @@
-using Amazon.XRay.Recorder.Core.Internal.Entities;
 using AutoFixture;
 using ContactDetailsApi.V2.Gateways;
 using FluentAssertions;
@@ -60,12 +59,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         [Fact]
         public async Task ScanTenuresReturnsEmptyListWhenNoData()
         {
-            // Act
-            //var before = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
-            //foreach (var contact in before.Results)
-            //{
-            //    await _dbFixture.DynamoDbContext.DeleteAsync(contact).ConfigureAwait(false);
-            //}
             var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
             // Assert
@@ -77,30 +70,31 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
         }
 
-        // [Fact]
-        // public async Task ScanTenuresReturnsDataWhenExists()
-        // {
-        //     // Arrange
-        //     var tenures = _fixture.Build<TenureInformationDb>()
-        //                           .Without(x => x.VersionNumber)
-        //                           .CreateMany(2)
-        //                           .ToList();
-        //     await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
-        //
-        //     foreach (var tenure in tenures)
-        //         _cleanup.Add(async () => await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false));
-        //     // Act
-        //     var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
-        //
-        //     // Assert
-        //     response.Should().NotBeNull();
-        //     response.Results.Should().NotBeNullOrEmpty();
-        //     response.Results.Should().HaveCount(tenures.Count);
-        //     response.Results.Should().BeEquivalentTo(tenures.Select(x => x.ToDomain()));
-        //     response.PaginationDetails.HasNext.Should().BeFalse();
-        //     response.PaginationDetails.NextToken.Should().BeNull();
-        //     _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
-        // }
+        [Fact]
+        public async Task ScanTenuresReturnsDataWhenExists()
+        {
+            // Arrange
+            var tenures = _fixture.Build<TenureInformationDb>()
+                                  .Without(x => x.VersionNumber)
+                                  .CreateMany(2)
+                                  .ToList();
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+
+            
+            // Act
+            var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
+
+            // Assert
+            response.Should().NotBeNull();
+            response.Results.Should().NotBeNullOrEmpty();
+            response.Results.Should().HaveCount(tenures.Count);
+            response.Results.Should().BeEquivalentTo(tenures.Select(x => x.ToDomain()));
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
+            foreach(var tenure in tenures)
+                await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false);
+        }
 
         [Fact]
         public async Task ScanTenuresReturnsDataWithPaginationToken()
@@ -136,7 +130,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
-            foreach (var tenure in tenures)
+            foreach(var tenure in tenures)
                 await _dbFixture.DynamoDbContext.DeleteAsync(tenure).ConfigureAwait(false);
 
         }
