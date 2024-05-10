@@ -21,6 +21,9 @@ namespace ContactDetailsApi.V2.Controllers
             _fetchAllContactDetailsByUprnUseCase = fetchAllContactDetailsByUprnUseCase;
         }
 
+        /// <summary>
+        /// Retrieves contact details for a slice of tenures grouped by UPRN
+        /// </summary>
         [HttpGet]
         [Route("contactDetails")]
         [AuthorizeEndpointByIpWhitelist("WHITELIST_IP_ADDRESS")]
