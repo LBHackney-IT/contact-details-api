@@ -1,38 +1,53 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Amazon.DynamoDBv2.DataModel;
-using Amazon.DynamoDBv2.DocumentModel;
-using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
 using Hackney.Core.Logging;
 using Hackney.Shared.Tenure.Domain;
 using System.Linq;
+using Amazon.DynamoDBv2.DocumentModel;
+using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Factories;
+using Amazon.DynamoDBv2.DataModel;
+using Hackney.Core.DynamoDb;
 
-namespace ContactDetailsApi.V2.Gateways
+
+namespace ContactDetailsApi.V2.Gateways;
+
+public class TenureDbGateway : ITenureDbGateway
 {
-    public class TenureDbGateway : ITenureDbGateway
+    private readonly IDynamoDBContext _dynamoDbContext;
+    private readonly ILogger<TenureDbGateway> _logger;
+
+    public TenureDbGateway(IDynamoDBContext dynamoDbContext, ILogger<TenureDbGateway> logger)
     {
-        private readonly IDynamoDBContext _dynamoDbContext;
-        private readonly ILogger<TenureDbGateway> _logger;
+        _dynamoDbContext = dynamoDbContext;
+        _logger = logger;
+    }
 
-        public TenureDbGateway(IDynamoDBContext dynamoDbContext, ILogger<TenureDbGateway> logger)
+    [LogCall]
+    public async Task<PagedResult<TenureInformation>> ScanTenures(string paginationToken, int? pageSize)
+    {
+        var scanConfig = new ScanOperationConfig
         {
-            _dynamoDbContext = dynamoDbContext;
-            _logger = logger;
-        }
+            ConsistentRead = true,
+            Limit = pageSize ?? Int32.MaxValue,
+            PaginationToken = PaginationDetails.DecodeToken(paginationToken)
+        };
 
-        [LogCall]
-        public async Task<IEnumerable<TenureInformation>> GetAllTenures()
-        {
+        var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(scanConfig);
+        _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for TenureInformationDb");
 
-            var search = _dynamoDbContext.FromScanAsync<TenureInformationDb>(new ScanOperationConfig());
+        var resultsSet = await search.GetNextSetAsync().ConfigureAwait(false);
+        paginationToken = search.PaginationToken;
 
-            _logger.LogInformation("Calling IDynamoDBContext.ScanAsync for all tenures");
+        // _logger.LogInformation("Returned {resultsCount} results from IDynamoDBContext.ScanAsync for TenureInformationDb with pagination token {paginationToken}", resultsSet.Count, paginationToken);
 
-            var results = await search.GetNextSetAsync().ConfigureAwait(false);
-            return results.Select(x => x.ToDomain());
-        }
+        return new PagedResult<TenureInformation>(
+            resultsSet.Select(x => x.ToDomain()),
+            new PaginationDetails(paginationToken)
+        );
     }
 }
+

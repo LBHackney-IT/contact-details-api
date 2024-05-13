@@ -13,14 +13,6 @@ namespace ContactDetailsApi.Tests
     public class MockWebApplicationFactoryWithMiddleware<TStartup>
     : MockWebApplicationFactory<TStartup> where TStartup : class
     {
-
-
-        public MockWebApplicationFactoryWithMiddleware() : base()
-        {
-            EnsureEnvVarConfigured("WHITELIST_IP_ADDRESS", "127.0.0.1");
-        }
-
-
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
             base.ConfigureWebHost(builder);

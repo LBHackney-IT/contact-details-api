@@ -4,11 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using Hackney.Shared.Tenure.Domain;
 using Hackney.Core.Logging;
 using ContactDetailsApi.V2.Boundary.Response;
+using Hackney.Core.DynamoDb;
 
 namespace ContactDetailsApi.V2.UseCase
 {
@@ -26,10 +28,10 @@ namespace ContactDetailsApi.V2.UseCase
             _contactGateway = contactGateway;
         }
 
-        private async Task<IEnumerable<TenureInformation>> GetTenures()
+        private async Task<PagedResult<TenureInformation>> GetTenures(string paginationToken, int pageSize)
         {
-            var tenures = await _tenureGateway.GetAllTenures().ConfigureAwait(false);
-            tenures = tenures.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
+            var tenures = await _tenureGateway.ScanTenures(paginationToken, pageSize).ConfigureAwait(false);
+            tenures.Results = tenures.Results.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
                             .GroupBy(x => x.TenuredAsset.Uprn)
                             .Select(x => x.FirstOrDefault())
                              .ToList();
@@ -50,8 +52,9 @@ namespace ContactDetailsApi.V2.UseCase
 
         private static List<Guid> FilterPersonIds(IEnumerable<TenureInformation> tenures)
         {
-            var personIds = tenures.Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
-                                                                  .Select(y => y.Id))
+            var personIds = tenures
+                .Select(x => x.HouseholdMembers.Where(x => x.IsResponsible)
+                    .Select(y => y.Id))
                 .SelectMany(x => x)
                 .Distinct()
                 .ToList();
@@ -100,16 +103,16 @@ namespace ContactDetailsApi.V2.UseCase
         }
 
         [LogCall]
-        public async Task<ContactsByUprnList> ExecuteAsync()
+        public async Task<PagedResult<ContactByUprn>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
         {
-            var tenures = await GetTenures().ConfigureAwait(false);
-            var personIds = FilterPersonIds(tenures.ToList());
+            var tenures = await GetTenures(request.PaginationToken, request.PageSize).ConfigureAwait(false);
+            var personIds = FilterPersonIds(tenures.Results);
 
             var persons = await GetPersons(personIds);
             var contactDetails = await GetContactDetails(personIds);
 
-            var data = ConsolidateData(tenures, persons, contactDetails);
-            return data?.ToResponse();
+            var data = ConsolidateData(tenures.Results, persons, contactDetails);
+            return new PagedResult<ContactByUprn>(data, tenures.PaginationDetails);
         }
     }
 }
