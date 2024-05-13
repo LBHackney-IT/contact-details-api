@@ -64,7 +64,15 @@ namespace ContactDetailsApi.V2.Gateways
                 };
             };
 
-            return contactDetailsEntities?.Select(cdEntity => SafeToDomain(cdEntity)).Where(cdEnity => cdEnity != null).ToList();
+            return contactDetailsEntities?.Select(cdEntity => SafeToDomain(cdEntity))
+                .Where(cdEnity => cdEnity != null)
+                .OrderBy(x => x?.CreatedBy?.CreatedAt)
+                .ToList();
+        }
+
+        private void ConvertToDomain(List<ContactDetailsEntity> contactDetailsEntities)
+        {
+            throw new NotImplementedException();
         }
 
         [LogCall]
