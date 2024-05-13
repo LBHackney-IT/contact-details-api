@@ -51,7 +51,16 @@ namespace ContactDetailsApi.V2.Gateways
                 contactDetailsEntities.AddRange(newResults);
             } while (!search.IsDone);
 
-            return contactDetailsEntities?.ToDomain();
+            ContactDetails SafeToDomain(ContactDetailsEntity cdEntity) {
+                try {
+                    return cdEntity?.ToDomain();
+                } catch (Exception e) {
+                    _logger.LogError(e, "Error: Failed to convert contact details {CdEntity} to ContactDetails domain", cdEntity?.Id);
+                    return null;
+                };
+            };
+
+            return contactDetailsEntities?.Select(cdEntity => SafeToDomain(cdEntity)).Where(cdEnity => cdEnity != null).ToList();
         }
 
         [LogCall]

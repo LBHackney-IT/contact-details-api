@@ -33,8 +33,17 @@ namespace ContactDetailsApi.V2.Gateways
                 batchGet.AddKey(id);
             }
 
+            Person SafeToDomain(PersonDbEntity person) {
+                try {
+                    return person?.ToDomain();
+                } catch (Exception e) {
+                    _logger.LogError(e, "Error: Failed to convert person {PersonDb} to Person domain", person?.Id);
+                    return null;
+                };
+            };
+
             await batchGet.ExecuteAsync().ConfigureAwait(false);
-            return batchGet.Results.Select(x => x.ToDomain());
+            return batchGet.Results.Select(person => SafeToDomain(person)).Where(person => person != null);
         }
     }
 }
