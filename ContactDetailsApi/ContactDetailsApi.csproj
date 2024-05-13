@@ -13,9 +13,9 @@
 
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.AspNetCoreServer" Version="5.1.1" />
-    <PackageReference Include="AWSXRayRecorder.Core" Version="2.10.0" />
+    <PackageReference Include="AWSXRayRecorder.Core" Version="2.13.0" />
     <PackageReference Include="AWSXRayRecorder.Handlers.AspNetCore" Version="2.7.2" />
-    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.8.2" />
+    <PackageReference Include="AWSXRayRecorder.Handlers.AwsSdk" Version="2.11.0" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="10.3.3" />
     <PackageReference Include="Hackney.Core.Authorization" Version="1.82.0" />
     <PackageReference Include="Hackney.Core.DynamoDb" Version="1.83.0" />
