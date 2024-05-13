@@ -44,8 +44,22 @@ public class TenureDbGateway : ITenureDbGateway
 
         // _logger.LogInformation("Returned {resultsCount} results from IDynamoDBContext.ScanAsync for TenureInformationDb with pagination token {paginationToken}", resultsSet.Count, paginationToken);
 
+        TenureInformation SafeToDomain(TenureInformationDb tenure)
+        {
+            try
+            {
+                return tenure?.ToDomain();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error: Failed to convert tenure {Tenure} to TenureInformation domain", tenure?.Id);
+                return null;
+            };
+        };
+
         return new PagedResult<TenureInformation>(
-            resultsSet.Select(x => x.ToDomain()),
+            resultsSet.Select(tenure => SafeToDomain(tenure))
+            .Where(tenure => tenure != null),
             new PaginationDetails(paginationToken)
         );
     }
