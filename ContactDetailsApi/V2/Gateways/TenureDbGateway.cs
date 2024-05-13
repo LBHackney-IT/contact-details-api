@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Hackney.Shared.Tenure.Infrastructure;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,6 @@ using ContactDetailsApi.V2.Gateways.Interfaces;
 using Hackney.Shared.Tenure.Factories;
 using Amazon.DynamoDBv2.DataModel;
 using Hackney.Core.DynamoDb;
-
 
 namespace ContactDetailsApi.V2.Gateways;
 
@@ -41,8 +39,6 @@ public class TenureDbGateway : ITenureDbGateway
 
         var resultsSet = await search.GetNextSetAsync().ConfigureAwait(false);
         paginationToken = search.PaginationToken;
-
-        // _logger.LogInformation("Returned {resultsCount} results from IDynamoDBContext.ScanAsync for TenureInformationDb with pagination token {paginationToken}", resultsSet.Count, paginationToken);
 
         TenureInformation SafeToDomain(TenureInformationDb tenure)
         {
