@@ -2,6 +2,7 @@ using AutoFixture;
 using ContactDetailsApi.V2.Domain;
 using ContactDetailsApi.V2.Factories;
 using FluentAssertions;
+using System;
 using Xunit;
 
 namespace ContactDetailsApi.Tests.V2.Factories
@@ -41,19 +42,6 @@ namespace ContactDetailsApi.Tests.V2.Factories
             domain.CreatedBy.Should().BeEquivalentTo(response.CreatedBy);
             domain.IsActive.Should().Be(response.IsActive);
             domain.RecordValidUntil.Should().Be(response.RecordValidUntil);
-        }
-
-        [Fact]
-        public void CanMapAListOfContactByUprnsToAResponseObject()
-        {
-            // Arrange
-            var domainList = _fixture.CreateMany<ContactByUprn>();
-
-            // Act
-            var response = domainList.ToResponse();
-
-            // Assert
-            response.Results.Should().BeEquivalentTo(domainList);
         }
     }
 }

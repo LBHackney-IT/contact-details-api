@@ -1,4 +1,3 @@
-using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V1.Boundary.Request.Validation;
 using ContactDetailsApi.V1.UseCase;
 using ContactDetailsApi.V1.UseCase.Interfaces;
@@ -37,12 +36,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using Amazon.DynamoDBv2;
+using Amazon.XRay.Recorder.Handlers.AwsSdk;
 using ContactDetailsApi.V2.Gateways;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
 using Hackney.Shared.Person.Infrastructure;
 using Hackney.Shared.Tenure.Infrastructure;
-using ContactDetailsApi.V2.Domain;
 
 namespace ContactDetailsApi
 {
@@ -52,7 +52,6 @@ namespace ContactDetailsApi
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
-
 #if !DEBUG
                 // disables the AWS SDK logging when running locally
                 AWSSDKHandler.RegisterXRayForAllServices();
@@ -203,8 +202,6 @@ namespace ContactDetailsApi
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .WithExposedHeaders("x-correlation-id"));
-
-            app.UseIPWhitelist();
 
             app.UseCorrelationId();
             app.UseLoggingScope();

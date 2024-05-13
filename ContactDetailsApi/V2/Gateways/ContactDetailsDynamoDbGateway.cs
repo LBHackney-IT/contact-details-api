@@ -105,12 +105,9 @@ namespace ContactDetailsApi.V2.Gateways
         [LogCall]
         public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> GetContactDetailsByTargetIds(IEnumerable<Guid> targetIds)
         {
-            _logger.LogInformation($"Fetching contact details for {targetIds.Count()} persons");
-
             var contactDetails = new Dictionary<Guid, IEnumerable<ContactDetails>>();
             foreach (var targetId in targetIds)
             {
-                _logger.LogInformation("Fetching contact details for target id: {targetId}", targetId.ToString());
                 var data = await GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = targetId })
                     .ConfigureAwait(false);
                 contactDetails.Add(targetId, data);

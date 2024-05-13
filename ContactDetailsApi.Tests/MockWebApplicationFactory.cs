@@ -45,10 +45,8 @@ namespace ContactDetailsApi.Tests
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
-            Environment.SetEnvironmentVariable("WHITELIST_IP_ADDRESS", "127.0.0.1");
-
+            EnsureEnvVarConfigured("WHITELIST_IP_ADDRESS", "127.0.0.1");
             Client = CreateClient();
-
         }
 
         private bool _disposed;
@@ -69,7 +67,8 @@ namespace ContactDetailsApi.Tests
                 _disposed = true;
             }
         }
-        private static void EnsureEnvVarConfigured(string name, string defaultValue)
+
+        protected static void EnsureEnvVarConfigured(string name, string defaultValue)
         {
             if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable(name)))
                 Environment.SetEnvironmentVariable(name, defaultValue);
@@ -94,10 +93,7 @@ namespace ContactDetailsApi.Tests
                 DynamoDbFixture.EnsureTablesExist(_tables);
 
                 SnsFixture = serviceProvider.GetRequiredService<ISnsFixture>();
-
-
                 SnsFixture.CreateSnsTopic<ContactDetailsSns>("contactdetails.fifo", "CONTACT_DETAILS_SNS_ARN");
-
             });
         }
     }
