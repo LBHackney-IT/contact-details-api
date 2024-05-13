@@ -1,7 +1,7 @@
 using ContactDetailsApi.V1.Controllers;
 using ContactDetailsApi.V2.UseCase.Interfaces;
-using Hackney.Core.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Hackney.Core.Authorization;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.Controllers
