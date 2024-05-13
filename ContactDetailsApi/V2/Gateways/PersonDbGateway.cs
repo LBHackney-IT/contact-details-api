@@ -33,10 +33,14 @@ namespace ContactDetailsApi.V2.Gateways
                 batchGet.AddKey(id);
             }
 
-            Person SafeToDomain(PersonDbEntity person) {
-                try {
+            Person SafeToDomain(PersonDbEntity person)
+            {
+                try
+                {
                     return person?.ToDomain();
-                } catch (Exception e) {
+                }
+                catch (Exception e)
+                {
                     _logger.LogError(e, "Error: Failed to convert person {PersonDb} to Person domain", person?.Id);
                     return null;
                 };
