@@ -103,42 +103,41 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         //    await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
         //}
 
-        //[Fact(Skip ="")]
-        //public async Task ScanTenuresReturnsDataWithPaginationToken()
-        //{
-        //    // Arrange
-        //    var tenures = _fixture.Build<TenureInformationDb>()
-        //                          .Without(x => x.VersionNumber)
-        //                          .CreateMany(9)
-        //                          .ToList();
-        //    await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
+        [Fact(Skip ="")]
+        public async Task ScanTenuresReturnsDataWithPaginationToken()
+        {
+            // Arrange
+            var tenures = _fixture.Build<TenureInformationDb>()
+                                  .Without(x => x.VersionNumber)
+                                  .CreateMany(9)
+                                  .ToList();
+            await InsertDataIntoDynamoDB(tenures).ConfigureAwait(false);
 
-        //    // Act (1)
-        //    var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
-        //    // Assert (1)
-        //    firstResponse.Should().NotBeNull();
-        //    firstResponse.Results.Should().NotBeNullOrEmpty();
-        //    firstResponse.Results.Should().HaveCount(5);
-        //    firstResponse.PaginationDetails.HasNext.Should().BeTrue();
-        //    firstResponse.PaginationDetails.NextToken.Should().NotBeNullOrEmpty();
+            // Act (1)
+            var firstResponse = await _classUnderTest.ScanTenures(null, 5).ConfigureAwait(false);
+            // Assert (1)
+            firstResponse.Should().NotBeNull();
+            firstResponse.Results.Should().NotBeNullOrEmpty();
+            firstResponse.Results.Should().HaveCount(5);
+            firstResponse.PaginationDetails.HasNext.Should().BeTrue();
+            firstResponse.PaginationDetails.NextToken.Should().NotBeNullOrEmpty();
 
-        //    // Arrange (2)
-        //    var paginationToken = firstResponse.PaginationDetails.NextToken;
+            // Arrange (2)
+            var paginationToken = firstResponse.PaginationDetails.NextToken;
 
-        //    // Act (2)
-        //    var response = await _classUnderTest.ScanTenures(paginationToken, 5).ConfigureAwait(false);
-        //    // Assert (2)
-        //    response.Should().NotBeNull();
-        //    response.Results.Should().NotBeNullOrEmpty();
-        //    response.Results.Should().HaveCount(4);
-        //    response.Results.Should().NotIntersectWith(firstResponse.Results);
+            // Act (2)
+            var response = await _classUnderTest.ScanTenures(paginationToken, 5).ConfigureAwait(false);
+            // Assert (2)
+            response.Should().NotBeNull();
+            response.Results.Should().NotBeNullOrEmpty();
+            response.Results.Should().HaveCount(4);
+            response.Results.Should().NotIntersectWith(firstResponse.Results);
 
-        //    response.PaginationDetails.HasNext.Should().BeFalse();
-        //    response.PaginationDetails.NextToken.Should().BeNull();
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
 
-        //    _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
-        //    await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
-
-        //}
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
+            await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
+        }
     }
 }
