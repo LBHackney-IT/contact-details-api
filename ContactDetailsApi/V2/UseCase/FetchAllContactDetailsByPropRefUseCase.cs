@@ -14,14 +14,14 @@ using Hackney.Core.DynamoDb;
 
 namespace ContactDetailsApi.V2.UseCase
 {
-    public class FetchAllContactDetailsByUprnUseCase : IFetchAllContactDetailsByUprnUseCase
+    public class FetchAllContactDetailsByPropRefUseCase : IFetchAllContactDetailsByUprnUseCase
     {
 
         private readonly ITenureDbGateway _tenureGateway;
         private readonly IPersonDbGateway _personGateway;
         private readonly IContactDetailsGateway _contactGateway;
 
-        public FetchAllContactDetailsByUprnUseCase(ITenureDbGateway tenureGateway, IPersonDbGateway personGateway, IContactDetailsGateway contactGateway)
+        public FetchAllContactDetailsByPropRefUseCase(ITenureDbGateway tenureGateway, IPersonDbGateway personGateway, IContactDetailsGateway contactGateway)
         {
             _tenureGateway = tenureGateway;
             _personGateway = personGateway;
