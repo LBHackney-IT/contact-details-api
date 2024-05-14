@@ -56,14 +56,6 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
         }
 
-        private async Task DeleteDataInDynamoDB(IEnumerable<TenureInformationDb> entities)
-        {
-            foreach (var entity in entities)
-            {
-                await _dbFixture.DynamoDbContext.DeleteAsync(entity).ConfigureAwait(false);
-            }
-        }
-
         [Fact]
         public async Task ScanTenuresReturnsDataAndSupportsPagination()
         {
