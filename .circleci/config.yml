@@ -235,37 +235,31 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "production"
-  check-on-feature-branch-start:
-    executor: docker-python
-    steps:
-      - run:
-          name: Start
-          command: echo "Starting the pipeline"
 
 workflows:
   check-on-feature-branch:
     jobs:
-      - check-on-feature-branch-start:
+      - check-code-formatting:
+          context: api-nuget-token-context
           filters:
             branches:
               ignore: release, master
-      - check-code-formatting:
-          context: api-nuget-token-context
-          requires:
-            - check-on-feature-branch-start
       - sonarcloud-scan:
           context: SonarCloud
-          requires:
-            - check-on-feature-branch-start
+          filters:
+            branches:
+              ignore: release, master
       - build-and-test:
           context:
             - api-nuget-token-context
-          requires:
-            - check-on-feature-branch-start
+          filters:
+            branches:
+              ignore: release, master
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-            - check-on-feature-branch-start
+          filters:
+            branches:
+              ignore: release, master
       - terraform-init-and-plan-development:
           requires:
             - assume-role-development
