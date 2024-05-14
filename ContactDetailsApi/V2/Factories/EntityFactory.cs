@@ -123,7 +123,7 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
-        public static List<PersonContactDetails> ToContactByUprnPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
+        public static List<PersonContactDetails> ToContactByPropRefPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
         {
             if (databaseEntity == null || !databaseEntity.Any()) return null;
             return databaseEntity
@@ -131,7 +131,7 @@ namespace ContactDetailsApi.V2.Factories
                 .ToList();
         }
 
-        public static Person ToContactByUprnPerson(this Hackney.Shared.Person.Person personDetails, HouseholdMembers householdMember,
+        public static Person ToContactByPropRefPerson(this Hackney.Shared.Person.Person personDetails, HouseholdMembers householdMember,
             List<PersonContactDetails> contactDetails)
         {
             return new Person
@@ -146,13 +146,13 @@ namespace ContactDetailsApi.V2.Factories
             };
         }
 
-        public static ContactByUprn ToContactByUprn(this TenureInformation tenure, List<Person> contacts)
+        public static ContactByPropRef ToContactByPropRef(this TenureInformation tenure, List<Person> contacts)
         {
-            return new ContactByUprn
+            return new ContactByPropRef
             {
                 TenureId = tenure.Id,
                 Address = tenure.TenuredAsset?.FullAddress,
-                Uprn = tenure.TenuredAsset?.Uprn,
+                PropertyRef = tenure.TenuredAsset?.PropertyReference,
                 Contacts = contacts
             };
         }

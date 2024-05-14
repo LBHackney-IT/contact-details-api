@@ -33,7 +33,7 @@ namespace ContactDetailsApi.Tests.V2.Controller
         public async Task FetchAllContactDetailsReturns200Response()
         {
             // Arrange
-            var response = _fixture.Create<PagedResult<ContactByUprn>>();
+            var response = _fixture.Create<PagedResult<ContactByPropRef>>();
             var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
 
             _mockFetchAllContactDetailsByUprn.Setup(x => x.ExecuteAsync(request)).ReturnsAsync(response);
