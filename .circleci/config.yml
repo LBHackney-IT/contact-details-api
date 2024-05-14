@@ -253,7 +253,8 @@ workflows:
             - assume-role-development
       - terraform-compliance-development:
           requires:
-            - assume-role-development
+            - terraform-init-and-plan-development
+
 
   check-and-deploy-development:
     jobs:
