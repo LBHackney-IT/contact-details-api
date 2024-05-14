@@ -64,21 +64,21 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             }
         }
 
-         [Fact]
-         public async Task ScanTenuresReturnsEmptyListWhenNoData()
-         {
-             var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
+        [Fact]
+        public async Task ScanTenuresReturnsEmptyListWhenNoData()
+        {
+            var response = await _classUnderTest.ScanTenures(null, null).ConfigureAwait(false);
 
-             // Assert
-             response.Should().NotBeNull();
-             response.Results.Should().BeEmpty();
-             response.PaginationDetails.HasNext.Should().BeFalse();
-             response.PaginationDetails.NextToken.Should().BeNull();
+            // Assert
+            response.Should().NotBeNull();
+            response.Results.Should().BeEmpty();
+            response.PaginationDetails.HasNext.Should().BeFalse();
+            response.PaginationDetails.NextToken.Should().BeNull();
 
-             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
-         }
+            _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Once());
+        }
 
-        [Fact(Skip ="")]
+        [Fact(Skip = "")]
         public async Task ScanTenuresReturnsDataWhenExists()
         {
             // Arrange
