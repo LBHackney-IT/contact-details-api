@@ -397,7 +397,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var databaseEntities = _fixture.CreateMany<ContactDetails>(10);
 
             // Act
-            var personContactDetailsList = databaseEntities.ToContactByUprnPersonContacts();
+            var personContactDetailsList = databaseEntities.ToContactByPropRefPersonContacts();
 
             // Assert
             personContactDetailsList.Should().BeEquivalentTo(databaseEntities, options => options.ExcludingMissingMembers());
@@ -412,7 +412,7 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var contactDetails = _fixture.Create<List<PersonContactDetails>>();
 
             // Act
-            var person = personDetails.ToContactByUprnPerson(householdMember, contactDetails);
+            var person = personDetails.ToContactByPropRefPerson(householdMember, contactDetails);
 
             // Assert
             person.Id.Should().Be(householdMember.Id);
@@ -425,20 +425,20 @@ namespace ContactDetailsApi.Tests.V2.Factories
         }
 
         [Fact]
-        public void CanMapTenureAndPersonToContactByUprn()
+        public void CanMapTenureAndPersonToContactByPropRef()
         {
             // Arrange
             var tenure = _fixture.Create<TenureInformation>();
             var contacts = _fixture.Create<List<Person>>();
 
             // Act
-            var contactByUprn = tenure.ToContactByUprn(contacts);
+            var contactByPropRef = tenure.ToContactByPropRef(contacts);
 
             // Assert
-            contactByUprn.TenureId.Should().Be(tenure.Id);
-            contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
-            contactByUprn.Uprn.Should().Be(tenure.TenuredAsset?.Uprn);
-            contactByUprn.Contacts.Should().BeEquivalentTo(contacts);
+            contactByPropRef.TenureId.Should().Be(tenure.Id);
+            contactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+            contactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset?.PropertyReference);
+            contactByPropRef.Contacts.Should().BeEquivalentTo(contacts);
         }
     }
 }

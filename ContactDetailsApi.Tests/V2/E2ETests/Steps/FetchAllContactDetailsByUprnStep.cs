@@ -46,34 +46,34 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             _lastResponse = await CallApi().ConfigureAwait(false);
         }
 
-        private async Task<PagedResult<ContactByUprn>> ExtractResultFromHttpResponse(HttpResponseMessage response)
+        private async Task<PagedResult<ContactByPropRef>> ExtractResultFromHttpResponse(HttpResponseMessage response)
         {
             response.StatusCode.Should().Be(HttpStatusCode.OK);
             var responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            var apiResult = JsonSerializer.Deserialize<PagedResult<ContactByUprn>>(responseContent, _jsonOptions);
+            var apiResult = JsonSerializer.Deserialize<PagedResult<ContactByPropRef>>(responseContent, _jsonOptions);
             return apiResult;
         }
 
         public async Task ThenAllContactDetailsAreReturned(IDynamoDbFixture dbFixture)
         {
             var apiResult = await ExtractResultFromHttpResponse(_lastResponse).ConfigureAwait(false);
-            apiResult.Should().BeOfType<PagedResult<ContactByUprn>>();
+            apiResult.Should().BeOfType<PagedResult<ContactByPropRef>>();
 
             var results = apiResult.Results;
             results.Should().NotBeNullOrEmpty();
-            results.Should().BeOfType<List<ContactByUprn>>();
+            results.Should().BeOfType<List<ContactByPropRef>>();
 
             results.Should().SatisfyRespectively(x => x.Contacts.Should().NotBeNullOrEmpty());
             results.Should().SatisfyRespectively(x => x.Contacts.TrueForAll(x => x.IsResponsible));
 
             results.Should().OnlyContain(x => x.TenureId != null);
-            foreach (var contactByUprn in results)
+            foreach (var contactByPropRef in results)
             {
-                var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByUprn.TenureId.Value);
+                var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByPropRef.TenureId.Value);
                 tenure.ToDomain().IsActive.Should().BeTrue();
-                contactByUprn.Address.Should().Be(tenure.TenuredAsset.FullAddress);
-                contactByUprn.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
-                contactByUprn.Contacts.Select(x => x.Id).Should().IntersectWith(tenure.HouseholdMembers.Select(x => x.Id));
+                contactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+                contactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset.PropertyReference);
+                contactByPropRef.Contacts.Select(x => x.Id).Should().IntersectWith(tenure.HouseholdMembers.Select(x => x.Id));
             }
 
             var paginationDetails = apiResult.PaginationDetails;

@@ -31,8 +31,8 @@ namespace ContactDetailsApi.V2.UseCase
         private async Task<PagedResult<TenureInformation>> GetTenures(string paginationToken, int pageSize)
         {
             var tenures = await _tenureGateway.ScanTenures(paginationToken, pageSize).ConfigureAwait(false);
-            tenures.Results = tenures.Results.Where(x => x.TenuredAsset?.Uprn != null && x.IsActive == true)
-                            .GroupBy(x => x.TenuredAsset.Uprn)
+            tenures.Results = tenures.Results.Where(x => x.TenuredAsset?.PropertyReference != null && x.IsActive == true)
+                            .GroupBy(x => x.TenuredAsset.PropertyReference)
                             .Select(x => x.FirstOrDefault())
                              .ToList();
             return tenures;
@@ -66,7 +66,7 @@ namespace ContactDetailsApi.V2.UseCase
         {
             if (contactDetails.TryGetValue(householdMember.Id, out var rawContactDetails))
             {
-                return rawContactDetails.ToContactByUprnPersonContacts();
+                return rawContactDetails.ToContactByPropRefPersonContacts();
             }
             return new List<PersonContactDetails>();
             // Add personContactDetails if contactDetails are found, else empty list
@@ -83,27 +83,27 @@ namespace ContactDetailsApi.V2.UseCase
                     continue; // Skip if the person details are not found
 
                 var personContactDetails = PersonContactDetailsList(contactDetails, householdMember);
-                contacts.Add(personDetails.ToContactByUprnPerson(householdMember, personContactDetails)); // Add the person to the contacts list
+                contacts.Add(personDetails.ToContactByPropRefPerson(householdMember, personContactDetails)); // Add the person to the contacts list
             }
             return contacts;
         }
 
         [LogCall]
-        public List<ContactByUprn> ConsolidateData(IEnumerable<TenureInformation> tenures, Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, IEnumerable<ContactDetails>> contactDetails)
+        public List<ContactByPropRef> ConsolidateData(IEnumerable<TenureInformation> tenures, Dictionary<Guid, Hackney.Shared.Person.Person> persons, Dictionary<Guid, IEnumerable<ContactDetails>> contactDetails)
         {
-            var contactsByUprn = new List<ContactByUprn>();
+            var contactsByUprn = new List<ContactByPropRef>();
 
             foreach (var tenure in tenures)
             {
                 var contacts = GetTenureContacts(persons, contactDetails, tenure);
-                contactsByUprn.Add(tenure.ToContactByUprn(contacts));
+                contactsByUprn.Add(tenure.ToContactByPropRef(contacts));
             }
 
             return contactsByUprn;
         }
 
         [LogCall]
-        public async Task<PagedResult<ContactByUprn>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
+        public async Task<PagedResult<ContactByPropRef>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request)
         {
             var tenures = await GetTenures(request.PaginationToken, request.PageSize).ConfigureAwait(false);
             var personIds = FilterPersonIds(tenures.Results);
@@ -112,7 +112,7 @@ namespace ContactDetailsApi.V2.UseCase
             var contactDetails = await GetContactDetails(personIds);
 
             var data = ConsolidateData(tenures.Results, persons, contactDetails);
-            return new PagedResult<ContactByUprn>(data, tenures.PaginationDetails);
+            return new PagedResult<ContactByPropRef>(data, tenures.PaginationDetails);
         }
     }
 }

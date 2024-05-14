@@ -8,6 +8,6 @@ namespace ContactDetailsApi.V2.UseCase.Interfaces
 {
     public interface IFetchAllContactDetailsByUprnUseCase
     {
-        Task<PagedResult<ContactByUprn>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request);
+        Task<PagedResult<ContactByPropRef>> ExecuteAsync(ServicesoftFetchContactDetailsRequest request);
     }
 }
