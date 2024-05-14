@@ -160,6 +160,16 @@ jobs:
       - run:
           name: Run tests
           command: docker-compose run contact-details-api-test
+  build-and-test-no-docker:
+    executor: docker-dotnet
+    steps:
+      - checkout
+      - run:
+          name: Build
+          command: dotnet build
+      - run:
+          name: Test
+          command: dotnet test 
   assume-role-development:
     executor: docker-python
     steps:
@@ -243,13 +253,13 @@ workflows:
           context: api-nuget-token-context
       - sonarcloud-scan:
           context: SonarCloud
-      - build-and-test:
+      - build-and-test-no-docker:
           context:
             - api-nuget-token-context
       - assume-role-development:
           context: api-assume-role-housing-development-context
           requires:
-            - build-and-test
+            - build-and-test-no-docker
             - sonarcloud-scan
       - terraform-init-and-plan-development:
           requires:
