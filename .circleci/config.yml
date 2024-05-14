@@ -237,7 +237,7 @@ jobs:
           stage: "production"
 
 workflows:
-  check-and-deploy-development:
+  check:
     jobs:
       - check-code-formatting:
           context: api-nuget-token-context
@@ -248,15 +248,51 @@ workflows:
             - api-nuget-token-context
       - assume-role-development:
           context: api-assume-role-housing-development-context
-          requires:
-            - build-and-test
-            - sonarcloud-scan
       - terraform-init-and-plan-development:
           requires:
             - assume-role-development
       - terraform-compliance-development:
           requires:
+            - assume-role-development
+
+  check-and-deploy-development:
+    jobs:
+      - check-code-formatting:
+          context: api-nuget-token-context
+          filters:
+            branches:
+              only: master
+      - sonarcloud-scan:
+          context: SonarCloud
+          filters:
+            branches:
+              only: master
+      - build-and-test:
+          context:
+            - api-nuget-token-context
+          filters:
+            branches:
+              only: master
+      - assume-role-development:
+          context: api-assume-role-housing-development-context
+          requires:
+            - build-and-test
+            - sonarcloud-scan
+          filters:
+            branches:
+              only: master
+      - terraform-init-and-plan-development:
+          requires:
+            - assume-role-development
+          filters:
+            branches:
+              only: master
+      - terraform-compliance-development:
+          requires:
             - terraform-init-and-plan-development
+          filters:
+            branches:
+              only: master
       - terraform-apply-development:
           requires:
             - terraform-compliance-development
