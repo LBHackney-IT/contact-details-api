@@ -103,7 +103,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
         //    await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
         //}
 
-        [Fact(Skip ="")]
+        [Fact(Skip = "")]
         public async Task ScanTenuresReturnsDataWithPaginationToken()
         {
             // Arrange
