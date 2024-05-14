@@ -250,6 +250,7 @@ workflows:
           context: api-assume-role-housing-development-context
           requires:
             - build-and-test
+            - sonarcloud-scan
       - terraform-init-and-plan-development:
           requires:
             - assume-role-development
