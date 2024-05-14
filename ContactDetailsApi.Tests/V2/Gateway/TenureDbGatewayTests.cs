@@ -137,7 +137,7 @@ namespace ContactDetailsApi.Tests.V2.Gateway
             response.PaginationDetails.NextToken.Should().BeNull();
 
             _logger.VerifyExact(LogLevel.Information, "Calling IDynamoDBContext.ScanAsync for TenureInformationDb", Times.Exactly(2));
-            await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
+            // await DeleteDataInDynamoDB(tenures).ConfigureAwait(false);
         }
     }
 }
