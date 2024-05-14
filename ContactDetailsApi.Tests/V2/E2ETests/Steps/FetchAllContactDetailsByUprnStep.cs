@@ -67,13 +67,13 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
             results.Should().SatisfyRespectively(x => x.Contacts.TrueForAll(x => x.IsResponsible));
 
             results.Should().OnlyContain(x => x.TenureId != null);
-            foreach (var ContactByPropRef in results)
+            foreach (var contactByPropRef in results)
             {
-                var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(ContactByPropRef.TenureId.Value);
+                var tenure = await dbFixture.DynamoDbContext.LoadAsync<TenureInformationDb>(contactByPropRef.TenureId.Value);
                 tenure.ToDomain().IsActive.Should().BeTrue();
-                ContactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
-                ContactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset.PropertyReference);
-                ContactByPropRef.Contacts.Select(x => x.Id).Should().IntersectWith(tenure.HouseholdMembers.Select(x => x.Id));
+                contactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+                contactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset.PropertyReference);
+                contactByPropRef.Contacts.Select(x => x.Id).Should().IntersectWith(tenure.HouseholdMembers.Select(x => x.Id));
             }
 
             var paginationDetails = apiResult.PaginationDetails;

@@ -432,13 +432,13 @@ namespace ContactDetailsApi.Tests.V2.Factories
             var contacts = _fixture.Create<List<Person>>();
 
             // Act
-            var ContactByPropRef = tenure.ToContactByPropRef(contacts);
+            var contactByPropRef = tenure.ToContactByPropRef(contacts);
 
             // Assert
-            ContactByPropRef.TenureId.Should().Be(tenure.Id);
-            ContactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
-            ContactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset?.PropertyReference);
-            ContactByPropRef.Contacts.Should().BeEquivalentTo(contacts);
+            contactByPropRef.TenureId.Should().Be(tenure.Id);
+            contactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
+            contactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset?.PropertyReference);
+            contactByPropRef.Contacts.Should().BeEquivalentTo(contacts);
         }
     }
 }
