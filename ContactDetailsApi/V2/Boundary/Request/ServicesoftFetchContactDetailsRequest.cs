@@ -9,7 +9,8 @@ namespace ContactDetailsApi.V2.Boundary.Request
         [FromQuery]
         public string PaginationToken { get; set; }
 
-        [FromQuery] [Range(1, int.MaxValue)]
+        [FromQuery]
+        [Range(1, int.MaxValue)]
         public int PageSize { get; set; } = int.MaxValue;
     }
 }
