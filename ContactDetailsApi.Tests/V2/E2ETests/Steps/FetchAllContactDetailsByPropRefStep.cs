@@ -18,9 +18,9 @@ using System.Linq;
 
 namespace ContactDetailsApi.Tests.V2.E2ETests.Steps
 {
-    public class FetchAllContactDetailsByUprnStep : BaseSteps
+    public class FetchAllContactDetailsByPropRefStep : BaseSteps
     {
-        public FetchAllContactDetailsByUprnStep(HttpClient httpClient) : base(httpClient)
+        public FetchAllContactDetailsByPropRefStep(HttpClient httpClient) : base(httpClient)
         { }
 
         private async Task<HttpResponseMessage> CallApi()
