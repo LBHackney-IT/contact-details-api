@@ -6,9 +6,9 @@ using Hackney.Shared.Person.Domain;
 
 namespace ContactDetailsApi.V2.Domain
 {
-    public class ContactByUprn
+    public class ContactByPropRef
     {
-        public string Uprn { get; set; }
+        public string PropertyRef { get; set; }
         public string Address { get; set; }
         public Guid? TenureId { get; set; }
         public List<Person> Contacts { get; set; }

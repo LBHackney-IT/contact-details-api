@@ -61,11 +61,11 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             // Assert
             result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<ContactByUprn>>();
+            result.Should().BeOfType<List<ContactByPropRef>>();
             result.Should().HaveCount(1);
 
             var resultItem = result.First();
-            resultItem.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
+            resultItem.PropertyRef.Should().Be(tenure.TenuredAsset.PropertyReference);
             resultItem.TenureId.Should().Be(tenure.Id);
             resultItem.Contacts.Should().NotBeNullOrEmpty();
             resultItem.Contacts.Should().HaveCount(1);
@@ -102,11 +102,11 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             // Assert
             result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<ContactByUprn>>();
+            result.Should().BeOfType<List<ContactByPropRef>>();
             result.Should().HaveCount(1);
 
             var resultItem = result.First();
-            resultItem.Uprn.Should().Be(tenure.TenuredAsset.Uprn);
+            resultItem.PropertyRef.Should().Be(tenure.TenuredAsset.PropertyReference);
             resultItem.TenureId.Should().Be(tenure.Id);
             resultItem.Contacts.Should().NotBeNullOrEmpty();
             resultItem.Contacts.Should().HaveCount(1);
@@ -148,7 +148,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
 
             // Assert
             result.Should().NotBeNullOrEmpty();
-            result.Should().BeOfType<List<ContactByUprn>>();
+            result.Should().BeOfType<List<ContactByPropRef>>();
             result.Should().HaveCount(1); // Only 1 tenure
             result.First().TenureId.Should().Be(tenures.First().Id);
             result.First().Address.Should().Be(tenures.First().TenuredAsset.FullAddress);
