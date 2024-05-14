@@ -15,14 +15,14 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Stories
     {
         protected readonly IDynamoDbFixture _dbFixture;
         protected readonly ContactDetailsFixture _contactDetailsFixture;
-        protected readonly FetchAllContactDetailsByUprnStep _steps;
+        protected readonly FetchAllContactDetailsByPropRefStep _steps;
 
 
         public FetchAllContactDetailsTests(MockWebApplicationFactory<Startup> appFactory)
         {
             _dbFixture = appFactory.DynamoDbFixture;
             _contactDetailsFixture = new ContactDetailsFixture(_dbFixture.DynamoDbContext);
-            _steps = new FetchAllContactDetailsByUprnStep(appFactory.Client);
+            _steps = new FetchAllContactDetailsByPropRefStep(appFactory.Client);
 
         }
 
