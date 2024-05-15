@@ -261,7 +261,6 @@ workflows:
               ignore:
                 - release
                 - master
-                - fix-branch-ignore-for-check-on-feature-branch # Test - remove this line
       - assume-role-development:
           context: api-assume-role-housing-development-context
           filters:
