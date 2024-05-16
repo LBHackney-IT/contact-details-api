@@ -22,7 +22,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
     [Collection("LogCall collection")]
     public class FetchAllContactDetailsUseCaseTests
     {
-        private readonly FetchAllContactDetailsByUprnUseCase _classUnderTest;
+        private readonly FetchAllContactDetailsByPropRefUseCase _classUnderTest;
         private readonly Mock<ITenureDbGateway> _mockTenureGateway;
         private readonly Mock<IPersonDbGateway> _mockPersonGateway;
         private readonly Mock<IContactDetailsGateway> _mockContactDetailsGateway;
@@ -35,7 +35,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             _mockPersonGateway = new Mock<IPersonDbGateway>();
             _mockContactDetailsGateway = new Mock<IContactDetailsGateway>();
 
-            _classUnderTest = new FetchAllContactDetailsByUprnUseCase(_mockTenureGateway.Object,
+            _classUnderTest = new FetchAllContactDetailsByPropRefUseCase(_mockTenureGateway.Object,
                 _mockPersonGateway.Object, _mockContactDetailsGateway.Object);
 
         }

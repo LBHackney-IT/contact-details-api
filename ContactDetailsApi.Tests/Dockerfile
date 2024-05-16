@@ -8,17 +8,7 @@ ENV DynamoDb_LocalMode='true'
 ARG LBHPACKAGESTOKEN
 ENV LBHPACKAGESTOKEN=$LBHPACKAGESTOKEN
 
-ARG SONAR_TOKEN 
-ENV SONAR_TOKEN=$SONAR_TOKEN
-
 WORKDIR /app
-
-# Install and run sonar cloud scanner
-RUN apt-get update && apt-get install -y openjdk-17-jdk
-RUN dotnet tool install --global dotnet-sonarscanner --version 5.6.0
-ENV PATH="$PATH:/root/.dotnet/tools"
-
-RUN dotnet sonarscanner begin /k:"LBHackney-IT_contact-details-api" /o:"lbhackney-it" /d:sonar.host.url=https://sonarcloud.io /d:sonar.login="${SONAR_TOKEN}"
 
 # Copy csproj and nuget config and restore as distinct layers
 COPY ./ContactDetailsApi.sln ./
@@ -36,4 +26,3 @@ RUN dotnet build -c Release -o out ContactDetailsApi/ContactDetailsApi.csproj
 RUN dotnet build -c debug -o out ContactDetailsApi.Tests/ContactDetailsApi.Tests.csproj
 
 CMD dotnet test
-RUN dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"

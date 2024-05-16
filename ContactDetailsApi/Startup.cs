@@ -183,7 +183,7 @@ namespace ContactDetailsApi
             services.AddScoped<V2.UseCase.Interfaces.IGetContactDetailsByTargetIdUseCase, V2.UseCase.GetContactDetailsByTargetIdUseCase>();
 
             services.AddScoped<IEditContactDetailsUseCase, V2.UseCase.EditContactDetailsUseCase>();
-            services.AddScoped<IFetchAllContactDetailsByUprnUseCase, FetchAllContactDetailsByUprnUseCase>();
+            services.AddScoped<IFetchAllContactDetailsByUprnUseCase, FetchAllContactDetailsByPropRefUseCase>();
 
         }
 
