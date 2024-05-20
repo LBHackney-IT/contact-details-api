@@ -29,7 +29,7 @@ public class TenureDbGateway : ITenureDbGateway
     {
         var scanConfig = new ScanOperationConfig
         {
-            ConsistentRead = true,
+            ConsistentRead = false,
             Limit = pageSize ?? Int32.MaxValue,
             PaginationToken = PaginationDetails.DecodeToken(paginationToken)
         };
