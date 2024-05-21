@@ -145,7 +145,7 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> BatchGetContactDetailsByTargetId(List<Guid> targetIds)
         {
             var tasks = new List<Task<Dictionary<Guid, IEnumerable<ContactDetails>>>>();
-            var batchSize = _batchSizeEnv != null? int.Parse(_batchSizeEnv) : 30; // default to 30 if not set
+            var batchSize = _batchSizeEnv != null ? int.Parse(_batchSizeEnv) : 30; // default to 30 if not set
 
             int numberOfBatches = (int) Math.Ceiling((double) targetIds.Count / batchSize);
             _logger.LogDebug($"Batching contact details for {targetIds.Count} persons in {numberOfBatches} batches of {batchSize} each.");
