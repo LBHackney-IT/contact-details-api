@@ -21,12 +21,16 @@ namespace ContactDetailsApi.V2.Gateways
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
         private readonly IEntityUpdater _updater;
+        private string _batchSizeEnv;
+
 
         public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger, IEntityUpdater updater)
         {
             _dynamoDbContext = dynamoDbContext;
             _logger = logger;
             _updater = updater;
+
+            _batchSizeEnv = Environment.GetEnvironmentVariable("BATCH_GET_CDS_SIZE");
         }
 
         [LogCall]
@@ -141,7 +145,7 @@ namespace ContactDetailsApi.V2.Gateways
         public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> BatchGetContactDetailsByTargetId(List<Guid> targetIds)
         {
             var tasks = new List<Task<Dictionary<Guid, IEnumerable<ContactDetails>>>>();
-            var batchSize = 100;
+            var batchSize = _batchSizeEnv != null ? int.Parse(_batchSizeEnv) : 30; // default to 30 if not set
 
             int numberOfBatches = (int) Math.Ceiling((double) targetIds.Count / batchSize);
             _logger.LogDebug($"Batching contact details for {targetIds.Count} persons in {numberOfBatches} batches of {batchSize} each.");
