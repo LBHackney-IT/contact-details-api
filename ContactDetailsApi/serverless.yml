@@ -27,7 +27,7 @@ functions:
       CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
       AUTH_ALLOWED_GROUPS_EXTERNAL: ${ssm:/housing/${self:provider.stage}/auth-allowed-groups-service-soft}
       WHITELIST_IP_ADDRESS: ${ssm:/housing/${self:provider.stage}/whitelist-ip-address-service-soft}
-      BATCH_GET_SIZE: ${ssm:/housing/${self:provider.stage}/contact-details-api/batch-get-size}
+      BATCH_GET_CDS_SIZE: ${ssm:/housing/${self:provider.stage}/contact-details-api/batch-get-size}
     events:
       - http:
           path: /{proxy+}

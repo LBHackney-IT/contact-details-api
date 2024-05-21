@@ -30,7 +30,7 @@ namespace ContactDetailsApi.V2.Gateways
             _logger = logger;
             _updater = updater;
 
-            _batchSizeEnv = Environment.GetEnvironmentVariable("BATCH_GET_SIZE");
+            _batchSizeEnv = Environment.GetEnvironmentVariable("BATCH_GET_CDS_SIZE");
         }
 
         [LogCall]
