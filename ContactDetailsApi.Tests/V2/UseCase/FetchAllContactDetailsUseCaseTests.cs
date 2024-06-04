@@ -158,5 +158,19 @@ namespace ContactDetailsApi.Tests.V2.UseCase
             contacts.Should().SatisfyRespectively(c => c.IsResponsible.Should().BeTrue());
             contacts.First().PersonContactDetails.Should().HaveCount(contactDetails.Count); // count of contact details
         }
+
+        [Fact]
+        public async Task GetTenuresOnlyGetsMostRecentTenancies()
+        {
+            var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
+            var tenure1 = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, DateTime.UtcNow).Create();
+            var tenure2 = _fixture.Build<TenureInformation>().With(x=> x.StartOfTenureDate, DateTime.Today.AddDays(-25)).Create();
+            var tenures = new List<TenureInformation> { tenure1, tenure2 };
+            _mockTenureGateway.Setup(x => x.ScanTenures(request.PaginationToken, request.PageSize)).ReturnsAsync(new PagedResult<TenureInformation>(tenures, new PaginationDetails()));
+
+            var result = await _classUnderTest.GetTenures(request.PaginationToken, request.PageSize).ConfigureAwait(false);
+
+            result.Results.FirstOrDefault().Should().BeEquivalentTo(tenure1);
+        }
     }
 }
