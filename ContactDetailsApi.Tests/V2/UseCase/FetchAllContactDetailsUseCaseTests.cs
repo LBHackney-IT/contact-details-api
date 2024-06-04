@@ -164,7 +164,7 @@ namespace ContactDetailsApi.Tests.V2.UseCase
         {
             var request = _fixture.Create<ServicesoftFetchContactDetailsRequest>();
             var tenure1 = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, DateTime.UtcNow).Create();
-            var tenure2 = _fixture.Build<TenureInformation>().With(x=> x.StartOfTenureDate, DateTime.Today.AddDays(-25)).Create();
+            var tenure2 = _fixture.Build<TenureInformation>().With(x => x.StartOfTenureDate, DateTime.Today.AddDays(-25)).Create();
             var tenures = new List<TenureInformation> { tenure1, tenure2 };
             _mockTenureGateway.Setup(x => x.ScanTenures(request.PaginationToken, request.PageSize)).ReturnsAsync(new PagedResult<TenureInformation>(tenures, new PaginationDetails()));
 

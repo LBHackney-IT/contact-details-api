@@ -32,7 +32,7 @@ namespace ContactDetailsApi.V2.UseCase
         {
             var tenures = await _tenureGateway.ScanTenures(paginationToken, pageSize).ConfigureAwait(false);
             tenures.Results = tenures.Results.Where(x => x.TenuredAsset.PropertyReference != null && x.IsActive == true)
-                            .OrderByDescending(x=> x.StartOfTenureDate)
+                            .OrderByDescending(x => x.StartOfTenureDate)
                             .GroupBy(x => x.TenuredAsset.PropertyReference)
                             .Select(x => x.FirstOrDefault())
                             .ToList();
