@@ -4,9 +4,7 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsApi.V2.UseCase.Interfaces;
 using Hackney.Core.Logging;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace ContactDetailsApi.V2.UseCase

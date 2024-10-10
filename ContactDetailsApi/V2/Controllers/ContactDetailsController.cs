@@ -28,19 +28,23 @@ namespace ContactDetailsApi.V2.Controllers
         private readonly IEditContactDetailsUseCase _editContactDetailsUseCase;
         private readonly IHttpContextWrapper _httpContextWrapper;
         private readonly ITokenFactory _tokenFactory;
+        private readonly ILogger<ContactDetailsController> _logger;
 
         public ContactDetailsController(
             ICreateContactUseCase createContactUseCase,
             IGetContactDetailsByTargetIdUseCase getContactDetailsByTargetIdUseCase,
             IHttpContextWrapper httpContextWrapper,
             ITokenFactory tokenFactory,
-            IEditContactDetailsUseCase editContactDetailsUseCase)
+            IEditContactDetailsUseCase editContactDetailsUseCase,
+            ILogger<ContactDetailsController> logger
+            )
         {
             _createContactUseCase = createContactUseCase;
             _getContactDetailsByTargetIdUseCase = getContactDetailsByTargetIdUseCase;
             _httpContextWrapper = httpContextWrapper;
             _tokenFactory = tokenFactory;
             _editContactDetailsUseCase = editContactDetailsUseCase;
+            _logger = logger;
         }
 
         /// <summary>
@@ -56,9 +60,9 @@ namespace ContactDetailsApi.V2.Controllers
         [LogCall(LogLevel.Information)]
         public async Task<IActionResult> GetContactDetailsByTargetId([FromQuery] ContactQueryParameter queryParam)
         {
+            _logger.LogInformation("GetContactDetailsByTargetId called for target id {0}", queryParam.TargetId);
             var contacts = await _getContactDetailsByTargetIdUseCase.Execute(queryParam).ConfigureAwait(false);
-            if (contacts == null || !contacts.Any()) return NotFound(queryParam.TargetId);
-
+            _logger.LogInformation("Returning {0} contact details for target id {1}", contacts.Count(), queryParam.TargetId);
             return Ok(new GetContactDetailsResponse(contacts));
         }
 
