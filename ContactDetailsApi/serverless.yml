@@ -15,7 +15,7 @@ plugins:
   - '@serverless/safeguards-plugin'
 
 package:
-  artifact: ./bin/release/net6.0/contact-details-api.zip
+  artifact: ./bin/release/net8.0/contact-details-api.zip
 
 functions:
   ContactDetailsApi:
