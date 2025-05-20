@@ -452,39 +452,39 @@ workflows:
           type: approval
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - assume-role-pre-production:
           context: api-assume-role-housing-pre-production-context
           requires:
             - permit-pre-production-terraform-workflow
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - terraform-init-and-plan-pre-production:
           requires:
             - assume-role-pre-production
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - terraform-compliance-pre-production:
           requires:
             - terraform-init-and-plan-pre-production
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - permit-pre-production-terraform-deployment:
           type: approval
           requires:
             - terraform-compliance-pre-production
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - terraform-apply-pre-production:
           requires:
             - permit-pre-production-terraform-deployment
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
 
   deploy-code-pre-production:
     jobs:
@@ -494,14 +494,14 @@ workflows:
             - SonarCloud
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - assume-role-pre-production:
           context: api-assume-role-housing-pre-production-context
           requires:
             - build-and-test
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
       - deploy-to-pre-production:
           context:
           - api-nuget-token-context
@@ -510,4 +510,4 @@ workflows:
             - assume-role-pre-production        
           filters:
             branches:
-              only: ts-2045-add-pre-production-workflows
+              only: release
