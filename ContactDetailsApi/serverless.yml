@@ -24,10 +24,10 @@ functions:
     role: lambdaExecutionRole
     timeout: 30 # default is 6
     environment:
-      CONTACT_DETAILS_SNS_ARN: ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
-      AUTH_ALLOWED_GROUPS_EXTERNAL: ${ssm:/housing/${self:provider.stage}/auth-allowed-groups-service-soft}
-      WHITELIST_IP_ADDRESS: ${ssm:/housing/${self:provider.stage}/whitelist-ip-address-service-soft}
-      BATCH_GET_CDS_SIZE: ${ssm:/housing/${self:provider.stage}/contact-details-api/batch-get-size}
+      CONTACT_DETAILS_SNS_ARN: ${env:CONTACT_DETAILS_SNS_ARN}
+      AUTH_ALLOWED_GROUPS_EXTERNAL: ${env:AUTH_ALLOWED_GROUPS_EXTERNAL}
+      WHITELIST_IP_ADDRESS: ${env:WHITELIST_IP_ADDRESS}
+      BATCH_GET_CDS_SIZE: ${env:BATCH_GET_CDS_SIZE}
     events:
       - http:
           path: /{proxy+}
