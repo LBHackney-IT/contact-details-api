@@ -28,9 +28,11 @@ locals {
   parameter_store = "arn:aws:ssm:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:parameter"
   default_tags = {
     Name              = "contact-details-api-${var.environment_name}"
-    Environment       = var.environment_name
+    Environment       = "prod"
     terraform-managed = true
-    project_name      = var.project_name
+    project_name      = "MTFH"
+    Application       = "MTFH Housing Production"
+    TeamEmail         = "developmentteam@hackney.gov.uk"
   }
 }
 
