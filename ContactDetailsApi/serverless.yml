@@ -81,7 +81,7 @@ resources:
                   Action:
                     - "sns:Publish"
                   Resource:
-                    - ${ssm:/sns-topic/${self:provider.stage}/contact_details/arn}
+                    - ${env:CONTACT_DETAILS_SNS_ARN}
           - PolicyName: manageLogs
             PolicyDocument:
               Version: '2012-10-17'
