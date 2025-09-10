@@ -15,6 +15,10 @@ resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
     type = "S"
   }
 
+  server_side_encryption {
+    enabled = "false"
+  }
+
   tags = merge(
     local.default_tags,
     { BackupPolicy = "Prod", Confidentiality = "Internal" }
