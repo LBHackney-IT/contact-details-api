@@ -116,8 +116,10 @@ commands:
             curl -sL https://deb.nodesource.com/setup_20.x | bash -
             apt-get update && apt-get install -y nodejs
       - run:
-          name: Install serverless CLI
-          command: npm i -g serverless
+          name: Install serverless CLI & unzip
+          command: |
+            npm i -g serverless
+            apt-get install -y unzip
       - aws-cli/install
       - run:
           name: Build lambda
