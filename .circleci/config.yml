@@ -133,8 +133,8 @@ commands:
             cd ./ContactDetailsApi/
 
             export CONTACT_DETAILS_SNS_ARN=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/sns-topic-arn --query Parameter.Value --output text)
-            export AUTH_ALLOWED_GROUPS_EXTERNAL=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/auth-allowed-groups-service-soft --query Parameter.Value --output text)
-            export WHITELIST_IP_ADDRESS=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/whitelist-ip-address-service-soft --query Parameter.Value --output text)
+            export AUTH_ALLOWED_GROUPS_EXTERNAL=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/auth-allowed-groups-service-soft --with-decryption --query Parameter.Value --output text)
+            export WHITELIST_IP_ADDRESS=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/whitelist-ip-address-service-soft --with-decryption --query Parameter.Value --output text)
             export BATCH_GET_CDS_SIZE=$(aws ssm get-parameter --name arn:aws:ssm:eu-west-2:969000419424:parameter/disaster-recovery/MTFH-contact-details-api/batch-get-size --query Parameter.Value --output text)
 
             npm i serverless-associate-waf
