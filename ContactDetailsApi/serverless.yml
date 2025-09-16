@@ -1,14 +1,14 @@
-# service: contact-details-api
-# provider:
-#   name: aws
-#   runtime: dotnet8
-#   memorySize: 2048
-#   tracing:
-#     lambda: true
-#     apiGateway: true
-#   vpc: ${self:custom.vpc.${opt:stage}}
-#   stage: ${opt:stage}
-#   region: eu-west-2
+service: contact-details-api
+provider:
+  name: aws
+  runtime: dotnet8
+  memorySize: 2048
+  tracing:
+    lambda: true
+    apiGateway: true
+  vpc: ${self:custom.vpc.${opt:stage}}
+  stage: ${opt:stage}
+  region: eu-west-2
 
 # plugins:
 #   - serverless-associate-waf
@@ -129,31 +129,31 @@
 #                           - Ref: 'AWS::Region'
 #                           - Ref: 'AWS::AccountId'
 #                           - 'table/ContactDetails'
-# #                 - Effect: Allow
-# #                   Action:
-# #                     - "dynamodb:BatchGet*"
-# #                     - "dynamodb:BatchWrite"
-# #                     - "dynamodb:DeleteItem"
-# #                     - "dynamodb:DescribeStream"
-# #                     - "dynamodb:DescribeTable"
-# #                     - "dynamodb:Get*"
-# #                     - "dynamodb:PutItem"
-# #                     - "dynamodb:Query"
-# #                     - "dynamodb:Scan"
-# #                     - "dynamodb:UpdateItem"
-# #                   Resource:
-# #                     - 'Fn::Join':
-# #                         - ':'
-# #                         - - 'arn:aws:dynamodb'
-# #                           - Ref: 'AWS::Region'
-# #                           - Ref: 'AWS::AccountId'
-# #                           - 'table/TenureInformation'
-# #                     - 'Fn::Join':
-# #                         - ':'
-# #                         - - 'arn:aws:dynamodb'
-# #                           - Ref: 'AWS::Region'
-# #                           - Ref: 'AWS::AccountId'
-# #                           - 'table/Persons'
+#                 - Effect: Allow
+#                   Action:
+#                     - "dynamodb:BatchGet*"
+#                     - "dynamodb:BatchWrite"
+#                     - "dynamodb:DeleteItem"
+#                     - "dynamodb:DescribeStream"
+#                     - "dynamodb:DescribeTable"
+#                     - "dynamodb:Get*"
+#                     - "dynamodb:PutItem"
+#                     - "dynamodb:Query"
+#                     - "dynamodb:Scan"
+#                     - "dynamodb:UpdateItem"
+#                   Resource:
+#                     - 'Fn::Join':
+#                         - ':'
+#                         - - 'arn:aws:dynamodb'
+#                           - Ref: 'AWS::Region'
+#                           - Ref: 'AWS::AccountId'
+#                           - 'table/TenureInformation'
+#                     - 'Fn::Join':
+#                         - ':'
+#                         - - 'arn:aws:dynamodb'
+#                           - Ref: 'AWS::Region'
+#                           - Ref: 'AWS::AccountId'
+#                           - 'table/Persons'
 # custom:
 #   authorizerArns:
 #     development: arn:aws:lambda:eu-west-2:859159924354:function:api-auth-verify-token-new-development-apiauthverifytokennew
