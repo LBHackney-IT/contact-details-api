@@ -139,7 +139,7 @@ commands:
 
             npm i serverless-associate-waf
             npm i @serverless/safeguards-plugin --save-dev
-            npx --yes serverless@^4 deploy --stage <<parameters.stage>> --conceal
+            npx --yes serverless@^4 remove --stage <<parameters.stage>> --verbose
 
 jobs:
   check-code-formatting:
