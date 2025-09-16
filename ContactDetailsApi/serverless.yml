@@ -154,35 +154,35 @@ provider:
 #                           - Ref: 'AWS::Region'
 #                           - Ref: 'AWS::AccountId'
 #                           - 'table/Persons'
-# custom:
-#   authorizerArns:
-#     development: arn:aws:lambda:eu-west-2:859159924354:function:api-auth-verify-token-new-development-apiauthverifytokennew
-#     staging:     arn:aws:lambda:eu-west-2:715003523189:function:api-auth-verify-token-new-staging-apiauthverifytokennew
-#     production:  arn:aws:lambda:eu-west-2:153306643385:function:api-auth-verify-token-new-production-apiauthverifytokennew
-#     pre-production: arn:aws:lambda:eu-west-2:578479666894:function:api-auth-verify-token-new-pre-production-apiauthverifytokennew
-#   safeguards:
-#     - title: Require authorizer
-#       safeguard: require-authorizer
-#       path: ./policies
-#   associateWaf:
-#     name: Platform_APIs_Web_ACL
-#     version: V2
-#   vpc:
-#     development:
-#       subnetIds:
-#         - subnet-0140d06fb84fdb547
-#         - subnet-05ce390ba88c42bfd
-#     staging:
-#       subnetIds:
-#         - subnet-0743d86e9b362fa38
-#         - subnet-0ea0020a44b98a2ca
-#     production:
-#       subnetIds:
-#         - subnet-05e595c59b7d6c8df
-#         - subnet-0e6bc9b4ac24493cc
-#     pre-production:
-#       securityGroupIds:
-#         - sg-03d7b2efd017a4044
-#       subnetIds:
-#         - subnet-08aa35159a8706faa
-#         - subnet-0b848c5b14f841dfb
+custom:
+  authorizerArns:
+    development: arn:aws:lambda:eu-west-2:859159924354:function:api-auth-verify-token-new-development-apiauthverifytokennew
+    staging:     arn:aws:lambda:eu-west-2:715003523189:function:api-auth-verify-token-new-staging-apiauthverifytokennew
+    production:  arn:aws:lambda:eu-west-2:153306643385:function:api-auth-verify-token-new-production-apiauthverifytokennew
+    pre-production: arn:aws:lambda:eu-west-2:578479666894:function:api-auth-verify-token-new-pre-production-apiauthverifytokennew
+  safeguards:
+    - title: Require authorizer
+      safeguard: require-authorizer
+      path: ./policies
+  associateWaf:
+    name: Platform_APIs_Web_ACL
+    version: V2
+  vpc:
+    development:
+      subnetIds:
+        - subnet-0140d06fb84fdb547
+        - subnet-05ce390ba88c42bfd
+    staging:
+      subnetIds:
+        - subnet-0743d86e9b362fa38
+        - subnet-0ea0020a44b98a2ca
+    production:
+      subnetIds:
+        - subnet-05e595c59b7d6c8df
+        - subnet-0e6bc9b4ac24493cc
+    pre-production:
+      securityGroupIds:
+        - sg-03d7b2efd017a4044
+      subnetIds:
+        - subnet-08aa35159a8706faa
+        - subnet-0b848c5b14f841dfb
