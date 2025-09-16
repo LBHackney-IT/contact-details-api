@@ -1,30 +1,30 @@
-resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
-  name           = "ContactDetails"
-  billing_mode   = "PAY_PER_REQUEST"  
-  hash_key       = "targetId"
-  range_key      = "id"
+# resource "aws_dynamodb_table" "contactdetailsapi_dynamodb_table" {
+#   name           = "ContactDetails"
+#   billing_mode   = "PAY_PER_REQUEST"  
+#   hash_key       = "targetId"
+#   range_key      = "id"
 
-  attribute {
-    name = "id"
-    type = "S"
-  }
+#   attribute {
+#     name = "id"
+#     type = "S"
+#   }
 
 
-  attribute {
-    name = "targetId"
-    type = "S"
-  }
+#   attribute {
+#     name = "targetId"
+#     type = "S"
+#   }
 
-  server_side_encryption {
-    enabled = "false"
-  }
+#   server_side_encryption {
+#     enabled = "false"
+#   }
 
-  tags = merge(
-    local.default_tags,
-    { BackupPolicy = "Prod", Confidentiality = "Internal" }
-  )
+#   tags = merge(
+#     local.default_tags,
+#     { BackupPolicy = "Prod", Confidentiality = "Internal" }
+#   )
 
-  point_in_time_recovery {
-    enabled = true
-  }
-}
+#   point_in_time_recovery {
+#     enabled = true
+#   }
+# }
