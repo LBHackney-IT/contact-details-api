@@ -145,7 +145,8 @@ jobs:
   sonarcloud-scan:
     executor: docker-python
     steps:
-      - checkout
+      - checkout:
+          method: full
       - sonarcloud/scan
   build-and-test:
     executor: docker-python
