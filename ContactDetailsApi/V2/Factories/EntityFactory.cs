@@ -6,7 +6,6 @@ using Hackney.Core.JWT;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Hackney.Shared.Tenure.Domain;
 
 namespace ContactDetailsApi.V2.Factories
 {
@@ -107,54 +106,6 @@ namespace ContactDetailsApi.V2.Factories
                 .Select(p => p?.ToDomain())
                 .OrderBy(x => x?.CreatedBy?.CreatedAt)
                 .ToList();
-        }
-
-        // ServiceSoft Endpoint Factories
-
-        public static PersonContactDetails ToUprnContact(this ContactDetails databaseEntity)
-        {
-            if (databaseEntity == null) return null;
-            return new PersonContactDetails
-            {
-                Id = databaseEntity.Id,
-                ContactType = databaseEntity.ContactInformation.ContactType,
-                SubType = databaseEntity.ContactInformation?.SubType == null ? null : databaseEntity.ContactInformation?.SubType,
-                Value = databaseEntity.ContactInformation.Value
-            };
-        }
-
-        public static List<PersonContactDetails> ToContactByPropRefPersonContacts(this IEnumerable<ContactDetails> databaseEntity)
-        {
-            if (databaseEntity == null || !databaseEntity.Any()) return null;
-            return databaseEntity
-                .Select(p => p.ToUprnContact())
-                .ToList();
-        }
-
-        public static Person ToContactByPropRefPerson(this Hackney.Shared.Person.Person personDetails, HouseholdMembers householdMember,
-            List<PersonContactDetails> contactDetails)
-        {
-            return new Person
-            {
-                Id = householdMember.Id,
-                PersonTenureType = householdMember.PersonTenureType,
-                IsResponsible = householdMember.IsResponsible,
-                FirstName = personDetails.FirstName,
-                LastName = personDetails.Surname,
-                Title = personDetails.Title,
-                PersonContactDetails = contactDetails
-            };
-        }
-
-        public static ContactByPropRef ToContactByPropRef(this TenureInformation tenure, List<Person> contacts)
-        {
-            return new ContactByPropRef
-            {
-                TenureId = tenure.Id,
-                Address = tenure.TenuredAsset?.FullAddress,
-                PropertyRef = tenure.TenuredAsset?.PropertyReference,
-                Contacts = contacts
-            };
         }
     }
 }

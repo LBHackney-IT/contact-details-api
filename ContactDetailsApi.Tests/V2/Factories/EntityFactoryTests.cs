@@ -7,7 +7,6 @@ using ContactDetailsApi.V2.Factories;
 using ContactDetailsApi.V2.Infrastructure;
 using FluentAssertions;
 using Hackney.Core.JWT;
-using Hackney.Shared.Tenure.Domain;
 using System;
 using System.Collections.Generic;
 using Xunit;
@@ -370,75 +369,6 @@ namespace ContactDetailsApi.Tests.V2.Factories
             // Assert
             entities.Should().BeEquivalentTo(databaseEntities);
             entities.Should().BeInAscendingOrder(x => x.CreatedBy.CreatedAt);
-        }
-
-        // ServiceSoft Endpoint Factories
-
-        [Fact]
-        public void CanMapContactDetailsToPersonContactDetails()
-        {
-            // Arrange
-            var databaseEntity = _fixture.Create<ContactDetails>();
-
-            // Act
-            var personContactDetails = databaseEntity.ToUprnContact();
-
-            // Assert
-            personContactDetails.Id.Should().Be(databaseEntity.Id);
-            personContactDetails.ContactType.Should().Be(databaseEntity.ContactInformation.ContactType);
-            personContactDetails.SubType.Should().Be(databaseEntity.ContactInformation.SubType);
-            personContactDetails.Value.Should().Be(databaseEntity.ContactInformation.Value);
-        }
-
-        [Fact]
-        public void CanMapContactDetailsCollectionToPersonContactDetailsList()
-        {
-            // Arrange
-            var databaseEntities = _fixture.CreateMany<ContactDetails>(10);
-
-            // Act
-            var personContactDetailsList = databaseEntities.ToContactByPropRefPersonContacts();
-
-            // Assert
-            personContactDetailsList.Should().BeEquivalentTo(databaseEntities, options => options.ExcludingMissingMembers());
-        }
-
-        [Fact]
-        public void CanMapPersonDetailsToPerson()
-        {
-            // Arrange
-            var personDetails = _fixture.Create<Hackney.Shared.Person.Person>();
-            var householdMember = _fixture.Create<HouseholdMembers>();
-            var contactDetails = _fixture.Create<List<PersonContactDetails>>();
-
-            // Act
-            var person = personDetails.ToContactByPropRefPerson(householdMember, contactDetails);
-
-            // Assert
-            person.Id.Should().Be(householdMember.Id);
-            person.PersonTenureType.Should().Be(householdMember.PersonTenureType);
-            person.IsResponsible.Should().Be(householdMember.IsResponsible);
-            person.FirstName.Should().Be(personDetails.FirstName);
-            person.LastName.Should().Be(personDetails.Surname);
-            person.Title.Should().Be(personDetails.Title);
-            person.PersonContactDetails.Should().BeEquivalentTo(contactDetails);
-        }
-
-        [Fact]
-        public void CanMapTenureAndPersonToContactByPropRef()
-        {
-            // Arrange
-            var tenure = _fixture.Create<TenureInformation>();
-            var contacts = _fixture.Create<List<Person>>();
-
-            // Act
-            var contactByPropRef = tenure.ToContactByPropRef(contacts);
-
-            // Assert
-            contactByPropRef.TenureId.Should().Be(tenure.Id);
-            contactByPropRef.Address.Should().Be(tenure.TenuredAsset.FullAddress);
-            contactByPropRef.PropertyRef.Should().Be(tenure.TenuredAsset?.PropertyReference);
-            contactByPropRef.Contacts.Should().BeEquivalentTo(contacts);
         }
     }
 }
