@@ -21,16 +21,12 @@ namespace ContactDetailsApi.V2.Gateways
         private readonly IDynamoDBContext _dynamoDbContext;
         private readonly ILogger<ContactDetailsDynamoDbGateway> _logger;
         private readonly IEntityUpdater _updater;
-        private string _batchSizeEnv;
-
 
         public ContactDetailsDynamoDbGateway(IDynamoDBContext dynamoDbContext, ILogger<ContactDetailsDynamoDbGateway> logger, IEntityUpdater updater)
         {
             _dynamoDbContext = dynamoDbContext;
             _logger = logger;
             _updater = updater;
-
-            _batchSizeEnv = Environment.GetEnvironmentVariable("BATCH_GET_CDS_SIZE");
         }
 
         [LogCall]
@@ -125,40 +121,6 @@ namespace ContactDetailsApi.V2.Gateways
             await _dynamoDbContext.SaveAsync(contactDetails).ConfigureAwait(false);
 
             return contactDetails.ToDomain();
-        }
-
-        [LogCall]
-        public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> GetContactDetailsByTargetIds(IEnumerable<Guid> targetIds)
-        {
-            var contactDetails = new Dictionary<Guid, IEnumerable<ContactDetails>>();
-            foreach (var targetId in targetIds)
-            {
-                var data = await GetContactDetailsByTargetId(new ContactQueryParameter { TargetId = targetId })
-                    .ConfigureAwait(false);
-                contactDetails.Add(targetId, data);
-            }
-
-            return contactDetails;
-        }
-
-        [LogCall]
-        public async Task<Dictionary<Guid, IEnumerable<ContactDetails>>> BatchGetContactDetailsByTargetId(List<Guid> targetIds)
-        {
-            var tasks = new List<Task<Dictionary<Guid, IEnumerable<ContactDetails>>>>();
-            var batchSize = _batchSizeEnv != null ? int.Parse(_batchSizeEnv) : 30; // default to 30 if not set
-
-            int numberOfBatches = (int) Math.Ceiling((double) targetIds.Count / batchSize);
-            _logger.LogDebug($"Batching contact details for {targetIds.Count} persons in {numberOfBatches} batches of {batchSize} each.");
-
-            for (int i = 0; i < numberOfBatches; i++)
-            {
-                var currentIds = targetIds.Skip(i * batchSize).Take(batchSize);
-                tasks.Add(GetContactDetailsByTargetIds(currentIds));
-            }
-
-            var results = await Task.WhenAll(tasks).ConfigureAwait(false);
-            return results.SelectMany(dict => dict)
-                          .ToDictionary(pair => pair.Key, pair => pair.Value);
         }
     }
 }
