@@ -8,9 +8,6 @@ executors:
   docker-python:
     docker:
       - image: cimg/python:3.15
-  docker-node:
-    docker:
-      - image: cimg/node:20.19
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:1.1.9"
@@ -133,76 +130,6 @@ commands:
             npm i serverless-associate-waf
             npm i @serverless/safeguards-plugin --save-dev
             npx --yes serverless@^4 deploy --stage <<parameters.stage>> --conceal
-  remove-serverless-stack:
-    description: "Removes a Serverless stack without creating a deployment artifact"
-    parameters:
-      stage:
-        type: string
-    steps:
-      - *attach_workspace
-      - checkout
-      - run:
-          name: Install Serverless Framework v4
-          command: sudo npm install --global serverless@^4
-      - run:
-          name: Remove Serverless stack
-          no_output_timeout: 45m
-          command: |
-            cd ./ContactDetailsApi/
-            if ! command -v aws >/dev/null 2>&1; then
-              case "$(uname -m)" in
-                aarch64|arm64) cli_arch="aarch64" ;;
-                *) cli_arch="x86_64" ;;
-              esac
-              curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${cli_arch}.zip" -o /tmp/awscliv2.zip
-              unzip -q /tmp/awscliv2.zip -d /tmp
-              sudo /tmp/aws/install
-            fi
-            stack_name="contact-details-api-<<parameters.stage>>"
-            rest_api_id="$(aws cloudformation describe-stacks --stack-name "$stack_name" --region eu-west-2 --query "Stacks[0].Outputs[?OutputKey=='ApiGatewayRestApiWaf'].OutputValue" --output text 2>/dev/null || true)"
-            if [ -z "${rest_api_id}" ] || [ "${rest_api_id}" = "None" ]; then
-              endpoint="$(aws cloudformation describe-stacks --stack-name "$stack_name" --region eu-west-2 --query "Stacks[0].Outputs[?OutputKey=='ServiceEndpoint'].OutputValue" --output text 2>/dev/null || true)"
-              rest_api_id="$(printf '%s\n' "${endpoint}" | sed -n 's#https://\([^.]*\)\.execute-api\..*#\1#p')"
-            fi
-            if [ -n "${rest_api_id}" ] && [ "${rest_api_id}" != "None" ]; then
-              aws wafv2 disassociate-web-acl --region eu-west-2 --resource-arn "arn:aws:apigateway:eu-west-2::/restapis/${rest_api_id}/stages/<<parameters.stage>>" >/dev/null 2>&1 || true
-            fi
-            sls remove --config serverless.teardown.yml --stage <<parameters.stage>> --region eu-west-2
-  terraform-plan-destroy:
-    description: "Shows a Terraform destroy plan for review"
-    parameters:
-      environment:
-        type: string
-    steps:
-      - *attach_workspace
-      - checkout
-      - run:
-          name: Create destroy plan
-          command: |
-            cd ./terraform/<<parameters.environment>>/
-            terraform get -update=true
-            terraform init -input=false
-            terraform plan -destroy -input=false
-      - persist_to_workspace:
-          root: *workspace_root
-          paths:
-            - .aws
-  terraform-destroy:
-    description: "Destroys Terraform-managed resources after approval"
-    parameters:
-      environment:
-        type: string
-    steps:
-      - *attach_workspace
-      - checkout
-      - run:
-          name: Destroy Terraform resources
-          no_output_timeout: 45m
-          command: |
-            cd ./terraform/<<parameters.environment>>/
-            terraform get -update=true
-            terraform init -input=false
-            terraform destroy -input=false -auto-approve
 
 jobs:
   check-code-formatting:
@@ -309,46 +236,6 @@ jobs:
     steps:
       - deploy-lambda:
           stage: "production"
-  assume-role-pre-production:
-    executor: docker-python
-    steps:
-      - assume-role-and-persist-workspace:
-          aws-account: $AWS_ACCOUNT_PRE_PRODUCTION
-  terraform-init-and-plan-pre-production:
-    executor: docker-terraform
-    steps:
-      - terraform-init-then-plan:
-          environment: "pre-production"
-  terraform-compliance-pre-production:
-    executor: docker-terraform
-    steps:
-      - terraform-compliance:
-          environment: "pre-production"
-  terraform-apply-pre-production:
-    executor: docker-terraform
-    steps:
-      - terraform-apply:
-          environment: "pre-production"
-  deploy-to-pre-production:
-    executor: docker-dotnet
-    steps:
-      - deploy-lambda:
-          stage: "pre-production"
-  remove-serverless-pre-production:
-    executor: docker-node
-    steps:
-      - remove-serverless-stack:
-          stage: "pre-production"
-  terraform-plan-destroy-pre-production:
-    executor: docker-terraform
-    steps:
-      - terraform-plan-destroy:
-          environment: "pre-production"
-  terraform-destroy-pre-production:
-    executor: docker-terraform
-    steps:
-      - terraform-destroy:
-          environment: "pre-production"
 
 workflows:
   check-on-feature-branch:
@@ -524,82 +411,3 @@ workflows:
           filters:
             branches:
               only: release
-
-  deploy-terraform-pre-production:
-    jobs:
-      - permit-pre-production-terraform-workflow:
-          type: approval
-          filters:
-            branches:
-              only: release
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - permit-pre-production-terraform-workflow
-      - terraform-init-and-plan-pre-production:
-          requires:
-            - assume-role-pre-production
-      - terraform-compliance-pre-production:
-          requires:
-            - terraform-init-and-plan-pre-production
-      - permit-pre-production-terraform-deployment:
-          type: approval
-          requires:
-            - terraform-compliance-pre-production
-      - terraform-apply-pre-production:
-          requires:
-            - permit-pre-production-terraform-deployment
-
-  deploy-code-pre-production:
-    jobs:
-      - build-and-test:
-          context:
-            - api-nuget-token-context
-            - SonarCloud
-          filters:
-            branches:
-              only: release
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          requires:
-            - build-and-test
-      - deploy-to-pre-production:
-          context:
-            - api-nuget-token-context
-            - "Serverless Framework"
-          requires:
-            - assume-role-pre-production
-
-  teardown-pre-production:
-    jobs:
-      - assume-role-pre-production:
-          context: api-assume-role-housing-pre-production-context
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
-      - remove-serverless-pre-production:
-          context: "Serverless Framework"
-          requires:
-            - assume-role-pre-production
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
-      - terraform-plan-destroy-pre-production:
-          requires:
-            - remove-serverless-pre-production
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
-      - approve-terraform-destroy-pre-production:
-          type: approval
-          requires:
-            - terraform-plan-destroy-pre-production
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
-      - terraform-destroy-pre-production:
-          requires:
-            - approve-terraform-destroy-pre-production
-          filters:
-            branches:
-              only: feat/ssi-1369-teardown-pre-production
