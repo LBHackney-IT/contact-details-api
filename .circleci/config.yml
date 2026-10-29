@@ -150,8 +150,13 @@ commands:
           command: |
             cd ./ContactDetailsApi/
             if ! command -v aws >/dev/null 2>&1; then
-              sudo DEBIAN_FRONTEND=noninteractive apt-get update -qq
-              sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq awscli
+              case "$(uname -m)" in
+                aarch64|arm64) cli_arch="aarch64" ;;
+                *) cli_arch="x86_64" ;;
+              esac
+              curl -fsSL "https://awscli.amazonaws.com/awscli-exe-linux-${cli_arch}.zip" -o /tmp/awscliv2.zip
+              unzip -q /tmp/awscliv2.zip -d /tmp
+              sudo /tmp/aws/install
             fi
             stack_name="contact-details-api-<<parameters.stage>>"
             rest_api_id="$(aws cloudformation describe-stacks --stack-name "$stack_name" --region eu-west-2 --query "Stacks[0].Outputs[?OutputKey=='ApiGatewayRestApiWaf'].OutputValue" --output text 2>/dev/null || true)"
