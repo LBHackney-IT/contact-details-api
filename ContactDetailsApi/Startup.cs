@@ -35,13 +35,8 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Amazon.DynamoDBv2;
 using Amazon.XRay.Recorder.Handlers.AwsSdk;
-using ContactDetailsApi.V2.Gateways;
-using ContactDetailsApi.V2.Gateways.Interfaces;
 using ContactDetailsEntity = ContactDetailsApi.V2.Infrastructure.ContactDetailsEntity;
-using Hackney.Shared.Person.Infrastructure;
-using Hackney.Shared.Tenure.Infrastructure;
 
 namespace ContactDetailsApi
 {
@@ -80,8 +75,6 @@ namespace ContactDetailsApi
             services.AddSingleton<IApiVersionDescriptionProvider, DefaultApiVersionDescriptionProvider>();
 
             services.AddDynamoDbHealthCheck<ContactDetailsEntity>();
-            services.AddDynamoDbHealthCheck<PersonDbEntity>();
-            services.AddDynamoDbHealthCheck<TenureInformationDb>();
 
             services.AddSwaggerGen(c =>
             {
@@ -167,8 +160,6 @@ namespace ContactDetailsApi
         {
             services.AddScoped<V1.Gateways.Interfaces.IContactDetailsGateway, V1.Gateways.ContactDetailsDynamoDbGateway>();
             services.AddScoped<V2.Gateways.Interfaces.IContactDetailsGateway, V2.Gateways.ContactDetailsDynamoDbGateway>();
-            services.AddScoped<ITenureDbGateway, TenureDbGateway>();
-            services.AddScoped<IPersonDbGateway, PersonDbGateway>();
         }
 
         private static void RegisterUseCases(IServiceCollection services)
