@@ -26,10 +26,7 @@ namespace ContactDetailsApi.Tests
                 KeyType = ScalarAttributeType.S,
                 RangeKeyName = "id",
                 RangeKeyType = ScalarAttributeType.S
-            },
-            new TableDef { Name = "TenureInformation", KeyName = "id", KeyType = ScalarAttributeType.S },
-            new TableDef { Name = "Persons", KeyName = "id", KeyType = ScalarAttributeType.S }
-
+            }
         };
 
         public HttpClient Client { get; private set; }
