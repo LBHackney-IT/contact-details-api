@@ -295,7 +295,6 @@ workflows:
           requires:
             - terraform-init-and-plan-development
 
-
   check-and-deploy-development:
     jobs:
       - check-code-formatting:
@@ -338,14 +337,14 @@ workflows:
       - deploy-to-development:
           context:
             - api-nuget-token-context
-            - "Serverless Framework" 
+            - "Serverless Framework"
           requires:
             - terraform-apply-development
           filters:
             branches:
               only: master
   check-and-deploy-staging-and-production:
-      jobs:
+    jobs:
       - check-code-formatting:
           context: api-nuget-token-context
           filters:
@@ -353,18 +352,18 @@ workflows:
               only: release
       - build-and-test:
           context:
-              - api-nuget-token-context
-              - SonarCloud
+            - api-nuget-token-context
+            - SonarCloud
           filters:
             branches:
               only: release
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
-              - build-and-test
+            - build-and-test
           filters:
-             branches:
-               only: release
+            branches:
+              only: release
       - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
@@ -386,7 +385,7 @@ workflows:
       - deploy-to-staging:
           context:
             - api-nuget-token-context
-            - "Serverless Framework" 
+            - "Serverless Framework"
           requires:
             - terraform-apply-staging
           filters:
@@ -399,10 +398,10 @@ workflows:
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
-              - permit-production-terraform-release
+            - permit-production-terraform-release
           filters:
-             branches:
-               only: release
+            branches:
+              only: release
       - terraform-init-and-plan-production:
           requires:
             - assume-role-production
@@ -466,7 +465,7 @@ workflows:
   deploy-code-pre-production:
     jobs:
       - build-and-test:
-          context: 
+          context:
             - api-nuget-token-context
             - SonarCloud
           filters:
@@ -478,7 +477,7 @@ workflows:
             - build-and-test
       - deploy-to-pre-production:
           context:
-          - api-nuget-token-context
-          - "Serverless Framework"
+            - api-nuget-token-context
+            - "Serverless Framework"
           requires:
-            - assume-role-pre-production        
+            - assume-role-pre-production
