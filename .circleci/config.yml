@@ -1,13 +1,13 @@
 version: 2.1
 
 orbs:
-  aws_assume_role: lbh-hackit/aws_assume_role@0.1.0
-  sonarcloud: sonarsource/sonarcloud@2.0.0
+  aws_assume_role: lbh-hackit/aws_assume_role@0.1.1
+  sonarcloud: sonarsource/sonarcloud@4.0.0
 
 executors:
   docker-python:
     docker:
-      - image: cimg/python:3.7
+      - image: cimg/python:3.15
   docker-terraform:
     docker:
       - image: "hashicorp/terraform:1.1.9"
@@ -142,16 +142,11 @@ jobs:
       - run:
           name: Run formatter check
           command: ./dotnet-format-local/dotnet-format --check
-  sonarcloud-scan:
+  build-and-test:
     executor: docker-python
     steps:
       - checkout:
           method: full
-      - sonarcloud/scan
-  build-and-test:
-    executor: docker-python
-    steps:
-      - checkout
       - setup_remote_docker
       - run:
           name: build
@@ -159,6 +154,13 @@ jobs:
       - run:
           name: Run tests
           command: docker-compose run contact-details-api-test
+      - run:
+          name: Prepare the code coverage report
+          command: |
+            mkdir coverage
+            docker cp $(docker ps -aqf "name=contact-details-api-test"):/app/coverage ./
+            sed -i "s|/app/|$(pwd)/|g" coverage/*/coverage.opencover.xml
+      - sonarcloud/scan
   assume-role-development:
     executor: docker-python
     steps:
@@ -270,16 +272,10 @@ workflows:
               ignore:
                 - release
                 - master
-      - sonarcloud-scan:
-          context: SonarCloud
-          filters:
-            branches:
-              ignore:
-                - release
-                - master
       - build-and-test:
           context:
             - api-nuget-token-context
+            - SonarCloud
           filters:
             branches:
               ignore:
@@ -299,7 +295,6 @@ workflows:
           requires:
             - terraform-init-and-plan-development
 
-
   check-and-deploy-development:
     jobs:
       - check-code-formatting:
@@ -307,14 +302,10 @@ workflows:
           filters:
             branches:
               only: master
-      - sonarcloud-scan:
-          context: SonarCloud
-          filters:
-            branches:
-              only: master
       - build-and-test:
           context:
             - api-nuget-token-context
+            - SonarCloud
           filters:
             branches:
               only: master
@@ -322,7 +313,6 @@ workflows:
           context: api-assume-role-housing-development-context
           requires:
             - build-and-test
-            - sonarcloud-scan
           filters:
             branches:
               only: master
@@ -347,14 +337,14 @@ workflows:
       - deploy-to-development:
           context:
             - api-nuget-token-context
-            - "Serverless Framework" 
+            - "Serverless Framework"
           requires:
             - terraform-apply-development
           filters:
             branches:
               only: master
   check-and-deploy-staging-and-production:
-      jobs:
+    jobs:
       - check-code-formatting:
           context: api-nuget-token-context
           filters:
@@ -362,18 +352,18 @@ workflows:
               only: release
       - build-and-test:
           context:
-              - api-nuget-token-context
-              - SonarCloud
+            - api-nuget-token-context
+            - SonarCloud
           filters:
             branches:
               only: release
       - assume-role-staging:
           context: api-assume-role-housing-staging-context
           requires:
-              - build-and-test
+            - build-and-test
           filters:
-             branches:
-               only: release
+            branches:
+              only: release
       - terraform-init-and-plan-staging:
           requires:
             - assume-role-staging
@@ -395,7 +385,7 @@ workflows:
       - deploy-to-staging:
           context:
             - api-nuget-token-context
-            - "Serverless Framework" 
+            - "Serverless Framework"
           requires:
             - terraform-apply-staging
           filters:
@@ -408,10 +398,10 @@ workflows:
       - assume-role-production:
           context: api-assume-role-housing-production-context
           requires:
-              - permit-production-terraform-release
+            - permit-production-terraform-release
           filters:
-             branches:
-               only: release
+            branches:
+              only: release
       - terraform-init-and-plan-production:
           requires:
             - assume-role-production
@@ -475,7 +465,7 @@ workflows:
   deploy-code-pre-production:
     jobs:
       - build-and-test:
-          context: 
+          context:
             - api-nuget-token-context
             - SonarCloud
           filters:
@@ -487,7 +477,7 @@ workflows:
             - build-and-test
       - deploy-to-pre-production:
           context:
-          - api-nuget-token-context
-          - "Serverless Framework"
+            - api-nuget-token-context
+            - "Serverless Framework"
           requires:
-            - assume-role-pre-production        
+            - assume-role-pre-production
