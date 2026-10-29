@@ -45,7 +45,6 @@ namespace ContactDetailsApi.Tests
             EnsureEnvVarConfigured("DynamoDb_LocalServiceUrl", "http://localhost:8000");
             EnsureEnvVarConfigured("Sns_LocalMode", "true");
             EnsureEnvVarConfigured("Localstack_SnsServiceUrl", "http://localhost:4566");
-            EnsureEnvVarConfigured("WHITELIST_IP_ADDRESS", "127.0.0.1");
             Client = CreateClient();
         }
 
