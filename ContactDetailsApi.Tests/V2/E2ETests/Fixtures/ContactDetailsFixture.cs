@@ -3,9 +3,6 @@ using AutoFixture;
 using ContactDetailsApi.V1.Domain;
 using ContactDetailsApi.V2.Boundary.Request;
 using ContactDetailsApi.V2.Infrastructure;
-using Hackney.Shared.Person.Infrastructure;
-using Hackney.Shared.Tenure.Domain;
-using Hackney.Shared.Tenure.Infrastructure;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -297,54 +294,6 @@ namespace ContactDetailsApi.Tests.V2.E2ETests.Fixtures
             ContactRequestObject = CreateContactRestObject();
             ContactRequestObject.ContactInformation.ContactType = ContactType.email;
             ContactRequestObject.ContactInformation.Value = "Something wrong";
-        }
-
-        public async void GivenAFetchAllContactDetailsByUprnRequest()
-        {
-            var person = _fixture.Build<PersonDbEntity>()
-                .Without(x => x.VersionNumber)
-                .Create();
-            await _dbContext.SaveAsync(person).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(person).ConfigureAwait(false));
-
-            var contactInformation = _fixture.Build<ContactDetailsEntity>()
-                .With(x => x.TargetId, person.Id)
-                .CreateMany(2)
-                .ToList();
-            foreach (var contact in contactInformation)
-            {
-                await _dbContext.SaveAsync(contact).ConfigureAwait(false);
-                _cleanup.Add(async () => await _dbContext.DeleteAsync(contact).ConfigureAwait(false));
-            }
-            Contacts.AddRange(contactInformation);
-
-            var tenant = _fixture.Build<HouseholdMembers>()
-                                                 .With(x => x.Id, person.Id)
-                                                 .With(x => x.IsResponsible, true)
-                                                 .Create();
-
-            var householdMember = _fixture.Build<HouseholdMembers>()
-                .With(x => x.IsResponsible, false)
-                .Create();
-
-            var householdMembers = new List<HouseholdMembers> { tenant, householdMember };
-
-            var tenure = _fixture.Build<TenureInformationDb>()
-                .Without(x => x.VersionNumber)
-                .Without(x => x.EndOfTenureDate)
-                .With(x => x.HouseholdMembers, householdMembers)
-                .Create();
-
-            await _dbContext.SaveAsync(tenure).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(tenure).ConfigureAwait(false));
-
-            var inactiveTenure = _fixture.Build<TenureInformationDb>()
-                .Without(x => x.VersionNumber)
-                .With(x => x.EndOfTenureDate, DateTime.Today.AddDays(-10))
-                .Create();
-
-            await _dbContext.SaveAsync(inactiveTenure).ConfigureAwait(false);
-            _cleanup.Add(async () => await _dbContext.DeleteAsync(inactiveTenure).ConfigureAwait(false));
         }
     }
 }
